@@ -1,0 +1,10 @@
+.Rhistory
+.RData
+.DS_Store
+._*
+/data/*
+/keys/*
+/evaluation/data_comparison/*
+/visualisation-ArcGIS/*
+/output/ArcGIS/*
+visualisation-ArcGIS/*

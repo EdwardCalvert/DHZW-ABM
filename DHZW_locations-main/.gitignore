@@ -1,0 +1,9 @@
+.Rhistory
+.RData
+.DS_Store
+._*
+/keys/*
+/foursquare_tool/key/*
+/foursquare_tool/data/*
+/data/*
+.ipynb_checkpoints

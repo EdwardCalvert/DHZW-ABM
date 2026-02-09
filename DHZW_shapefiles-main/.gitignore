@@ -1,0 +1,7 @@
+.Rhistory
+.RData
+.DS_Store
+._*
+data/raw/*
+data/processed/*
+data/codes/PC4_CBS_2019_urbanization_index.csv
