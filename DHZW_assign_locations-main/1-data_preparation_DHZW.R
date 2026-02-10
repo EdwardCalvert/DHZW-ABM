@@ -7,23 +7,31 @@ library("this.path")
 setwd(this.path::this.dir())
 source('src/utils_data_preparation.R')
 
+### Script to load OViN and ODiN data,
+
+#Creates a CSV with the following attributes
+#"agent_ID","age","hh_PC4","day_of_week","car_license","car_hh_ownership",
+#"disp_ID","disp_start_PC4","disp_arrival_PC4","disp_activity","disp_start_inside",
+#"disp_arrival_inside","disp_modal_choice","distance"
+
+
 ################################################################################
 # This script put together the various years of ODiN into a big collection
 
 # Load ODiNs and OViNs
 setwd(this.path::this.dir())
-setwd('../DHZW_assign-activities/data/OViN and OViN')
+setwd('../../dhzw_data/odin-ovin')
 
-OViN2010 <- read_sav("OViN2010.sav")
-OViN2011 <- read_sav("OViN2011.sav")
-OViN2012 <- read_sav("OViN2012.sav")
-OViN2013 <- read_sav("OViN2013.sav")
-OViN2014 <- read_sav("OViN2014.sav")
-OViN2015 <- read_sav("OViN2015.sav")
-OViN2016 <- read_sav("OViN2016.sav")
-OViN2017 <- read_sav("OViN2017.sav")
-ODiN2018 <- read_sav("ODiN2018.sav")
-ODiN2019 <- read_sav("ODiN2019.sav")
+OViN2010 <- read_sav("2010_OViN.sav")
+OViN2011 <- read_sav("2011_OViN.sav")
+OViN2012 <- read_sav("2012_OViN.sav")
+OViN2013 <- read_sav("2013_OViN.sav")
+OViN2014 <- read_sav("2014_OViN.sav")
+OViN2015 <- read_sav("2015_OViN.sav")
+OViN2016 <- read_sav("2016_OViN.sav")
+OViN2017 <- read_sav("2017_OViN.sav")
+ODiN2018 <- read_sav("2018_ODiN.sav")
+ODiN2019 <- read_sav("2019_ODiN.sav")
 
 OViN2010 <- filter_attributes_OViN(OViN2010)
 OViN2011 <- filter_attributes_OViN(OViN2011)
@@ -69,7 +77,7 @@ df <- rbind(df_OViN,
 df <- df[!is.na(df$disp_counter),]
 
 setwd(this.path::this.dir())
-setwd('data/codes')
+setwd('../DHZW_shapefiles-main/data/codes')
 DHZW_PC4_codes <-
   read.csv("DHZW_PC4_codes.csv", sep = ";" , header = F)$V1
 df <- df[df$hh_PC4 %in% DHZW_PC4_codes,]
@@ -244,5 +252,5 @@ df_total <- df_total %>%
 
 # Save dataset
 setwd(this.path::this.dir())
-setwd("data/processed")
+setwd("../../dhzw_data/processed")
 write.csv(df_total, 'displacements_DHZW.csv', row.names = FALSE)
