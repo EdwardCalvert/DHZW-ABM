@@ -4,7 +4,7 @@ library(tidyr)
 library(this.path)
 
 
-#Assignment clearly isn't the first step...
+#Assignment. Clearly isn't the first step...
 ################################################################################
 # Load datasets
 
