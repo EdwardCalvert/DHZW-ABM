@@ -57,13 +57,69 @@ OViN2010 <- OViN2010[OViN2010$WoGem ==518,] # 's-Gravenhage (methologically inco
 
 ############## 2023
 
+# Define common limits
+# For Frequency (Counts)
+x_min <- min(c(ODiN2023$BrandstofPa1, OViN2010$Brandstof), na.rm = TRUE)
+x_max <- max(c(ODiN2023$BrandstofPa1, OViN2010$Brandstof), na.rm = TRUE)
+
+# Calculate histograms without plotting to find max frequency
+h1 <- hist(ODiN2023$BrandstofPa1[ODiN2023$OP == 1], plot = FALSE)
+h2 <- hist(OViN2010$Brandstof[OViN2010$OP == 1], plot = FALSE)
+y_max <- max(c(h1$counts, h2$counts))
+
+# Plotting
+par(mfrow = c(2, 1)) # Adjusted to 2,1 as per your two variables
+hist(ODiN2023$BrandstofPa1[ODiN2023$OP == 1], xlim = c(x_min, x_max), ylim = c(0, y_max))
+hist(OViN2010$Brandstof[OViN2010$OP == 1], xlim = c(x_min, x_max), ylim = c(0, y_max), scale_x_discrete = )
+par(mfrow = c(1, 1))
 
 
-hist(ODiN2023$BrandstofPa1[ODiN2023$OP == 1])
-hist(ODiN2023$BrandstofPa2[ODiN2023$OP == 1])
 
-plot(ODiN2023$BrandstofPa1,ODiN2023$Hvm)
+# Define the mapping
+fuel_labels_2010 <- c(
+  "Petrol", "Diesel", "LPG", "Other", "Unknown", 
+  "Younger < 18", "No Licence", "Licence Unknown", 
+  "Not Main User", "Main Use Unknown"
+)
 
+fuel_labels_2023 <- c( "Petrol", "Diesel","LPG", "Electric","Other", "Unknown", "Not applicable; No passenger car registered to the household")
+
+# Convert to factor
+ODiN2023$BrandstofPa1_f <- factor(
+  ODiN2023$BrandstofPa1,
+  levels = 1:7,
+  labels = fuel_labels_2023
+)
+
+OViN2010$Brandstof_f <- factor(
+  OViN2010$Brandstof,
+  levels = 1:10,
+  labels = fuel_labels_2010
+)
+
+par(mfrow = c(2, 1))
+# Plotting becomes simplified
+counts <- table(OViN2010$Brandstof_f[OViN2010$OP == 1])
+
+par(mar = c(10, 4, 4, 2)) # Adjust margin for labels
+b <- barplot(counts, 
+             ylim = c(0, max(y_max) * 1.2), 
+             las = 2, 
+             main = "Fuel Type Distribution 2010")
+text(x = b, y = counts, labels = counts, pos = 3)
+
+counts <- table(ODiN2023$BrandstofPa1_f[ODiN2023$OP == 1])
+
+par(mar = c(10, 4, 4, 2)) # Adjust margin for labels
+b <- barplot(counts, 
+             ylim = c(0, max(y_max) * 1.3), 
+             las = 2, 
+             main = "Fuel Type Distribution 2023")
+text(x = b, y = counts, labels = counts, pos = 3)
+par(mfrow = c(1, 1))
+
+
+dev.off()  # But only if there IS a plot
 
 
 # Pre-calculate counts for the heatmap
@@ -85,7 +141,7 @@ ODiN_proportions <- ODiN2023 %>%
 
 
 
-p1 <- ggplot(ODiN_proportions, aes(x = as.factor(BrandstofPa1), y = as.factor(Hvm), fill = n)) +
+ggplot(ODiN_proportions, aes(x = as.factor(BrandstofPa1), y = as.factor(Hvm), fill = n)) +
   geom_tile() +
   geom_text(aes(label = n), color = "white", size = 3) +
   scale_fill_viridis_c() +
@@ -100,8 +156,34 @@ p1 <- ggplot(ODiN_proportions, aes(x = as.factor(BrandstofPa1), y = as.factor(Hv
   ) +
   theme_minimal() +
   theme(axis.text.x = element_text(angle = 45, hjust = 1)) # Rotates labels if they overlap
-  + geom_point()
+  # + geom_point()
 
+
+#### Conditional probability
+
+ODiN_proportions <- ODiN2023 %>%
+  group_by(BrandstofPa1, Hvm) %>%
+  tally() %>%
+  group_by(BrandstofPa1) %>%
+  mutate(percent = (n / sum(n)) * 100)
+
+
+
+ggplot(ODiN_proportions, aes(x = as.factor(BrandstofPa1), y = as.factor(Hvm), fill = percent)) +
+  geom_tile() +
+  geom_vline(xintercept = seq(1.5, 4.5, by = 1), color = "black", size = 1.2)+
+  geom_text(aes(label = round(percent, 1)), color = "white", size = 3) +
+  scale_x_discrete(labels = c("1" = "Petrol","2" = "Diesel","3" = "LPG","4" = "Electric","5" = "Other","6" = "Unknown","7" = "Not applicable; No passenger car registered to the household")) +
+  scale_y_discrete(labels = c("1" = "Passenger car","2" = "Train","3" = "Bus","4" = "Tram","5" = "Metro","6" = "Speed pedelec","7" = "Electric bicycle","8" = "Non-electric bicycle","9" = "On foot","10" = "Coach","11" = "Van","12" = "Lorry","13" = "Camper van","14" = "Taxi/taxi van","15" = "Agricultural vehicle","16" = "Motorcycle","17" = "Moped","18" = "Light moped","19" = "Motorised disabled transport","20" = "Non-motorised disabled transport","21" = "Skates/rollerblades/scooter","22" = "Boat","23" = "Other motorised","24" = "Other non-motorised")) +
+  scale_fill_viridis_c() +
+  labs(
+    title = "Conditional Heatmap of Primary fuel type of the youngest passenger car registered to the household  vs. Main transport used for a trip (ODiN 2023)",
+    x = "Fuel Type (Car 1)",
+    y = "Main Transport Mode",
+    fill = "Observation Count"
+  ) +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))  
 
 
 hist(ODiN2022$BrandstofPa1)
@@ -127,33 +209,7 @@ hist(OViN2010$Brandstof[OViN2010$OP == 1])
 ODiN_proportions <- OViN2010 %>%
   group_by(Brandstof, Hvm) %>%
   tally() %>%
-  ungroup() %>%
-  mutate(percent = (n / sum(n)) * 100)
-
-
-
-ggplot(ODiN_proportions, aes(x = as.factor(Brandstof), y = as.factor(Hvm), fill = percent)) +
-  geom_tile() +
-  geom_text(aes(label = round(percent, 1)), color = "white", size = 3) +
-  scale_x_discrete(labels =c("1" = "Petrol    ","2" = "Diesel    ","3" = "LPG    ","4" = "Other    ","5" = "Unknown    ","6" = "Not asked; OP younger than 18    ","7" = "Not asked; OP does not have a driving licence    ","8" = "Not asked; OP\'s driving licence status unknown    ","9" = "Not asked; OP not the main user of the car    ","10" = "Not asked; OP\'s main use of the car unknown")) + 
-  scale_y_discrete(labels =c("1" = "Train","2" = "Coach/bus (private bus transport only)","3" = "Metro","4" = "Tram","5" = "Bus (public transport only)","6" = "Car driver","7" = "Delivery van","8" = "Lorry","9" = "Camper van","10" = "Passenger car","11" = "Taxi","12" = "Motorcycle","13" = "Moped","14" = "Scooter","15" = "Bicycle (electric or non-electric)","16" = "Bicycle as a passenger","17" = "Agricultural vehicle","18" = "Boat (regular service, ferry service)","19" = "Airplane","20" = "Skates/rollerblades/scooter","21" = "Disabled transport","22" = "On foot","23" = "Pram","24" = "Other"))+
-  scale_fill_viridis_c() +
-  labs(
-    title = "Heatmap of Primary fuel type of the youngest passenger car registered to the household  vs. Main transport used for a trip (ODiN 2010)",
-    x = "Fuel Type (Car 1)",
-    y = "Main Transport Mode",
-    fill = "Observation Count"
-  ) +
-  theme_minimal() +
-  theme(axis.text.x = element_text(angle = 45, hjust = 1))  
-
-
-#### Conditional probability
-
-ODiN_proportions <- OViN2010 %>%
-  group_by(Brandstof, Hvm) %>%
-  tally() %>%
-  group_by(Brandstof) %>% # Re-group by the denominator variable
+  group_by(Brandstof) %>%
   mutate(percent = (n / sum(n)) * 100)
 
 
@@ -173,6 +229,33 @@ ggplot(ODiN_proportions, aes(x = as.factor(Brandstof), y = as.factor(Hvm), fill 
   ) +
   theme_minimal() +
   theme(axis.text.x = element_text(angle = 45, hjust = 1))  
+
+
+ODiN_proportions <- OViN2010 %>%
+  group_by(Brandstof, Hvm) %>%
+  tally() %>%
+  ungroup() %>%
+  mutate(percent = (n / sum(n)) * 100)
+
+
+
+
+ggplot(ODiN_proportions, aes(x = as.factor(Brandstof), y = as.factor(Hvm), fill = n)) +
+  geom_tile() +
+  geom_text(aes(label = n), color = "white", size = 3) +
+  scale_fill_viridis_c() +
+  # Customizing the labels
+  scale_x_discrete(labels =c("1" = "Petrol    ","2" = "Diesel    ","3" = "LPG    ","4" = "Other    ","5" = "Unknown    ","6" = "Not asked; OP younger than 18    ","7" = "Not asked; OP does not have a driving licence    ","8" = "Not asked; OP\'s driving licence status unknown    ","9" = "Not asked; OP not the main user of the car    ","10" = "Not asked; OP\'s main use of the car unknown")) + 
+  scale_y_discrete(labels =c("1" = "Train","2" = "Coach/bus (private bus transport only)","3" = "Metro","4" = "Tram","5" = "Bus (public transport only)","6" = "Car driver","7" = "Delivery van","8" = "Lorry","9" = "Camper van","10" = "Passenger car","11" = "Taxi","12" = "Motorcycle","13" = "Moped","14" = "Scooter","15" = "Bicycle (electric or non-electric)","16" = "Bicycle as a passenger","17" = "Agricultural vehicle","18" = "Boat (regular service, ferry service)","19" = "Airplane","20" = "Skates/rollerblades/scooter","21" = "Disabled transport","22" = "On foot","23" = "Pram","24" = "Other"))+
+  labs(
+    title = "Heatmap of Primary fuel type of the youngest passenger car registered to the household  vs. Main transport used for a trip (OViN 2010)",
+    x = "Fuel Type (Car 1)",
+    y = "Main Transport Mode",
+    fill = "Observation Count"
+  ) +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1)) # Rotates labels if they overlap
+
 
 p1 + p2
 
