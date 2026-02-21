@@ -1,0 +1,10 @@
+mainText = """
+"""
+
+i=1
+
+completeText = ""
+
+for line in mainText.split("\n"):
+	completeText+=f'"{i}" = "{line}",'
+	i+=1

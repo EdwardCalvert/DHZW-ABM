@@ -81,6 +81,89 @@ filter_attributes_ODiN <- function(df) {
   return(df)
 }
 
+filter_attributes_ODiN_2023 <- function(df) {
+  df <- df %>%
+    sjlabelled::remove_all_labels() %>%
+    tibble()    # without this, results will be cast as a list
+  
+  df <- df %>%
+    select(
+      OPID,
+      HHPers,
+      HHSam,
+      WoPC,
+      Geslacht,
+      Leeftijd,
+      HerkLand,
+      HHGestInkG,
+      Weekdag,
+      Doel,
+      VertUur,
+      VertMin,
+      AankUur,
+      AankMin,
+      Jaar,
+      VertLoc,
+      VertPC,
+      AankPC,
+      VerplNr,
+      Hvm
+    ) %>%
+    rename(
+      agent_ID = OPID,
+      hh_size = HHPers,
+      hh_type = HHSam,
+      hh_PC4 = WoPC,
+      gender = Geslacht,
+      age = Leeftijd,
+      migration_background = HerkLand,
+      hh_income_group = HHGestInkG,
+      day_of_week = Weekdag,
+      disp_activity = Doel,
+      disp_start_hour = VertUur,
+      disp_start_min = VertMin,
+      disp_arrival_hour = AankUur,
+      disp_arrival_min = AankMin,
+      year = Jaar,
+      disp_start_home = VertLoc,
+      disp_start_PC4 = VertPC,
+      disp_arrival_PC4 = AankPC,
+      disp_counter = VerplNr,
+      disp_modal_choice = Hvm
+    ) %>%
+    distinct()
+  
+  df$disp_modal_choice <- recode(
+    df$disp_modal_choice,
+    '1' = 'car',
+    '2' = 'train',
+    '3' = 'bus_tram',
+    '4' = 'bus_tram',
+    '5' = 'other',
+    '6' = 'other',
+    '7' = 'other',
+    '8' = 'bike',
+    '9' = 'walk',
+    '10' =	'bus_tram',
+    '11' =	'other',
+    '12' =	'other',
+    '13' =	'other',
+    '14' =	'other',
+    '15' =	'other',
+    '16' =	'other',
+    '17' =	'other',
+    '18' =	'other',
+    '19' =	'other',
+    '20' =	'other',
+    '21' =	'other',
+    '22' =	'other',
+    '24' =	'other',
+    '24' =	'other'
+  )
+  
+  return(df)
+}
+
 filter_attributes_OViN <- function(df) {
   df <- df %>%
     sjlabelled::remove_all_labels() %>%
@@ -259,4 +342,35 @@ filter_start_day_from_home <- function (df) {
   # Remove useless column
   df <- subset(df, select=-c(disp_start_home))
   return(df)
+}
+
+
+plot_modal_distribution <- function(data,subtitle="") {
+  # Calculate absolute frequencies
+  counts_with_na <- table(data$disp_modal_choice, useNA = "ifany")
+  
+  # Calculate percentages (relative to total N)
+  percentages <- round(100 * prop.table(counts_with_na), 1)
+  labels <- paste0(percentages, "%")
+  
+  # Determine y-axis upper bound (1.2 * max frequency)
+  y_max <- max(counts_with_na) * 1.2
+  
+  main_title = if(nchar(subtitle>0)){
+    paste("Distribution of Modal Choice",subtitle,", includes NAs")
+  }else{
+    "Distribution of Modal Choice (Including NAs)"
+  }
+  # Generate bar plot and store bar midpoints in 'bp'
+  bp <- barplot(counts_with_na, 
+                main = main_title,
+                xlab = "Mode",
+                ylab = "Frequency",
+                col = "steelblue",
+                las = 2,
+                ylim = c(0, y_max)) # Extend axis
+  
+  # Overlay percentage labels
+  # pos = 3 places text above the specified coordinates
+  text(x = bp, y = counts_with_na, label = labels, pos = 3, cex = 0.8, col = "black")
 }

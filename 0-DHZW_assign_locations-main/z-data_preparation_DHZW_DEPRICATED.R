@@ -1,5 +1,7 @@
 library('haven')
 library("dplyr")
+library(ggplot2)
+library(dplyr)
 library(tibble)
 library(tidyr)
 library(readr)
@@ -77,7 +79,7 @@ df <- rbind(df_OViN,
 df <- df[!is.na(df$disp_counter),]
 
 setwd(this.path::this.dir())
-setwd('../DHZW_shapefiles-main/data/codes')
+setwd('../0-DHZW_shapefiles-main/data/codes')
 DHZW_PC4_codes <-
   read.csv("DHZW_PC4_codes.csv", sep = ";" , header = F)$V1
 df <- df[df$hh_PC4 %in% DHZW_PC4_codes,]
@@ -244,11 +246,29 @@ df_total <- rbind(df_filter, df_previous_different)
 df_total <- df_total[order(df_total$disp_ID),]
 
 df_total <- df_total %>%
-  select(agent_ID, age, hh_PC4, day_of_week, car_license, car_hh_ownership, disp_ID, disp_start_PC4, disp_arrival_PC4, disp_activity, disp_start_inside, disp_arrival_inside, disp_modal_choice, distance) %>%
+  select(agent_ID, age, hh_PC4, day_of_week, car_license, car_hh_ownership, disp_ID, disp_start_PC4, disp_arrival_PC4, disp_activity, disp_start_inside, disp_arrival_inside, disp_modal_choice, distance, year) %>%
   distinct()
 
 df_total <- df_total %>%
   drop_na()
+
+df_total$disp_modal_choice
+df_total$year
+
+
+
+
+# Aggregate data to count occurrences per year per category
+df_summary <- df_total %>%
+  group_by(year, disp_modal_choice) %>%
+  summarise(count = n(), .groups = 'drop')
+
+# Create the line plot
+ggplot(df_summary, aes(x = year, y = count, color = disp_modal_choice)) +
+  geom_line(linewidth = 1) +
+  geom_point() +
+  labs(x = "Year", y = "Count", color = "Modal Choice") +
+  theme_minimal()
 
 # Save dataset
 setwd(this.path::this.dir())

@@ -1,0 +1,247 @@
+Nieuwe persoon
+Uniek id voor iedere OP
+Steekproefindicator
+Responsmode
+Aantal personen in huishouden
+Huishoudsamenstelling
+Plaats OP in huishouden tov huishoudkern
+Aantal huishoudleden jonger dan 6 jaar
+Aantal huishoudleden van 6 t/m 11 jaar
+Aantal huishoudleden van 12 t/m 17 jaar
+Aantal huishoudleden van 18 jaar of ouder
+Postcode woonadres
+Woongemeente
+Stedelijkheidsklasse woongemeente
+Inwoneraantalklasse woongemeente
+Provincie woongemeente
+Coropgebied woongemeente
+Wijk Amsterdam
+Metropoolregio Amsterdam
+Metropoolregio Rotterdam Den Haag
+Provincie Utrecht
+Geslacht OP
+Leeftijd OP
+Leeftijdsklasse OP
+Herkomstland OP
+Betaald werk OP
+Onbetaalde bezigheid OP
+Maatschappelijke participatie OP
+Hoogst voltooide opleiding OP
+Besteedbaar inkomen van het huishouden (10% groepen)
+Gestandaardiseerd besteedbaar inkomen van het huishouden (10% groepen)
+Afwijking lage-inkomensgrens
+Afwijking sociaal minimum
+Welvaart van het huishouden (10% groepen)
+Aantal autorijbewijzen in huishouden
+Aantal motorfietsrijbewijzen in huishouden
+Aantal bromfietsrijbewijzen in huishouden
+OP bezit rijbewijs auto
+OP bezit rijbewijs motorfiets
+OP bezit rijbewijs bromfiets
+Aantal personenauto's in huishouden
+Aantal personenauto’s geleased of op naam van een bedrijf in huishouden
+Aantal personenauto’s op naam OP
+Eerste brandstof jongste personenauto op naam huishouden
+Tweede brandstof jongste personenauto op naam huishouden
+Type elektrische auto jongste personenauto op naam huishouden
+Bouwjaar jongste personenauto op naam huishouden
+Bouwjaarklasse jongste personenauto op naam huishouden
+Gewichtsklasse jongste personenauto op naam huishouden
+Tenaamstelling jongste personenauto op naam huishouden
+Eerste brandstof een na jongste personenauto op naam huishouden
+Tweede brandstof een na jongste personenauto op naam huishouden
+Type elektrische auto een na jongste personenauto op naam huishouden
+Bouwjaar een na jongste personenauto op naam huishouden
+Bouwjaarklasse een na jongste personenauto op naam huishouden
+Gewichtsklasse een na jongste personenauto op naam huishouden
+Tenaamstelling een na jongste personenauto op naam huishouden
+Eerste brandstof leaseauto of personenauto op naam bedrijf in huishouden
+Tweede brandstof leaseauto of personenauto op naam bedrijf in huishouden
+Type elektrische auto leaseauto of personenauto op naam bedrijf in huishouden
+Bouwjaar leaseauto of personenauto op naam bedrijf in huishouden
+Bouwjaarklasse leaseauto of personenauto op naam bedrijf in huishouden
+Gewichtsklasse leaseauto of personenauto op naam bedrijf in huishouden
+Aantal motoren in huishouden
+Aantal motoren op naam OP
+Aantal bromfietsen in huishouden
+Aantal bromfietsen op naam OP
+Aantal snorfietsen op naam huishouden
+Aantal snorfietsen op naam OP
+Elektrische fiets in huishouden
+Vervoermiddelenbezit huishouden
+Vervoermiddelenbezit OP
+Frequentie wandelen/lopen buitenshuis
+Frequentie gebruik niet-elektrische fiets
+Frequentie gebruik elektrische fiets
+Frequentie gebruik bus, tram en/of metro
+Frequentie gebruik trein
+Frequentie gebruik auto als bestuurder
+Frequentie gebruik auto als passagier
+Frequentie gebruik brom- en/of snorfiets
+Frequentie gebruik motor
+OP bezit Studenten OV-chipkaart
+Vervoerwijze met meeste kilometers naar werk
+Ontvangt vergoeding van werkgever voor reis naar werk
+Reiskostenvergoeding is vast bedrag per periode
+Vergoeding per daadwerkelijke gereden kilometer
+Vergoeding van brandstofkosten
+Vergoeding van OV-abonnement of OV-reizen
+Vergoeding van aanschafkosten vervoermiddel
+Leasevoertuig of bedrijfsvoertuig werkgever
+Vergoeding is mobiliteitsbudget
+Parkeerkosten
+Stallingskosten
+Andere vergoeding
+Werklocatie, hoe vaak wel te bereiken als u er naartoe wilt?
+Reden A werklocatie niet altijd kunnen bereiken
+Reden B werklocatie niet altijd kunnen bereiken
+Onderwijslocatie, hoe vaak wel te bereiken als u er naartoe wilt?
+Reden A onderwijslocatie niet altijd kunnen bereiken
+Reden B onderwijslocatie niet altijd kunnen bereiken
+Supermarkt, hoe vaak wel te bereiken als u er naartoe wilt?
+Reden A supermarkt niet altijd kunnen bereiken
+Reden B supermarkt niet altijd kunnen bereiken
+Ziekenhuis, hoe vaak wel te bereiken als u er naartoe wilt?
+Reden A ziekenhuis niet altijd kunnen bereiken
+Reden B ziekenhuis niet altijd kunnen bereiken
+Huisarts, hoe vaak wel te bereiken als u er naartoe wilt?
+Reden A huisarts niet altijd kunnen bereiken
+Reden B huisarts niet altijd kunnen bereiken
+Treinstation, hoe vaak wel te bereiken als u er naartoe wilt?
+Reden A treinstation niet altijd kunnen bereiken
+Reden B treinstation niet altijd kunnen bereiken
+Halte bus, tram of metro, hoe vaak wel te bereiken als u er naartoe wilt?
+Reden A halte bus, tram of metro niet altijd kunnen bereiken
+Reden B halte bus, tram of metro niet altijd kunnen bereiken
+Familie en vrienden, hoe vaak wel te bereiken als u er naartoe wilt?
+Reden A familie en vrienden niet altijd kunnen bereiken
+Reden B familie en vrienden niet altijd kunnen bereiken
+Sportlocatie of hobbyvereniging, hoe vaak wel te bereiken als u er naartoe wilt?
+Reden A sportlocatie of hobbyvereniging niet altijd kunnen bereiken
+Reden B sportlocatie of hobbyvereniging niet altijd kunnen bereiken
+Rapportagejaar
+Rapportagemaand
+Rapportageweek
+Rapportagedag
+Rapportage weekdag
+Rapportagedag is feestdag
+OP is weggeweest in Nederland
+Reden niet weggeweest
+Niet weggeweest: duur ziekte
+Niet weggeweest: type weer
+Niet weggeweest: reden verblijf buitenland
+Aantal reguliere verplaatsingen OP in Nederland
+Aantal reguliere OV-verplaatsingen OP in Nederland
+Aantal serieverplaatsingen zonder beroepsmatig met vrachtwagen OP in Nederland
+Gebruikte type elektrische fiets
+Auto op eigen naam gebruikt
+Auto op naam huishoudlid gebruikt
+Leasauto van werkgever gebruikt
+Leasauto via private lease gebruikt
+Auto op naam van een bedrijf gebruikt
+Deelauto van een organisatie gebruikt
+Deelauto van particulier via online platform gebruikt
+Deelauto met vrienden/bekenden gebruikt
+Leenauto of geleende auto gebruikt
+Huurauto gebruikt
+Andere soort auto gebruikt
+Bijzonderheden op rapportagedag
+Bijzonderheid: andere adressen
+Bijzonderheid: andere vervoermiddelen
+Bijzonderheid: andere tijdstippen
+Bijzonderheid: andere reisduur
+Bijzonderheid: andere route
+Reden ander reispatroon
+Totale reisduur reguliere verplaatsingen OP in Nederland (in minuten)
+Totaal afgelegde afstand reguliere verplaatsingen OP in Nederland (in hectometers)
+Totaal afgelegde afstand serieverplaatsingen OP in Nederland (in hectometers)
+Nieuwe verplaatsing
+Uniek id voor iedere verplaatsing
+Verplaatsingsnummer
+Vertrekpunt verplaatsing is aankomstpunt
+Aantal ritten verplaatsing
+Bestemming/Doel
+Motief
+Klassenindeling motief
+Meerdere winkels bezocht
+Aard werkzaamheden
+Vertreklocatie verplaatsing
+Vertrekgebied
+Postcode vertrekpunt
+Postcode vertrekpunt in het buitenland
+Vertrekgemeente
+Vertrekprovincie
+Coropgebied vertrekpunt
+Metropoolregio Amsterdam vertrekpunt
+Metropoolregio Rotterdam Den Haag vertrekpunt
+Provincie Utrecht vertrekpunt
+Aankomstgebied
+Postcode aankomstpunt
+Postcode aankomstpunt in het buitenland
+Aankomstgemeente
+Aankomstprovincie
+Coropgebied aankomstpunt
+Metropoolregio Amsterdam aankomstpunt
+Metropoolregio Rotterdam Den Haag aankomstpunt
+Provincie Utrecht aankomstpunt
+Nederlandse postcode grensovergang
+Nederlandse gemeente grensovergang
+Buitenlandse postcode grensovergang
+Verplaatsingsafstand in Nederland (in hectometers)
+Verplaatsingsafstandsklasse in Nederland
+Hoofdvervoermiddel verplaatsing
+Rol in het hoofdvervoermiddel
+Hoofdvervoermiddelklasse verplaatsing
+Vertrekuur verplaatsing
+Vertrekminuut verplaatsing
+Vertrektijdklasse
+Aankomstuur verplaatsing
+Aankomstminuut verplaatsing
+Reisduur in Nederland (in minuten)
+Reisduurklasse in Nederland
+Activiteitsduur (in minuten)
+Kind(eren) jonger dan 6 mee
+Opeenvolging werkverplaatsingen
+Aantal bezochte adressen serieverplaatsing
+Alle adressen in dezelfde plaats
+Plaatsnaam 1
+Plaatsnaam 2
+Plaatsnaam 3
+Plaatsnaam 4
+Plaatsnaam 5
+Afstand serieverplaatsing in Nederland (in hectometers)
+Afstand serieverplaatsing in het buitenland (in hectometers)
+Eerste vervoermiddel serieverplaatsing
+Tweede vervoermiddel serieverplaatsing
+Derde vervoermiddel serieverplaatsing
+Vierde vervoermiddel serieverplaatsing
+Beginuur serie
+Beginminuut serie
+Einduur serie
+Eindminuut serie
+Correctie verplaatsingen naar ritten
+Geheel buitenlandse verplaatsing verwijderd
+Nieuwe rit
+Uniek id voor iedere rit
+Ritnummer
+Ritafstand in Nederland (in hectometers)
+Ritafstand in het buitenland (in hectometers)
+Ritafstandsklasse in Nederland
+Ritvervoermiddel
+Rol in het ritvervoermiddel
+Aantal inzittenden auto
+Ritvervoermiddelklasse
+Ritvertrekuur
+Ritvertrekminuut
+Ritaankomstuur
+Ritaankomstminuut
+Ritreisduur in Nederland (in minuten)
+Ritreisduur in het buitenland (in minuten)
+Vertrekstation treinrit
+Aankomststation treinrit
+Groepsgrootte reisgezelschap trein
+Correctie vanwege snelheid
+Vliegtuigrit verwijderd
+Weegfactor huishouden
+Weegfactor persoon
+Weegfactor verplaatsing

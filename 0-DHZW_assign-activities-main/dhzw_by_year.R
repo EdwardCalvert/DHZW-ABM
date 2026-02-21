@@ -3,9 +3,13 @@ library("dplyr")
 library(tibble)
 library(tidyr)
 library(readr)
+library(ggplot2)
 library("this.path")
 setwd(this.path::this.dir())
 source('src/utils.R')
+
+# setwd(this.path::this.dir())
+# source('../0-DHZW_assign_locations-main/src/utils_data_preparation.R')
 
 ################################################################################
 # This script put together the various years of ODiN and OVin into a big collection
@@ -45,28 +49,19 @@ df_ODiN <- rbind(ODiN2018,
                  ODiN2019,
                  ODiN2023)
 
-# Filter individuals that live in a PC4 with the same DHZW urbanization index.
+# Filter individuals that in DHZW 
 
-# Find PC4 in The Netherlands with the same urbanization index of DHZW. STED is the index and 1 is the highest
-# Extracted from: https://www.cbs.nl/nl-nl/dossier/nederland-regionaal/geografische-data/gegevens-per-postcode
-
-setwd(this.dir())
-setwd("../../dhzw_data")
-df_urbanization_PC4 <-
-  read.csv("pc4_2021_vol.csv", sep = "," , header = T)
-
-# Read list of all PC4 in the Netherlands and their urbanization indexes.
+# Read list of all PC4 in the Netherlands
 setwd(this.dir())
 setwd("../0-DHZW_shapefiles-main/data/codes")
 DHZW_PC4_codes <-
   read.csv("DHZW_PC4_codes.csv", sep = ";" , header = F)$V1
 
-# Find all the PC4s in The Netherlands that have such STED index equals to 1 "Very highly urban" (environmental address density of 2500 or more addresses/km2)
-PC4_urbanized_like_DHZW = df_urbanization_PC4[df_urbanization_PC4$STED ==
-                                                1,]$PC4
 
-# In ODiN, filter only individuals that live in such highly urbanized PC4s
-df_ODiN <- df_ODiN[df_ODiN$hh_PC4 %in% PC4_urbanized_like_DHZW,]
+# In ODiN, filter only individuals that live in DHZW
+df_ODiN <- df_ODiN[df_ODiN$hh_PC4 %in% DHZW_PC4_codes,]
+
+
 
 ################################################################################
 # OViN
@@ -83,24 +78,27 @@ df_OViN <- rbind(OViN2010,
 # Since the residential PC4 is not given, for the individuals that at have least one displacement I retrieve it from the first displacement.
 df_OViN <- extract_residential_PC4_from_first_displacement(df_OViN)
 
-# Individuals that stay at home all day. Filter based on the given municipality urbanization index
-df_OViN_stay_home <- df_OViN[is.na(df_OViN$disp_counter) & df_OViN$municipality_urbanization==1,]
+
+# Individuals that stay at home all day.
+df_OViN_stay_home <- df_OViN[is.na(df_OViN$disp_counter) & df_OViN$hh_PC4 %in% DHZW_PC4_codes, ]
+#plot_modal_distribution(df_OViN_stay_home)
 
 
 # Individuals with at least a displacement. Filter on the extracted residential PC4 and its urbanization index (like with ODiN).
 df_OViN_with_disp <- df_OViN[!is.na(df_OViN$disp_counter),]
-df_OViN_with_disp <- df_OViN[df_OViN$hh_PC4 %in% PC4_urbanized_like_DHZW,]
+df_OViN_with_disp <- df_OViN[df_OViN$hh_PC4 %in% DHZW_PC4_codes,]
 
-plot_modal_distribution(df_OViN_with_disp)
 
 df_OViN <- rbind(df_OViN_with_disp, df_OViN_stay_home)
-df_OViN <- subset(df_OViN, select=-c(municipality_urbanization))
+#df_OViN <- subset(df_OViN, select=-c(municipality_urbanization))
+
+plot_modal_distribution(df_OViN)
+
 
 ################################################################################
 
 df <- rbind(df_OViN,
             df_ODiN)
-
 
 # For individuals with at least a displacement, filter only the ones that start the  day from one. This is because in the simulation the delibration cycle is at midnight everyday, so the agetns must then start from home everyday.
 df <- filter_start_day_from_home(df)
@@ -121,7 +119,6 @@ df <-
   subset(
     df,
     select = -c(
-      year,
       disp_start_hour,
       disp_start_min,
       disp_arrival_hour,
@@ -136,24 +133,79 @@ df <-
 IDs_to_delete = df[df$migration_background == 'unknown', ]$agent_ID
 df <- df[!(df$agent_ID %in% IDs_to_delete),]
 
-unique(df$gender)
-unique(df$age)
-unique(df$migration_background)
-unique(df$day_of_week)
+
 
 # Delete agents that have missing trip information. NA can be only for people that stay at home all day
 IDs_to_delete = df[(is.na(df$disp_activity) | is.na(df$disp_start_time) | is.na(df$disp_arrival_time)) & df$disp_counter > 0,]$agent_ID
 df <- df[!(df$agent_ID %in% IDs_to_delete),]
 
-# just check some figures
-nrow(df[is.na(df$disp_activity),])
-nrow(df[is.na(df$disp_start_time),])
-nrow(df[is.na(df$disp_arrival_time),])
-nrow(df[is.na(df$disp_start_PC4),])
-nrow(df[is.na(df$disp_arrival_PC4),])
 
-plot_modal_distribution(df,subtitle = "(urbanised like DHZW, 2010-2019,2023)")
 
-# Save dataset
-setwd(paste0(this.path::this.dir(), "/data/processed"))
-write.csv(df, 'df_trips-higly_urbanized.csv', row.names = FALSE)
+
+# Aggregate data to count occurrences per year per category
+df_summary <- df %>%
+  group_by(disp_modal_choice,year) %>%
+  tally() %>%
+  group_by(disp_modal_choice) #%>%
+
+# Create the line plot
+ggplot(df_summary, aes(x = year, y = n, color = disp_modal_choice)) +
+  geom_line(linewidth = 1) +
+  geom_point() +
+  scale_x_continuous(breaks = min(df_summary$year):max(df_summary$year)) +
+  labs(x = "Year", y = "Count", color = "Modal Choice",  title = " Frequency of Modal Choice Over Time DHZW only") +
+  theme_minimal()
+
+
+# Calculate relative proportions per year
+df_summary <- df %>%
+  group_by(year, disp_modal_choice) %>%
+  tally() %>%
+  group_by(year) %>% 
+  mutate(percentage = (n / sum(n)) * 100) %>%
+  ungroup()
+
+# Generate the relative line plot
+ggplot(df_summary, aes(x = year, y = percentage, color = disp_modal_choice)) +
+  geom_line(linewidth = 1) +
+  geom_point() +
+  scale_x_continuous(breaks = min(df_summary$year):max(df_summary$year)) +
+  labs(
+    title = "Relative Distribution of Modal Choice Over Time",
+    x = "Year", 
+    y = "Percentage (%)", 
+    color = "Modal Choice"
+  ) +
+  theme_minimal()
+
+
+# Prepare relative data
+df_summary <- df %>%
+  group_by(year, disp_modal_choice) %>%
+  tally() %>%
+  group_by(year) %>% 
+  mutate(percentage = (n / sum(n)) * 100) %>%
+  ungroup()
+
+# Generate stacked area plot
+ggplot(df_summary, aes(x = year, y = percentage, fill = disp_modal_choice)) +
+  geom_area(alpha = 0.8, color = "white", linewidth = 0.2) +
+  scale_x_continuous(breaks = min(df_summary$year):max(df_summary$year)) +
+  labs(
+    title = "Market Share of Modal Choice (Stacked)",
+    x = "Year", 
+    y = "Percentage of Total (%)", 
+    fill = "Modal Choice"
+  ) +
+  theme_minimal()
+
+plot_modal_distribution(df,subtitle = "(DHZW only, 2010-2019 + 2023)")
+# Clear packages
+detach("package:datasets", unload = TRUE)
+
+# Clear plots
+dev.off()  # But only if there IS a plot
+
+# Clear console
+cat("\014")  # ctrl+L
+

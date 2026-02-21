@@ -19,7 +19,8 @@ filter_attributes_ODiN <- function(df) {
            #RVertStat,
            OPRijbewijsAu,
            HHAuto,
-           AfstV
+           AfstV,
+           Jaar
     ) %>%
     rename(
       agent_ID = OPID,
@@ -37,7 +38,8 @@ filter_attributes_ODiN <- function(df) {
       disp_arrival_PC4 = AankPC,
       car_license = OPRijbewijsAu,
       n_cars_hh = HHAuto,
-      distance = AfstV
+      distance = AfstV,
+      year = Jaar
     )
   
   return(df)
