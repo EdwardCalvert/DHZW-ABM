@@ -4,12 +4,12 @@ library(dplyr)
 
 # Import BAG of The Netherlands
 setwd(this.dir())
-setwd('data/raw/')
-df <- st_read('verblijfsobjecten')
+setwd('../../dhzw_data/adressendenhaag/')
+df <- st_read('adressendenhaag.shp')
 
 # Load PC4 of DHZW
 setwd(this.path::this.dir())
-setwd('../DHZW_shapefiles/data/codes')
+setwd('../0-DHZW_shapefiles/data/codes')
 DHZW_PC4_codes <-
   read.csv("DHZW_PC4_codes.csv",
            sep = ";" ,

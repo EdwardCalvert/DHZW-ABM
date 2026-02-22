@@ -17,7 +17,9 @@ This repository contains scripts for formatting and extracting buildings from ca
 ## Data Sources
 
 Locations of offices, retailers, and sports facilities are obtained from the cadastre ["Basisregistratie Adressen en Gebouwen" (BAG)](https://denhaag.dataplatform.nl/#/data/5788bca4-e0e3-4c47-9107-5482d526880f), which contains addresses of buildings in The Hague categorized by different types.
-
+NOW: https://ckan.dataplatform.nl/dataset/adressendenhaag
+NOW: https://denhaag.dataplatform.nl/#/data/7a2df8e1-366c-4707-b276-4de79b99ad6d 
+https://www.arcgis.com/home/item.html?id=b1ffef22b3d8427992498e55ff7dc2b9#overview
 School buildings are not retrieved from BAG due to unreliable building classification practices. BAG often categorises buildings as schools, even if they are not necessarily traditional educational institutions. As a result, schools within the DHZW area are obtained from the following sources:
 
 * [Den Haag Open Data](https://denhaag.dataplatform.nl/#/data/cc1362f7-d847-4141-9361-d106b3f497ec) for daycare ("BO-Voorschool") buildings

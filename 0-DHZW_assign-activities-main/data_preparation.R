@@ -155,5 +155,5 @@ nrow(df[is.na(df$disp_arrival_PC4),])
 plot_modal_distribution(df,subtitle = "(urbanised like DHZW, 2010-2019,2023)")
 
 # Save dataset
-setwd(paste0(this.path::this.dir(), "/data/processed"))
-write.csv(df, 'df_trips-higly_urbanized.csv', row.names = FALSE)
+setwd(paste0(this.path::this.dir(), "../../../dhzw_data/processed"))
+write.csv(df, 'df_trips-highly_urbanized.csv', row.names = FALSE)

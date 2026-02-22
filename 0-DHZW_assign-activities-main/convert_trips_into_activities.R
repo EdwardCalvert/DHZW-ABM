@@ -10,9 +10,9 @@ library("this.path")
 
 ################################################################################
 # Transform ODiN into activities
-
-setwd(paste0(this.path::this.dir(), "/data/processed"))
-df_original <- read_csv("df_trips-highly_urbanised.csv")
+setwd(this.path::this.dir())
+setwd( "../../dhzw_data/processed")
+df_original <- read_csv("df_trips-highly_urbanized.csv")
 
 df_original <- df_original[order(df_original$agent_ID),]
 
@@ -179,3 +179,4 @@ df_activities_all = do.call(rbind, datalist)
 # Save dataset
 setwd(paste0(this.path::this.dir(), "/data/processed"))
 write.csv(df_activities_all, 'df_activity_schedule-higly_urbanized.csv', row.names = FALSE)
+
