@@ -17,6 +17,10 @@ This repository contains scripts to assign locations to the activities of a synt
 
 Agents in the simulation engage in activities either within the DHZW case study area or outside of it. For activities within the area, specific locations are assigned, while for activities outside the boundary, only postcodes are used to denote the general location.
 
+## Dependencies
+- 'df_synthetic_activities.csv'
+- synthetic population
+
 ## 1) Data preparation
 
 Script: [`data_preparation_DHZW`](data_preparation_DHZW.R)\

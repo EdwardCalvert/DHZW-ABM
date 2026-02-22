@@ -20,6 +20,8 @@ The code in this repository utilizes the R library [GenSynthPop](https://github.
 
 The work has been presented at the [C-MAS workshop conference in London, 2023](https://figshare.com/articles/conference_contribution/Generating_a_Spatially_Explicit_Synthetic_Population_from_Aggregated_Data/22821914).
 
+## Dependencies
+
 ## Usage
 
 The repository provides the following functionalities:

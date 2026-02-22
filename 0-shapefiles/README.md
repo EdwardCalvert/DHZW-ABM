@@ -15,6 +15,10 @@
 
 This repository contains scripts to manage national CBS postcode shapefiles. Tools can extract vectorial subareas of selected postcodes and calculate their centroids. The code is generic for any subareas and it is applied to the case-study area of the district of Den Haag Zuid-West (DHZW).
 
+## Dependencies
+
+No internal dependencies.
+
 ## Data
 
 Vectorial shapefiles can be retrieved from the [CBS portal](https://www.cbs.nl/nl-nl/dossier/nederland-regionaal/geografische-data/gegevens-per-postcode).

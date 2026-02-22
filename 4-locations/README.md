@@ -14,6 +14,16 @@
 
 This repository contains scripts for formatting and extracting buildings from cadastre data, with a focus on the district of Den Haag Zuid-West (DHZW). This project was undertaken at Utrecht University, The Netherlands, during 2022-2023 by Marco Pellegrino and a team of contributors.
 
+## Dependencies
+Dependent on the Synthetic population for [`format_households.R`](format_households.R)
+
+- synthetic population
+
+
+## Outputs:
+
+- 
+
 ## Data Sources
 
 Locations of offices, retailers, and sports facilities are obtained from the cadastre ["Basisregistratie Adressen en Gebouwen" (BAG)](https://denhaag.dataplatform.nl/#/data/5788bca4-e0e3-4c47-9107-5482d526880f), which contains addresses of buildings in The Hague categorized by different types.
