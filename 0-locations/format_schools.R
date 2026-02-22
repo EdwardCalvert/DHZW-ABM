@@ -13,7 +13,7 @@ library(sf)
 
 # Load PC4 DHZW
 setwd(this.path::this.dir())
-setwd('../DHZW_shapefiles/data/codes')
+setwd('../0-DHZW_shapefiles-main/data/codes')
 DHZW_PC4_codes <-
   read.csv("DHZW_PC4_codes.csv",
            sep = ";" ,
@@ -21,8 +21,8 @@ DHZW_PC4_codes <-
 
 # Load municipality schools
 setwd(this.path::this.dir())
-setwd('data/raw')
-df_schools_esri <- st_read('DUO_Onderwijslocaties')
+setwd('../../dhzw_data/DUO_Onderwijslocaties')
+df_schools_esri <- st_read('DUO_Onderwijslocaties.shp')
 df_schools_municipality <- st_read('schoolgebouwen')
 
 df_schools_esri <- df_schools_esri %>%
