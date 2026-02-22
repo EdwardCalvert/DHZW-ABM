@@ -2,6 +2,7 @@ library(this.path)
 library(sf)
 library(dplyr)
 
+#EC: ran 22/02/2026
 # Import BAG of The Netherlands
 setwd(this.dir())
 setwd('../../dhzw_data/adressendenhaag/')
@@ -9,7 +10,7 @@ df <- st_read('adressendenhaag.shp')
 
 # Load PC4 of DHZW
 setwd(this.path::this.dir())
-setwd('../0-DHZW_shapefiles/data/codes')
+setwd('../0-shapefiles/data/codes')
 DHZW_PC4_codes <-
   read.csv("DHZW_PC4_codes.csv",
            sep = ";" ,
@@ -25,17 +26,19 @@ add_coordinates <- function(df) {
 ################################################################################
 
 df <- df %>%
-  rename(PC6 = a_postcode)  %>% # rename the PC6 coloumn
+  rename(PC6 = postcode)  %>% # rename the PC6 coloumn
   mutate(PC4 = gsub('.{2}$', '', PC6)) %>% # extract PC4
-  filter(PC4 %in% DHZW_PC4_codes) %>% # filter buildings within DHZW
-  filter(status == 'Verblijfsobject in gebruik') # filter buildings existing right now and not in the past
+  filter(PC4 %in% DHZW_PC4_codes) #%>% # filter buildings within DHZW
+  #Comment code to filter based on building status- not included in current data.  
+  #filter(status == 'Verblijfsobject in gebruik') # filter buildings existing right now and not in the past
+
 
 df <- df %>%
   rename(object_ID = objectid,
-         address_number = a_huisnum,
-         address_letter = a_huislett,
-         address = a_straatna,
-         building_category = gebrdoel) %>%
+         address_number = huisnr,
+         address_letter = huislt,
+         address = ruimtenaam,
+         building_category = gebruiksdo) %>%
     select(object_ID, building_category, address, address_number, address_letter, PC4, PC6)
 
 ################################################################################
@@ -43,7 +46,7 @@ df <- df %>%
 
 # set output directory
 setwd(this.dir())
-setwd('data/output')
+setwd('../../dhzw_data/processed')
 
 # filter work locations
 df_work <- df %>%
@@ -62,7 +65,7 @@ df_work = subset(df_work, select = -c(geometry))
 df_work$lid <- paste0('work_', seq.int(nrow(df_work)))
 
 # save
-#write.csv(df_work, 'work_DHZW.csv', row.names = FALSE)
+write.csv(df_work, 'work_DHZW.csv', row.names = FALSE)
 
 #########################
 # filter retail locations
@@ -81,7 +84,7 @@ df_retail = subset(df_retail, select = -c(geometry))
 df_retail$lid <- paste0('shopping_', seq.int(nrow(df_retail)))
 
 # save
-#write.csv(df_retail, 'shopping_DHZW.csv', row.names = FALSE)
+write.csv(df_retail, 'shopping_DHZW.csv', row.names = FALSE)
 
 #########################
 # filter sport locations
@@ -100,6 +103,6 @@ df_sport = subset(df_sport, select = -c(geometry))
 df_sport$lid <- paste0('sport_', seq.int(nrow(df_sport)))
 
 # save
-#write.csv(df_sport, 'sport_DHZW.csv', row.names = FALSE)
+write.csv(df_sport, 'sport_DHZW.csv', row.names = FALSE)
 
 
