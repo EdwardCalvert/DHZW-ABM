@@ -57,7 +57,7 @@ df_urbanization_PC4 <-
 
 # Read list of all PC4 in the Netherlands and their urbanization indexes.
 setwd(this.dir())
-setwd("../0-DHZW_shapefiles-main/data/codes")
+setwd("../0-shapefiles/data/codes")
 DHZW_PC4_codes <-
   read.csv("DHZW_PC4_codes.csv", sep = ";" , header = F)$V1
 
