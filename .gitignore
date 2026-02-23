@@ -4,4 +4,3 @@ arcgis-maps/*
 .RData
 .RData.Tmp
 .DS_Store
-._*
