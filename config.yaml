@@ -7,5 +7,5 @@ parameters:
 
 modules:
   shapefiles: "0-shapefiles"
-  synthetic-population: "0-synthetic-population"
+  synthetic_population: "0-synthetic-population"
   trips: "1-trips"
