@@ -9,11 +9,11 @@
 format_schools <- function(
   schools_municipality_shp,
   esri_living_atlas_schools_shp,
-  pc4_codes_csv
+  DHZW_pc4_codes_csv
 ) {
   # Load PC4 DHZW
   DHZW_PC4_codes <-
-    read.csv(pc4_codes_csv,
+    read.csv(DHZW_pc4_codes_csv,
       sep = ";",
       header = F
     )$V1

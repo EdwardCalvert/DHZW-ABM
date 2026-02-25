@@ -1,4 +1,4 @@
-process_ODiN_data <- function(odin_ovin_path, urbanisation_pc4_csv, pc4_codes_csv){
+process_ODiN_data <- function(odin_ovin_path, urbanisation_pc4_csv, DHZW_pc4_codes_csv){
   
   df_OViN <- lapply(c(2010:2017), function(y) {
     read_sav(file.path(odin_ovin_path, paste0(y, "_OViN.sav")))%>% 
@@ -19,7 +19,7 @@ process_ODiN_data <- function(odin_ovin_path, urbanisation_pc4_csv, pc4_codes_cs
   
   # Read list of all PC4 in the Netherlands and their urbanization indexes.
   DHZW_PC4_codes <-
-    read.csv(pc4_codes_csv, sep = ";" , header = F)$V1
+    read.csv(DHZW_pc4_codes_csv, sep = ";" , header = F)$V1
   
   # Find all the PC4s in The Netherlands that have such STED index equals to 1 "Very highly urban" (environmental address density of 2500 or more addresses/km2)
   PC4_urbanized_like_DHZW = df_urbanization_PC4[df_urbanization_PC4$STED ==

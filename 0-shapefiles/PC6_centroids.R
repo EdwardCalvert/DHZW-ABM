@@ -1,5 +1,5 @@
 
-generate_pc6_centroids <- function(output_dir, pc4_codes_csv, pc6_gpkg){
+generate_pc6_centroids <- function(output_dir, DHZW_pc4_codes_csv, pc6_gpkg){
   # Load PC4 vectorial coordinates and compute their centroids
   
   df_PC6_NL <- st_read(pc6_gpkg, layer="cbs_pc6_2021")
@@ -36,7 +36,7 @@ generate_pc6_centroids <- function(output_dir, pc4_codes_csv, pc6_gpkg){
   ################################################################################
   # Filter on DHZW
   DHZW_PC4_codes <-
-    read.csv(pc4_codes_csv, sep = ";" , header = F)$V1
+    read.csv(DHZW_pc4_codes_csv, sep = ";" , header = F)$V1
   
   df_PC6_NL$PC4 <- gsub('.{2}$', '', df_PC6_NL$PC6)
   df_PC6_NL_coordinates$PC4 <- gsub('.{2}$', '', df_PC6_NL_coordinates$PC6)

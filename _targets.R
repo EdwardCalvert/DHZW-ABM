@@ -71,12 +71,12 @@ list(
   # neighbourhood_codes.csv, neighbourhoods.csv, pc4_codes.csv
   tar_target(neighborhood_codes_csv, shapefiles[1], format = "file"),
   tar_target(neighbourhoods_csv, shapefiles[2], format = "file"),
-  tar_target(pc4_codes_csv, shapefiles[3], format = "file"),
+  tar_target(DHZW_pc4_codes_csv, shapefiles[3], format = "file"),
   tar_target(
     centroids_PC6_DHZW_csv, 
     generate_pc6_centroids(
       file.path(output_dir, config$modules$shapefiles),
-      pc4_codes_csv,
+      DHZW_pc4_codes_csv,
       pc6_gpkg
       ),
       format="file"
@@ -112,7 +112,7 @@ list(
       file.path(output_dir, config$modules$trips),
       odin_ovin_dir,
       urbanisation_pc4_csv,
-      pc4_codes_csv
+      DHZW_pc4_codes_csv
     ),
     format = "file"
   ),
@@ -155,7 +155,7 @@ list(
       schools_municipality_shp,
       esri_living_atlas_schools_shp,
       centroids_PC6_DHZW_csv,
-      pc4_codes_csv
+      DHZW_pc4_codes_csv
     ),
     format = "file"
   )

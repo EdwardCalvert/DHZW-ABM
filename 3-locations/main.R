@@ -5,13 +5,13 @@ run_locations <- function(
   schools_municipality_shp,
   esri_living_atlas_schools_shp,
   centroids_PC6_DHZW_csv,
-  pc4_codes_csv
+  DHZW_pc4_codes_csv
 ) {
   if (!dir.exists(output_dir)) dir.create(output_dir, recursive = TRUE)
 
   results <- run_work_retail_sport_location_extraction(
     the_hague_BAG_shp,
-    pc4_codes_csv
+    DHZW_pc4_codes_csv
   )
 
   work_locations_csv <- file.path(output_dir, "work_DHZW.csv")
@@ -66,7 +66,7 @@ run_locations <- function(
   df_schools <- format_schools(
     schools_municipality_shp,
     esri_living_atlas_schools_shp,
-    pc4_codes_csv
+    DHZW_pc4_codes_csv
   )
 
   school_locations_shp <- file.path(output_dir, "schools_DHZW.shp")
