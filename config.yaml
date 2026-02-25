@@ -10,3 +10,4 @@ modules:
   synthetic_population: "0-synthetic-population"
   trips: "1-trips"
   assign_activities: "2-assign_activities"
+  locations: "3-locations"
