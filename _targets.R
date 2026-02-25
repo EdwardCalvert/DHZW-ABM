@@ -35,7 +35,9 @@ tar_source(c(
   "1-trips/data_preparation.R",
   "1-trips/utils.R",
   "2-assign-activities",
-  "3-locations"
+  "3-locations",
+  "4-locations/main.R",
+  "4-locations/assign_locations",
 ))
 
 list(
