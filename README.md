@@ -13,3 +13,13 @@ This monorepo consolidates work completed thanks to the hard work and contributi
 
 And combines the git repos:
 blah blah blah
+
+
+All readme files made without guarantee: this repo has been inherited- there are some aspects that were never fully understood and time prevented complete investigation- therefore, you may find inconsistencies in the readme files. Always use good judgement.
+Debugging:
+
+```R
+tar_load()
+
+tar_workspace(synthetic_activites_csv)
+```

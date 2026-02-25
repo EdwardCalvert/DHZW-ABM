@@ -1,12 +1,3 @@
-# library('haven')
-# library("dplyr")
-# library(tibble)
-# library(tidyr)
-# library(readr)
-# library("this.path")
-# setwd(this.path::this.dir())
-# #source(utils.R')
-
 process_ODiN_data <- function(odin_ovin_path, urbanisation_pc4_csv, pc4_codes_csv){
   
   df_OViN <- lapply(c(2010:2017), function(y) {

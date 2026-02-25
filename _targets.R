@@ -7,9 +7,21 @@
 library(targets)
 
 source("output_directory_source_utility.R")
-  
+
 tar_option_set(
-  packages = c("tibble", "haven", "dplyr", "tibble", "tidyr", "readr", "nnet", "purrr", "this.path", "data.table")
+  packages = c(
+    "tibble",
+    "haven",
+    "dplyr",
+    "tibble",
+    "tidyr",
+    "readr",
+    "nnet",
+    "purrr",
+    "this.path",
+    "data.table"
+  ),
+  workspace_on_error = TRUE
 )
 
 
@@ -82,10 +94,11 @@ list(
 
   ## Assign activities
   tar_target(
-    synthetic_activites_csv,
-    run_assign_activites(
-      file.path(output_dir, config$modules$assign_activites),
-      highly_urbanised_trips_csv
+    synthetic_activities_csv,
+    run_assign_activities(
+      file.path(output_dir, config$modules$assign_activities),
+      highly_urbanised_trips_csv,
+      synthetic_population
     ),
     format = "file"
   )

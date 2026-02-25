@@ -9,4 +9,4 @@ modules:
   shapefiles: "0-shapefiles"
   synthetic_population: "0-synthetic-population"
   trips: "1-trips"
-  assign-activities: "2-assign_activites"
+  assign_activities: "2-assign_activities"
