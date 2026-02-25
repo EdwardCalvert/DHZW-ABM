@@ -37,6 +37,7 @@ tar_source(c(
   "2-assign-activities",
   "3-locations",
   "4-locations/main.R",
+  "4-locations/src/",
   "4-locations/assign_locations",
 ))
 
@@ -158,4 +159,6 @@ list(
     ),
     format = "file"
   )
+  
+  ##NEED TO ADJUST CONFIG FILE
 )
