@@ -8,42 +8,6 @@
 # #source(utils.R')
 
 process_ODiN_data <- function(odin_ovin_path, urbanisation_pc4_csv, pc4_codes_csv){
-  ################################################################################
-  # This script put together the various years of ODiN and OVin into a big collection
-  
-  # Load ODiNs and OViNs
-  
-  # OViN2010 <- read_sav("2010_OViN.sav")
-  # OViN2011 <- read_sav("2011_OViN.sav")
-  # OViN2012 <- read_sav("2012_OViN.sav")
-  # OViN2013 <- read_sav("2013_OViN.sav")
-  # OViN2014 <- read_sav("2014_OViN.sav")
-  # OViN2015 <- read_sav("2015_OViN.sav")
-  # OViN2016 <- read_sav("2016_OViN.sav")
-  # OViN2017 <- read_sav("2017_OViN.sav")
-  # ODiN2018 <- read_sav("2018_ODiN.sav")
-  # ODiN2019 <- read_sav("2019_ODiN.sav")
-  # #ODiN2023 <- read_sav("2023_ODiN.sav")
-  # 
-  # OViN2010 <- filter_attributes_OViN(OViN2010)
-  # OViN2011 <- filter_attributes_OViN(OViN2011)
-  # OViN2012 <- filter_attributes_OViN(OViN2012)
-  # OViN2013 <- filter_attributes_OViN(OViN2013)
-  # OViN2014 <- filter_attributes_OViN(OViN2014)
-  # OViN2015 <- filter_attributes_OViN(OViN2015)
-  # OViN2016 <- filter_attributes_OViN(OViN2016)
-  # OViN2017 <- filter_attributes_OViN(OViN2017)
-  # ODiN2018 <- filter_attributes_ODiN(ODiN2018)
-  # ODiN2019 <- filter_attributes_ODiN(ODiN2019)
-  # #ODiN2023 <- filter_attributes_ODiN_2023(ODiN2023)
-  # 
-  # ################################################################################
-  # # ODiN
-  # 
-  # df_ODiN <- rbind(ODiN2018,
-  #                  ODiN2019,
-  #                  #ODiN2023
-  #                  )
   
   df_OViN <- lapply(c(2010:2017), function(y) {
     read_sav(file.path(odin_ovin_path, paste0(y, "_OViN.sav")))%>% 
@@ -75,15 +39,6 @@ process_ODiN_data <- function(odin_ovin_path, urbanisation_pc4_csv, pc4_codes_cs
   
   ################################################################################
   # OViN
-  # 
-  # df_OViN <- rbind(OViN2010,
-  #                  OViN2011,
-  #                  OViN2012,
-  #                  OViN2013,
-  #                  OViN2014,
-  #                  OViN2015,
-  #                  OViN2016,
-  #                  OViN2017)
   
   # Since the residential PC4 is not given, for the individuals that at have least one displacement I retrieve it from the first displacement.
   df_OViN <- extract_residential_PC4_from_first_displacement(df_OViN)
