@@ -1,0 +1,13 @@
+project_root: "."
+experiment_id: "effect-of-rush-hour"
+data_version: "v1.2"
+parameters:
+  rush_hour_start: 07:00
+  rush_hour_end: 09:00
+
+modules:
+  shapefiles: "0-shapefiles"
+  synthetic_population: "0-synthetic-population"
+  trips: "1-trips"
+  assign_activities: "2-assign_activities"
+  locations: "3-locations"

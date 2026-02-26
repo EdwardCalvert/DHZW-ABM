@@ -1,0 +1,1 @@
+run_assign_locations

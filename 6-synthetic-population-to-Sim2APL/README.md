@@ -12,9 +12,14 @@
 ## Description
 The code is specific for a case-study project on The Hague Zuid West. This project was undertaken at Utrecht University, The Netherlands, during 2022-2023 by Marco Pellegrino and a team of contributors.
 
+## Dependencies
+
+All previous modules
+
 ## Usage
-* [`merge_activities_locations.R`](merge_activities_locations.R). The scrips scripts merge locations information with the activity schedule. 
-* [`format_to_SIM2APL.R`](format_to_SIM2APL.R). The script formats the dataframes to be used in the Sim2APL simulation.
+1. [`merge_locations.R`](merge_locations.R). This script merges all the locations into one
+2. [`merge_activities_locations.R`](merge_activities_locations.R). The scrips scripts merge locations information with the activity schedule. 
+3. [`format_to_SIM2APL.R`](format_to_SIM2APL.R). The script formats the dataframes to be used in the Sim2APL simulation.
 
 ## Contributors
 

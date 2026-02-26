@@ -1,182 +1,93 @@
-library(dplyr)
-library(readr)
-library(nnet)
-library(tidyr)
-library(purrr)
-library("this.path")
 
-################################################################################
-# This script takes a collection of ODiN and returns activities for each participant (instead of trips)
+## Take the urbanised trips, and convert them into activities, with a defined 
+#start and end time. Filters only to activity types of home, work, school,
+# shopping and work. Likely needs future efforts. 
 
-################################################################################
-# Transform ODiN into activities
-setwd(this.path::this.dir())
-setwd( "../../dhzw_data/processed")
-df_original <- read_csv("df_trips-highly_urbanized.csv")
 
-df_original <- df_original[order(df_original$agent_ID),]
+#May need to check wether date processing needs to occur
+#i.e. is an ODiN agent ID restricted to reporting activities only on one
+# given day????
+# EC 
 
-df_original <- df_original %>%
-  select(agent_ID, disp_activity, disp_start_time, disp_arrival_time, day_of_week)
 
-# Transform minutes into seconds
-df_original$disp_start_time <- df_original$disp_start_time * 60
-df_original$disp_arrival_time <- df_original$disp_arrival_time * 60
+get_activites_from_trips_vector <- function(highly_urbanised_trips_csv) {
+  df_trips <- read_csv(highly_urbanised_trips_csv)
 
-# For each trip add the start time of the next trip
-df_original <-
-  transform(df_original, next_start_time = c(disp_start_time[-1], NA))
-df_original <-
-  transform(df_original, nxt_ID = c(as.character(agent_ID[-1]), NA))
-df_original$next_start_time <-
-  ifelse(df_original$nxt_ID == df_original$agent_ID,
-         df_original$next_start_time,
-         86399) # midnight
-
-# activities where the trips is actually the activity
-list_ODiN_activities <-
-  c('collection/delivery of goods', 'hiking', 'transport is the job')
-
-datalist = list()
-ODiN_IDs <- unique(df_original$agent_ID)
-
-for (n in 1:length(ODiN_IDs)) {
-  ODiN_ID <- ODiN_IDs[n]
+  activity_map <- c(
+    "to home"                  = "home",
+    "to work"                  = "work",
+    "visit/stay"               = "visit/stay",
+    "shopping"                 = "shopping",
+    "other leisure activities" = "leisure",
+    "services/personal care"   = "leisure",
+    "sports/hobby"             = "sport",
+    "pick up / bring people"   = "pick up / bring people",
+    "follow education"         = "school",
+    "business visit"           = "business visit"
+  )
   
-  df <- data.frame(matrix(ncol = 5, nrow = 0))
-  colnames(df) <-
-    c('ODiN_ID',
-      'activity_type',
-      'start_time',
-      'day_of_week')
-  
-  df_activities <- df_original[df_original$agent_ID == ODiN_ID,]
-  
-  # Counter for the synthetic activities
-  counter <- 1
-  
-  # Add the home activity
-  df[counter, ] = c(ODiN_ID,
-                    'home',
-                    0,
-                    df_activities[1,]$day_of_week)
-  
-  # if the agent stays at home all day, it has a record with NA value
-  if(!is.na(df_activities[1,]$disp_activity)) {
-    # there is at least one trip
-    
-    for (i in 1:nrow(df_activities)) {
-      # add the trip activity
-  
-      if (df_activities[i,]$disp_activity %in% list_ODiN_activities &
-          df_activities[i,]$disp_start_time < 86400 ) {
-        # if the trip the activity itself
-        counter <- counter + 1
-        df[counter, ] = c(
-          ODiN_ID,
-          df_activities[i,]$disp_activity,
-          df_activities[i,]$disp_start_time,
-          df_activities[i,]$day_of_week
-        )
-      } else {
-        # if the activity is the destination of the trip
-        counter <- counter + 1
-        df[counter, ] = c(
-          ODiN_ID,
-          'trip',
-          df_activities[i,]$disp_start_time,
-          df_activities[i,]$day_of_week
-        )
-      }
-      
-      #  Add the activity in the middle
-      counter <- counter + 1
-      if (df_activities[i,]$disp_activity %in% list_ODiN_activities) {
-        prev_activity <- df[counter - 2, ]$activity_type
-        df[counter, ] = c(
-          ODiN_ID,
-          prev_activity,
-          df_activities[i,]$disp_arrival_time,
-          df_activities[i,]$day_of_week
-        )
-      } else {
-        if (df_activities[i,]$disp_activity == 'to home') {
-          activity <- 'home'
-        } else if (df_activities[i,]$disp_activity == 'to work') {
-          activity <- 'work'
-        } else if (df_activities[i,]$disp_activity == 'visit/stay') {
-          activity <- 'visit/stay'
-        } else if (df_activities[i,]$disp_activity == 'shopping') {
-          activity <- 'shopping'
-        } else if (df_activities[i,]$disp_activity == 'other leisure activities') {
-          activity <- 'leisure'
-        } else if (df_activities[i,]$disp_activity == 'services/personal care') {
-          activity <- 'leisure'
-        } else if (df_activities[i,]$disp_activity == 'sports/hobby') {
-          activity <- 'sport'
-        } else if (df_activities[i,]$disp_activity == 'pick up / bring people') {
-          activity <- 'pick up / bring people'
-        } else if (df_activities[i,]$disp_activity == 'other') {
-          activity <- 'other'
-        } else if (df_activities[i,]$disp_activity == 'follow education') {
-          activity <- 'school'
-        } else if (df_activities[i,]$disp_activity == 'business visit') {
-          activity <- 'business visit'
-        }
-        
-        # if the trip ends after midnight, I drop the following activity
-        if (df_activities[i,]$disp_arrival_time <= 86400) {
-          df[counter, ] = c(
-            ODiN_ID,
-            activity,
-            df_activities[i,]$disp_arrival_time,
-            df_activities[i,]$day_of_week
-          )
-        }
+  #Was included in original script, so feel the need to include!
+  # travel_centric_tasks <- c(
+  #   "collection/delivery of goods",
+  #   "hiking",
+  #   "transport is the job"
+  # )
 
-      }
-      
-    }
-    
-  }
-  
-  # remove trips and activities that I am not interested into
-  df <- df %>%
+  ##MAY NEED TO include blank (i.e sitting at home all day) activity schedule 
+  # for some agents so IDs are contiguous
+
+  df_activites <- df_trips |>
+    arrange(agent_ID, disp_start_time) |>
+    mutate(
+      start_min = disp_start_time * 60, # transform minutes into seconds
+      arr_min = disp_arrival_time * 60,
+      mapped_activity = recode(
+        disp_activity, 
+        !!!activity_map, 
+        .default = "other"
+      )
+    ) |>
+    #slice(1:1000)|> #DEV: TAKE FIRST 1000 rows for quick processing.
+    group_by(agent_ID) |> 
+    reframe(
+      activity_type =  mapped_activity,
+      start_time = start_min,
+      end_time = lead(start_min, default = 86399), # number of seconds in a day
+      day_of_week   = day_of_week
+    ) |>
+    group_by(agent_ID) |> #regroup reframed tibble
+    group_modify(~ {
+      ## Make sure each agent starts at home.
+      first_start <- .x$start_time[1]
+      add_row(
+        .x,
+        activity_type = "home",
+        start_time = 0,
+        end_time = first_start,
+        day_of_week = .x$day_of_week[1],
+        .before = 1
+      )
+    }) |>
     filter(
-      activity_type == 'home' |
-        activity_type == 'work' |
-        activity_type == 'shopping' |
-        activity_type == 'sport' |
-        (activity_type=='school' & !(day_of_week==1 | day_of_week==7)) # school activities only during the week.
-    )
-  
-  # merge together consequential activities of the same type
-  df$remove <- F
-  for (x in 1:nrow(df)) {
-    if (x + 1 <= nrow(df)) {
-      if (df[x, ]$activity_type == df[x + 1, ]$activity_type) {
-        df[x, ]$remove <- T
-        df[x + 1, ]$start_time <- df[x, ]$start_time
-      }
-    }
-  }
-  df <- df %>%
-    filter(remove == F)
-  df = subset(df, select = -c(remove))
-  
-  # make sure that the last activity goes till the end of the day
-  df[nrow(df), ]$end_time <- 86400
-  
-  # add duration and activity number
-  df$duration <- as.numeric(df$end_time) - as.numeric(df$start_time)
-  df$activity_number <- 1:nrow(df)
-
-  datalist[[n]] <- df
+      (activity_type %in% c("home", "work", "shopping", "sport")) |
+        (activity_type == "school" & !day_of_week %in% c(1, 7))
+    ) |>
+    mutate(
+      is_duplicate = (activity_type == lead(activity_type, default = "END")),
+      # Pull start_time from first in a chain of duplicates
+      start_time = if_else(lag(activity_type, default = "START") == activity_type,
+        lag(start_time),
+        start_time
+      )
+    ) |>
+    filter(!is_duplicate) |>
+    mutate(
+      end_time = if_else(row_number() == n(), 86399, end_time),
+      duration = end_time - start_time,
+      activity_number = row_number()
+    ) |>
+    # filter(duration > 0 ) |>
+    select(ODiN_ID = agent_ID, activity_type, start_time, end_time, day_of_week, duration, activity_number) |>
+    ungroup()
+  return(df_activites)
 }
-
-df_activities_all = do.call(rbind, datalist)
-
-# Save dataset
-setwd(paste0(this.path::this.dir(), "/data/processed"))
-write.csv(df_activities_all, 'df_activity_schedule-higly_urbanized.csv', row.names = FALSE)
-

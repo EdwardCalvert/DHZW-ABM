@@ -1,2 +1,8 @@
 arcgis-maps/*
 .Rproj.user
+.Rhistory
+.RData
+.RData.Tmp
+.DS_Store
+_targets/
+output/*
