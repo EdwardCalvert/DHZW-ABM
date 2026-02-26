@@ -38,7 +38,7 @@ tar_source(c(
   "3-locations",
   "4-locations/main.R",
   "4-locations/src/",
-  "4-locations/assign_locations",
+  "4-locations/assign_locations"
 ))
 
 list(
