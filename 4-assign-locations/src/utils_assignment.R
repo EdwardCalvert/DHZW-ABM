@@ -1,12 +1,7 @@
-library(readr)
-library(dplyr)
-library(this.path)
-library(sf)
-
 assign_locations_PC4_proportions <- function (df_activities, activity_type, df_prop, df_synth_pop, df_locations, df_PC4_geometries, DHZW_PC4_codes) {
   df_activities$PC4_activity <- NA
   for (hh_PC4 in unique(df_synth_pop$hh_PC4)) {
-    print(hh_PC4)
+    #print(hh_PC4)
     
     # get activities of people that live in such PC4
     PC4_agent_IDs <- df_synth_pop[df_synth_pop$hh_PC4 == hh_PC4, ]$agent_ID
@@ -32,7 +27,7 @@ assign_locations_PC4_proportions <- function (df_activities, activity_type, df_p
 
   for (PC4 in unique(df_activities[df_activities$activity_type == activity_type, ]$PC4_activity)) {
     if (PC4 %in% DHZW_PC4_codes) {
-      print(PC4)
+      #print(PC4)
       # get locations in such area
       df_locations_PC4 <-
         df_locations[df_locations$PC4 == PC4, ]
@@ -46,7 +41,7 @@ assign_locations_PC4_proportions <- function (df_activities, activity_type, df_p
 
       df_PC4_geometries_tmp <- df_PC4_geometries
       while (nrow(df_locations_PC4) == 0) {
-        print(PC4)
+        #print(PC4)
         #if there are no locations in the searched PC4, look into the next closest one
         list_PC4_tried <-
           append(list_PC4_tried, PC4) # add the just searched PC4
@@ -54,14 +49,14 @@ assign_locations_PC4_proportions <- function (df_activities, activity_type, df_p
         df_PC4_geometries_tmp$distance <-
           as.numeric(st_distance(df_PC4_geometries_tmp, PC4_point)) # calculate the distance to all the PC4
         
-        print(df_PC4_geometries_tmp$distance)
+        #print(df_PC4_geometries_tmp$distance)
 
         df_PC4_geometries_tmp <- df_PC4_geometries_tmp[df_PC4_geometries_tmp$PC4 != PC4,] # eliminate the subject PC4 and the tried ones
         PC4 <- df_PC4_geometries_tmp[which.min(df_PC4_geometries_tmp$distance), ]$PC4  # extract the next closest PC4
         df_locations_PC4 <- df_locations[df_locations$PC4 == PC4, ]  # retrieve locations in the new PC4
       }
 
-      print(paste(PC4, nrow(df_locations_PC4)), sep = ' ')
+      #print(paste(PC4, nrow(df_locations_PC4)), sep = ' ')
 
       # distribute random locations of the PC4
       df_activities[df_activities$activity_type == activity_type &

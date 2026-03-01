@@ -1,4 +1,7 @@
-filter_attributes_ODiN <- function(df) {
+##TO RESOVLE A NAMESPACE COLLISION, FUNCTIONS IN THIS FILE ARE PREFIXED WITH
+# 'al' to signify they are from the assign-location module.
+
+al_filter_attributes_ODiN <- function(df) {
   df <- df %>%
     sjlabelled::remove_all_labels() %>%
     tibble()    # without this, results will be cast as a list
@@ -22,7 +25,7 @@ filter_attributes_ODiN <- function(df) {
            AfstV,
            Jaar
     ) %>%
-    rename(
+    dplyr::rename(
       agent_ID = OPID,
       age = Leeftijd,
       hh_PC4 = WoPC,
@@ -45,7 +48,7 @@ filter_attributes_ODiN <- function(df) {
   return(df)
 }
 
-filter_attributes_OViN <- function(df) {
+al_filter_attributes_OViN <- function(df) {
   df <- df %>%
     sjlabelled::remove_all_labels() %>%
     tibble()    # without this, results will be cast as a list
@@ -68,7 +71,7 @@ filter_attributes_OViN <- function(df) {
            HHAuto,
            AfstV
     ) %>%
-    rename(
+    dplyr::rename(
       agent_ID = OPID,
       age = Leeftijd,
       municipality_urbanization = Sted,
@@ -90,7 +93,7 @@ filter_attributes_OViN <- function(df) {
   return(df)
 }
 
-extract_residential_PC4_from_first_displacement <- function(df) {
+al_extract_residential_PC4_from_first_displacement <- function(df) {
   df$hh_PC4=NA
   
   # Consider individuals with at least a displacement. Find the starting point of the first move, and set it as home
@@ -105,7 +108,7 @@ extract_residential_PC4_from_first_displacement <- function(df) {
   return(df)
 }
 
-filter_start_day_from_home <- function (df) {
+al_filter_start_day_from_home <- function (df) {
   agents_home_IDs <- unique(df[((df$disp_start_home==1 & df$disp_counter==1)),]$agent_ID)
   
   df[df$agent_ID %in% agents_home_IDs,]

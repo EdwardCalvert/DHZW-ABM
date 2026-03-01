@@ -26,7 +26,7 @@ filter_attributes_ODiN <- function(df) {
       VerplNr,
       Hvm
     ) %>%
-    rename(
+    dplyr::rename(
       agent_ID = OPID,
       hh_size = HHPers,
       hh_type = HHSam,
@@ -192,7 +192,7 @@ filter_attributes_OViN <- function(df) {
       Sted,
       Hvm
     ) %>%
-    rename(
+    dplyr::rename(
       agent_ID = OPID,
       hh_size = HHPers,
       hh_type = HHSam,

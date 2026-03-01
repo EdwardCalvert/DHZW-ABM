@@ -20,7 +20,10 @@ tar_option_set(
     "purrr",
     "this.path",
     "data.table",
-    "sf"
+    "sf",
+    # "plyr", #remove due to namespace masking issues.
+    "here",
+    "yaml"
   ),
   workspace_on_error = TRUE
 )
@@ -30,15 +33,18 @@ tar_option_set(
 tar_source(c(
   "0-shapefiles/main.R", # Only main, other files not ready yet
   "0-shapefiles/PC6_centroids.R",
+  "0-shapefiles/PC4_centroids.R",
   "0-synthetic-population/main.R", # Only main, other files not prepared yet
   "1-trips/main.R",
   "1-trips/data_preparation.R",
   "1-trips/utils.R",
   "2-assign-activities",
   "3-locations",
-  "4-locations/main.R",
-  "4-locations/src/",
-  "4-locations/assign_locations"
+  "4-assign-locations/assign_locations",
+  "4-assign-locations/src/",
+  "4-assign-locations/main.R",
+  "4-assign-locations/data_preparation.R",
+  "4-assign-locations/calculate_postcode_activity_distribution.R"
 ))
 
 list(
@@ -51,6 +57,11 @@ list(
   tar_target(
     pc6_gpkg,
     "../dhzw_data/2024-cbs_pc6_2021_vol/cbs_pc6_2021_vol.gpkg",
+    format = "file"
+  ),
+  tar_target(
+    pc4_gpkg,
+    "../dhzw_data/2025-cbs_pc4_2022_vol/cbs_pc4_2022_vol.gpkg", #2021 data seemed corrupt
     format = "file"
   ),
   tar_target(
@@ -73,14 +84,23 @@ list(
   tar_target(neighbourhoods_csv, shapefiles[2], format = "file"),
   tar_target(DHZW_pc4_codes_csv, shapefiles[3], format = "file"),
   tar_target(
-    centroids_PC6_DHZW_csv, 
+    centroids_PC6_DHZW_csv,
     generate_pc6_centroids(
       file.path(output_dir, config$modules$shapefiles),
       DHZW_pc4_codes_csv,
       pc6_gpkg
-      ),
-      format="file"
     ),
+    format = "file"
+  ),
+  tar_target(
+    centroids_pc4_DHZW_shp,
+    generate_pc4_centroids(
+      file.path(output_dir, config$modules$shapefiles),
+      DHZW_pc4_codes_csv,
+      pc4_gpkg
+    ),
+    format = "file"
+  ),
 
   ## Synthetic population
   # Aware this is pointless to copy, but leave for time being!?
@@ -90,7 +110,7 @@ list(
     format = "file"
   ),
   tar_target(
-    synthetic_population,
+    synthetic_population_csv,
     run_synthetic_population(
       file.path(output_dir, config$modules$synthetic_population),
       synthetic_population_source
@@ -119,11 +139,11 @@ list(
 
   ## Assign activities
   tar_target(
-    synthetic_activities_csv,
+    synthetic_activities_nonspatial_csv,
     run_assign_activities(
       file.path(output_dir, config$modules$assign_activities),
       highly_urbanised_trips_csv,
-      synthetic_population
+      synthetic_population_csv
     ),
     format = "file"
   ),
@@ -158,7 +178,25 @@ list(
       DHZW_pc4_codes_csv
     ),
     format = "file"
+  ),
+
+  ## assign locations
+  tar_target(
+    synthetic_activities_csv,
+    run_assign_locations(
+      file.path(
+        output_dir, config$modules$assign_locations
+      ),
+      odin_ovin_dir,
+      urbanisation_pc4_csv,
+      DHZW_pc4_codes_csv,
+      displacements_DHZW_csv,
+      synthetic_population_csv,
+      synthetic_activities_nonspatial_csv,
+      location_files_vector,
+      centroids_PC6_DHZW_csv,
+      centroids_pc4_DHZW_shp
+    ),
+    format = "file"
   )
-  
-  ##NEED TO ADJUST CONFIG FILE
 )

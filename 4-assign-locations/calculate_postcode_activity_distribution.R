@@ -1,15 +1,13 @@
 
 calculate_postcode_activity_distribution <- function(
-    DHZW_pc4_codes_csv
+    output_dir,
+    DHZW_pc4_codes_csv, 
+    displacements_DHZW_csv 
     ){
   
-  setwd(this.dir())
-  setwd('data/processed')
-  df_old <- read.csv('df_trips-DHZW.csv')
+  #df_old <- read.csv(highly_urbanised_trips_csv)
   
-  setwd(this.dir())
-  setwd('../data/processed')
-  df <- read.csv('displacements_DHZW.csv')
+  df <- read.csv(displacements_DHZW_csv)
   
   df_shopping <- df[df$disp_activity == 'SHOPPING',]
   df_sport <- df[df$disp_activity == 'SPORT',]
@@ -45,17 +43,38 @@ calculate_postcode_activity_distribution <- function(
   df_school_university <- calculate_od_proportions(df_school_university, DHZW_PC4_codes)
   df_school_university[is.na(df_school_university)] = 1/(ncol(df_school_university)-1) # for home PC4 that have no people going to daycare just normally distribute it
   
-  # save
-  # setwd(this.dir())
-  # setwd('data/processed')
   
+  ODiN_shopping_act_prop_csv <- file.path(output_dir,'ODiN_shopping.csv')
+  write.csv(df_shopping, ODiN_shopping_act_prop_csv, row.names = FALSE)
   
-  write.csv(df_shopping, 'ODiN_shopping.csv', row.names = FALSE)
-  write.csv(df_sport, 'ODiN_sport.csv', row.names = FALSE)
-  write.csv(df_work, 'ODiN_work.csv', row.names = FALSE)
+  ODiN_sport_act_prop_csv <- file.path(output_dir, 'ODiN_sport.csv')
+  write.csv(df_sport, ODiN_sport_act_prop_csv, row.names = FALSE)
   
-  write.csv(df_school_daycare, 'ODiN_school_daycare.csv', row.names = FALSE)
-  write.csv(df_school_primary, 'ODiN_school_primary.csv', row.names = FALSE)
-  write.csv(df_school_highschool, 'ODiN_school_highschool.csv', row.names = FALSE)
-  write.csv(df_school_university, 'ODiN_school_university.csv', row.names = FALSE)
+  ODiN_work_act_prop_csv <- file.path(output_dir, 'ODiN_work.csv')
+  write.csv(df_work, ODiN_work_act_prop_csv, row.names = FALSE)
+  
+  ODiN_school_daycare_act_prop_csv <- file.path(output_dir, 'ODiN_school_daycare.csv')
+  write.csv(df_school_daycare,ODiN_school_daycare_act_prop_csv, row.names = FALSE)
+  
+  ODiN_school_primary_act_prop_csv <- file.path(output_dir, 'ODiN_school_primary.csv')
+  write.csv(df_school_primary, ODiN_school_primary_act_prop_csv, row.names = FALSE)
+  
+  ODiN_school_highschool_act_prop_csv <- file.path(output_dir, 'ODiN_school_highschool.csv')
+  write.csv(df_school_highschool, ODiN_school_highschool_act_prop_csv, row.names = FALSE)
+  
+  ODiN_univeristy_act_prop_csv <- file.path(output_dir, 'ODiN_school_university.csv')
+  write.csv(df_school_university, ODiN_univeristy_act_prop_csv, row.names = FALSE)
+  
+  return(
+    list(
+      ODiN_shopping_act_prop_csv=ODiN_shopping_act_prop_csv,
+      ODiN_sport_act_prop_csv=ODiN_sport_act_prop_csv,
+      ODiN_school_daycare_act_prop_csv=ODiN_school_daycare_act_prop_csv,
+      ODiN_school_primary_act_prop_csv = ODiN_school_primary_act_prop_csv,
+      ODiN_school_highschool_act_prop_csv=ODiN_school_highschool_act_prop_csv,
+      ODiN_univeristy_act_prop_csv=ODiN_univeristy_act_prop_csv,
+      ODiN_work_act_prop_csv=ODiN_work_act_prop_csv
+    )
+  )
+  
 }

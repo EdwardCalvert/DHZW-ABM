@@ -27,7 +27,7 @@ format_households <- function(df_households_csv, centroids_PC6_DHZW_csv){
   
   
   df_households_minimal <- df_households %>%
-    select(hh_ID, lid, PC6, PC4, coordinate_y, coordinate_x)
+    dplyr::select(hh_ID, lid, PC6, PC4, coordinate_y, coordinate_x)
   
   return(list(
     df_households_full = df_households,

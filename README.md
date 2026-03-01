@@ -21,5 +21,6 @@ Debugging:
 ```R
 tar_load()
 
-tar_workspace(synthetic_activites_csv)
+tar_workspace(synthetic_activities_csv)
 ```
+GLOBAL NAMESPACE- two functions can't share names!!!!
