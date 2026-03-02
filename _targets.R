@@ -23,7 +23,8 @@ tar_option_set(
     "sf",
     # "plyr", #remove due to namespace masking issues.
     "here",
-    "yaml"
+    "yaml",
+    "opentripplanner"
   ),
   workspace_on_error = TRUE
 )
@@ -61,7 +62,7 @@ list(
   ),
   tar_target(
     pc4_gpkg,
-    "../dhzw_data/2025-cbs_pc4_2022_vol/cbs_pc4_2022_vol.gpkg", #2021 data seemed corrupt
+    "../dhzw_data/2025-cbs_pc4_2022_vol/cbs_pc4_2022_vol.gpkg", # 2021 data seemed corrupt
     format = "file"
   ),
   tar_target(
