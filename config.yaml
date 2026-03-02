@@ -12,3 +12,4 @@ modules:
   assign_activities: "2-assign_activities"
   locations: "3-locations"
   assign_locations: "4-assign_locations"
+  synthetic_population_to_sim: "5-synthetic_population_to_Sim2APL"

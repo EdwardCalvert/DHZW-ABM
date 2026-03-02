@@ -13,19 +13,7 @@ run_assign_locations <- function(
   if (!dir.exists(output_dir)) dir.create(output_dir, recursive = TRUE)
 
   # Set names here due to some issue with the targets framework.
-  location_files_vector <- setNames(
-    location_files_vector,
-    c(
-      "work_locations_csv",
-      "sport_locations_csv",
-      "shopping_locations_csv",
-      "household_locations_full_csv",
-      "household_locations_minimal_csv",
-      "school_locations_shp",
-      "school_locations_csv",
-      "merged_locations_csv"
-    )
-  )
+  location_files_vector <- rename_location_files_vector(location_files_vector)
 
   displacements_DHZW_csv <- calculate_ODiN_displacements(
     output_dir,

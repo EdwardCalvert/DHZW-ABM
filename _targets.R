@@ -6,7 +6,8 @@
 # Load packages required to define the pipeline:
 library(targets)
 
-source("output_directory_source_utility.R")
+# source("output_directory_source_utility.R")
+# source("rename_location_files_vector_util.R")
 
 tar_option_set(
   packages = c(
@@ -24,7 +25,8 @@ tar_option_set(
     # "plyr", #remove due to namespace masking issues.
     "here",
     "yaml",
-    "opentripplanner"
+    "opentripplanner",
+    "geosphere"
   ),
   workspace_on_error = TRUE
 )
@@ -32,8 +34,11 @@ tar_option_set(
 
 # Run the R scripts in the R/ folder with your custom functions:
 tar_source(c(
+  "output_directory_source_utility.R",
+  "rename_location_files_vector_util.R",
   "0-shapefiles/main.R", # Only main, other files not ready yet
   "0-shapefiles/PC6_centroids.R",
+  "0-shapefiles/PC5_centroids.R",
   "0-shapefiles/PC4_centroids.R",
   "0-synthetic-population/main.R", # Only main, other files not prepared yet
   "1-trips/main.R",
@@ -45,19 +50,33 @@ tar_source(c(
   "4-assign-locations/src/",
   "4-assign-locations/main.R",
   "4-assign-locations/data_preparation.R",
-  "4-assign-locations/calculate_postcode_activity_distribution.R"
+  "4-assign-locations/calculate_postcode_activity_distribution.R",
+  "5-synthetic-population-to-Sim2APL/merge_locations.R",
+  "5-synthetic-population-to-Sim2APL/merge_activities_locations.R",
+  # "5-synthetic-population-to-Sim2APL/utils.R",
+  "5-synthetic-population-to-Sim2APL/format_to_SIM2APL.R"
 ))
 
 list(
   tar_target(config_file, "config.yaml", format = "file"),
   tar_target(config, yaml::read_yaml(config_file)),
   tar_target(output_dir, get_output_path(config)),
+  tar_target(final_output_dir, get_final_output_path(config)),
+
+  # Open trip planner depdenencies
+  tar_target(otp_data_path, "../dhzw_data/otp"),
+  tar_target(otp_java_path, file.path(otp_data_path, "otp-2.2.0-shaded.jar")),
 
 
   ## Shapefiles
   tar_target(
     pc6_gpkg,
     "../dhzw_data/2024-cbs_pc6_2021_vol/cbs_pc6_2021_vol.gpkg",
+    format = "file"
+  ),
+  tar_target(
+    pc5_gpkg,
+    "../dhzw_data/2024-cbs_pc5_2021_vol/cbs_pc5_2021_vol.gpkg",
     format = "file"
   ),
   tar_target(
@@ -84,8 +103,10 @@ list(
   tar_target(neighborhood_codes_csv, shapefiles[1], format = "file"),
   tar_target(neighbourhoods_csv, shapefiles[2], format = "file"),
   tar_target(DHZW_pc4_codes_csv, shapefiles[3], format = "file"),
+
+  # PC6
   tar_target(
-    centroids_PC6_DHZW_csv,
+    centroids_PC6_results,
     generate_pc6_centroids(
       file.path(output_dir, config$modules$shapefiles),
       DHZW_pc4_codes_csv,
@@ -93,8 +114,28 @@ list(
     ),
     format = "file"
   ),
+  tar_target(centroids_pc6_NL_shp, centroids_PC6_results[1], format = "file"),
+  tar_target(centroids_pc6_NL_csv, centroids_PC6_results[2], format = "file"),
+  tar_target(centroids_PC6_DHZW_shp, centroids_PC6_results[3], format = "file"),
+  tar_target(centroids_PC6_DHZW_csv, centroids_PC6_results[4], format = "file"),
+
+  # PC5
   tar_target(
-    centroids_pc4_DHZW_shp,
+    centroids_pc5_results,
+    generate_pc5_centroids(
+      file.path(output_dir, config$modules$shapefiles),
+      DHZW_pc4_codes_csv,
+      pc5_gpkg
+    )
+  ),
+  tar_target(centroids_pc5_NL_shp, centroids_pc5_results[1], format = "file"),
+  tar_target(centroids_pc5_NL_csv, centroids_pc5_results[2], format = "file"),
+  tar_target(centroids_pc5_DHZW_shp, centroids_pc5_results[3], format = "file"),
+  tar_target(centroids_pc5_DHZW_csv, centroids_pc5_results[4], format = "file"),
+
+  # PC4
+  tar_target(
+    centroids_pc4_results,
     generate_pc4_centroids(
       file.path(output_dir, config$modules$shapefiles),
       DHZW_pc4_codes_csv,
@@ -102,6 +143,10 @@ list(
     ),
     format = "file"
   ),
+  tar_target(centroids_pc4_NL_shp, centroids_pc4_results[1], format = "file"),
+  tar_target(centroids_pc4_NL_csv, centroids_pc4_results[2], format = "file"),
+  tar_target(centroids_pc4_DHZW_shp, centroids_pc4_results[3], format = "file"),
+  tar_target(centroids_pc4_DHZW_csv, centroids_pc4_results[4], format = "file"),
 
   ## Synthetic population
   # Aware this is pointless to copy, but leave for time being!?
@@ -199,5 +244,43 @@ list(
       centroids_pc4_DHZW_shp
     ),
     format = "file"
-  )
+  ),
+
+  ## merge_locations
+  # merge_activities_locations
+  # format_to_SIM2APL.
+  # tar_target(
+  #   merged_locations_csv,
+  #   merge_locations(
+  #     file.path(
+  #       output_dir, config$modules$synthetic_population_to_sim
+  #     ),
+  #     location_files_vector
+  #   ),
+  #   format = "file"
+  # ),
+  tar_target(
+    format_to_sim_activities_locations_csv,
+    format_to_sim_merge_locations(
+      file.path(output_dir, config$modules$synthetic_population_to_sim),
+      synthetic_activities_csv,
+      location_files_vector,
+      centroids_pc4_NL_csv,
+      centroids_pc5_NL_csv,
+      centroids_PC6_DHZW_csv
+    ),
+    format = "file"
+  ),
+  tar_target(
+    final_activities_locations_csv,
+    format_to_sim2apl(
+      file.path(output_dir, config$modules$synthetic_population_to_sim),
+      final_output_dir,
+      synthetic_population_csv,
+      location_files_vector,
+      format_to_sim_activities_locations_csv
+    ),
+    format = "file"
+  ),
+  tar_target()
 )
