@@ -9,7 +9,7 @@ run_work_retail_sport_location_extraction <- function(
   
   # Load PC4 of DHZW
   DHZW_PC4_codes <-
-    read.csv(DHZW_pc4_codes_csv)$V1
+    read.csv(DHZW_pc4_codes_csv, header = F)$V1
   
   add_coordinates <- function(df) {
     # retrieve coordinates from the geometry because the original ones are incomplete

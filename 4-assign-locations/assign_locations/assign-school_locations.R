@@ -12,6 +12,7 @@ assign_school_locations <- function(
   ################################################################################
   # Load datasets
 
+  print("assign school locations processing.")
   # load synthetic population
   df_synth_pop <- read.csv(synthetic_population_csv)
 
@@ -33,10 +34,19 @@ assign_school_locations <- function(
   # for the agents that go to school, calculate from ODiN to what PC4 they go to school. Based on their age group
 
   df_synth_pop$age_school <- NA
-  df_synth_pop[df_synth_pop$age <= 5, ]$age_school <- "daycare"
-  df_synth_pop[df_synth_pop$age >= 6 & df_synth_pop$age <= 11, ]$age_school <- "primary_school"
-  df_synth_pop[df_synth_pop$age >= 12 & df_synth_pop$age <= 18, ]$age_school <- "highschool"
-  df_synth_pop[df_synth_pop$age >= 19, ]$age_school <- "university"
+  
+  # df_synth_pop[df_synth_pop$age <= 5, ]$age_school <- "daycare"
+  # df_synth_pop[df_synth_pop$age >= 6 & df_synth_pop$age <= 11, ]$age_school <- "primary_school"
+  # df_synth_pop[df_synth_pop$age >= 12 & df_synth_pop$age <= 18, ]$age_school <- "highschool"
+  # df_synth_pop[df_synth_pop$age >= 19, ]$age_school <- "university"
+  
+  df_synth_pop$age_school <- dplyr::case_when(
+    df_synth_pop$age <= 5 ~ "daycare",
+    df_synth_pop$age <= 11 ~ "primary_school",
+    df_synth_pop$age <= 18 ~ "highschool",
+    TRUE ~ "university"
+  )
+
 
 
   df_school_prop_daycare <- read.csv(ODiN_school_daycare_act_prop_csv, check.names = FALSE, sep = ",", header = TRUE)
@@ -174,8 +184,8 @@ assign_school_locations <- function(
   df_activities <- subset(df_activities, select = -c(school_lid, school_in_DHZW))
 
   ################################################################################
-  print("school:")
-  nrow(df_activities[df_activities$activity_type == "school" & is.na(df_activities$lid), ])
+  print("Processing school complete.")
+  #nrow(df_activities[df_activities$activity_type == "school" & is.na(df_activities$lid), ])
 
   # save
   return(df_activities)

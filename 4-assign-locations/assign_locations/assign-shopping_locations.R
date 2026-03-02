@@ -12,7 +12,6 @@ assign_shopping_locations <- function(
   df_shopping_prop <- read.table(ODiN_shopping_act_prop_csv, check.names = FALSE, sep = ",", header = TRUE)
 
 
-
   # load synthetic population
   df_synth_pop <- read.csv(synthetic_population_csv)
   df_synth_pop$hh_PC4 <- gsub(".{2}$", "", df_synth_pop$PC6)
@@ -32,6 +31,7 @@ assign_shopping_locations <- function(
   ################################################################################
   # Call function that assigns locations based on the PC4 proportions. For locations in DHZW, the lid contains the locations ID. Otherwise the PC4.
 
+  print("Actively assigning shopping proportions")
   df_activities <- assign_locations_PC4_proportions(
     df_activities,
     "shopping",
@@ -43,7 +43,7 @@ assign_shopping_locations <- function(
   )
 
   # check
-  #nrow(df_activities[df_activities$activity_type == "shopping" & is.na(df_activities$lid), ])
+  # nrow(df_activities[df_activities$activity_type == "shopping" & is.na(df_activities$lid), ])
   print("shopping activity assingment complete.")
   return(df_activities)
 }

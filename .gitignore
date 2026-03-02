@@ -6,3 +6,6 @@ arcgis-maps/*
 .DS_Store
 _targets/
 output/*
+.RDataTmp
+.Rhistory
+Rplots.pdf

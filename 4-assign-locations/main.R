@@ -12,7 +12,7 @@ run_assign_locations <- function(
 ) {
   if (!dir.exists(output_dir)) dir.create(output_dir, recursive = TRUE)
 
-  #Set names here due to some issue with the targets framework. 
+  # Set names here due to some issue with the targets framework.
   location_files_vector <- setNames(
     location_files_vector,
     c(
@@ -78,12 +78,12 @@ run_assign_locations <- function(
       centroids_pc4_DHZW_shp,
       DHZW_pc4_codes_csv
     )
-  
+
   print("summary:")
-  nrow(df_activities[df_activities$activity_type=='sport' & is.na(df_activities$lid),])
-  nrow(df_activities[df_activities$activity_type=='home' & is.na(df_activities$lid),])
-  nrow(df_activities[df_activities$activity_type=='work' & is.na(df_activities$lid),])
-  nrow(df_activities[df_activities$activity_type=='school' & is.na(df_activities$lid),])
+  print(nrow(df_activities[df_activities$activity_type == "sport" & is.na(df_activities$lid), ]))
+  nrow(df_activities[df_activities$activity_type == "home" & is.na(df_activities$lid), ])
+  nrow(df_activities[df_activities$activity_type == "work" & is.na(df_activities$lid), ])
+  nrow(df_activities[df_activities$activity_type == "school" & is.na(df_activities$lid), ])
 
   synthetic_activities_csv <- file.path(output_dir, "synthetic_activites.csv")
   write.csv(df_assigned_activity, synthetic_activities_csv, row.names = FALSE)
