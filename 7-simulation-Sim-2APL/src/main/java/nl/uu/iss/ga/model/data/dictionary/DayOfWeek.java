@@ -30,7 +30,8 @@ public enum DayOfWeek implements CodeTypeInterface {
     }
 
     public static DayOfWeek fromSecondsSinceSundayMidnight(int secondsSinceSundayMidnight) {
-        return CodeTypeInterface.parseAsEnum(DayOfWeek.class, secondsSinceSundayMidnight / ActivityTime.SECONDS_IN_DAY + 1);
+        DayOfWeek bob = CodeTypeInterface.parseAsEnum(DayOfWeek.class, secondsSinceSundayMidnight / ActivityTime.SECONDS_IN_DAY + 1);
+        return bob;
     }
 
     public int getSecondsSinceMidnightForDayStart() {

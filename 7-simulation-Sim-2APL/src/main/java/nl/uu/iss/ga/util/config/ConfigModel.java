@@ -226,6 +226,9 @@ public class ConfigModel {
         } catch (URISyntaxException e) {
             LOGGER.log(Level.SEVERE, "Failed to create AgentID for agent " + schedule.getPid(), e);
         }
+        catch (Exception e){
+            LOGGER.log(Level.SEVERE, "Error " + e.toString());
+        }
     }
 
     private List<File> getFiles(String key, boolean required) throws Exception {

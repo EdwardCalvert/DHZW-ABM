@@ -17,7 +17,7 @@ public class ActivityTime implements Comparable<ActivityTime>, Cloneable {
 
     public ActivityTime(int secondsSinceSundayMidnight) {
         this.seconds = secondsSinceSundayMidnight;
-        dayOfWeek = DayOfWeek.fromSecondsSinceSundayMidnight(secondsSinceSundayMidnight);
+        this.dayOfWeek = DayOfWeek.fromSecondsSinceSundayMidnight(secondsSinceSundayMidnight);
         this.hour_of_day = (this.seconds % SECONDS_IN_DAY) / SECONDS_IN_HOUR;
         this.minute_of_hour = (this.seconds % SECONDS_IN_HOUR) / 60;
         this.seconds_of_minute = (this.seconds % 60);

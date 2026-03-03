@@ -30,7 +30,7 @@ import java.util.logging.Logger;
 
 public class EnvironmentInterface implements TickHookProcessor<Activity> {
 
-    private final boolean printOutput = false;
+    private final boolean printOutput = true;
 
     private static final Logger LOGGER = Logger.getLogger(EnvironmentInterface.class.getName());
     private final Platform platform;
