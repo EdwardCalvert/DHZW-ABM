@@ -4,7 +4,7 @@ format_to_sim_merge_locations <- function(
   location_files_vector,
   centroids_pc4_NL_csv,
   centroids_pc5_NL_csv,
-  centroids_PC6_DHZW_csv
+  centroids_PC6_NL_csv
 ) {
   if (!dir.exists(output_dir)) dir.create(output_dir, recursive = TRUE) # first in file, no main.R
   location_files_vector <- rename_location_files_vector(location_files_vector)
@@ -90,7 +90,7 @@ format_to_sim_merge_locations <- function(
   # PC6 centroids
 
   # Read PC4 centroids
-  df_PC6_NL_centroids <- read.csv(centroids_PC6_DHZW_csv)
+  df_PC6_NL_centroids <- read.csv(centroids_PC6_NL_csv)
 
   df_PC6_NL_centroids <- df_PC6_NL_centroids %>%
     rename(

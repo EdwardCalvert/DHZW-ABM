@@ -38,6 +38,8 @@ tar_source(c(
   "rename_location_files_vector_util.R",
   "0-shapefiles/main.R", # Only main, other files not ready yet
   "0-shapefiles/PC6_centroids.R",
+  "0-shapefiles/PC6_DHZW_Moerwijk.R",
+  "0-shapefiles/PC6_DHZW.R",
   "0-shapefiles/PC5_centroids.R",
   "0-shapefiles/PC4_centroids.R",
   "0-synthetic-population/main.R", # Only main, other files not prepared yet
@@ -54,7 +56,13 @@ tar_source(c(
   "5-synthetic-population-to-Sim2APL/merge_locations.R",
   "5-synthetic-population-to-Sim2APL/merge_activities_locations.R",
   # "5-synthetic-population-to-Sim2APL/utils.R",
-  "5-synthetic-population-to-Sim2APL/format_to_SIM2APL.R"
+  "5-synthetic-population-to-Sim2APL/format_to_SIM2APL.R",
+  "6-routing/main.R",
+  "6-routing/build_graph.R",
+  "6-routing/generate_OD.R",
+  "6-routing/calculate_euclidean_distance.R",
+  "6-routing/utils-otp.R",
+  "6-routing/routing_bus.R"
 ))
 
 list(
@@ -118,6 +126,22 @@ list(
   tar_target(centroids_pc6_NL_csv, centroids_PC6_results[2], format = "file"),
   tar_target(centroids_PC6_DHZW_shp, centroids_PC6_results[3], format = "file"),
   tar_target(centroids_PC6_DHZW_csv, centroids_PC6_results[4], format = "file"),
+  tar_target(
+    pc6_moerwijk_station_shp,
+    generate_pc6_DHZW_moerwijk(
+      file.path(output_dir, config$modules$shapefiles),
+      pc6_gpkg
+    ),
+    format = "file"
+  ),
+  tar_target(
+    pc6_DHZW_shp,
+    generate_pc6_shp(
+      file.path(output_dir, config$modules$shapefiles),
+      DHZW_pc4_codes_csv,
+      pc6_gpkg
+    )
+  ),
 
   # PC5
   tar_target(
@@ -267,7 +291,7 @@ list(
       location_files_vector,
       centroids_pc4_NL_csv,
       centroids_pc5_NL_csv,
-      centroids_PC6_DHZW_csv
+      centroids_pc6_NL_csv
     ),
     format = "file"
   ),
@@ -282,5 +306,16 @@ list(
     ),
     format = "file"
   ),
-  tar_target()
+  tar_target(
+    status,
+    run_routing(
+      file.path(output_dir, config$modules$routing),
+      final_output_dir,
+      otp_data_path,
+      otp_java_path,
+      pc6_DHZW_shp,
+      final_activities_locations_csv,
+      centroids_pc5_DHZW_csv
+    ),
+  )
 )

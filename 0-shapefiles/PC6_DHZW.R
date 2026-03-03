@@ -1,34 +1,29 @@
-library(this.path)
-library(sf)
-library(dplyr)
+generate_pc6_shp <- function(output_dir, DHZW_pc4_codes_csv, pc6_gpkg) {
+  # Load PC4 vectorial coordinates and compute their centroids
+  df_PC6_NL <- st_read(pc6_gpkg) %>%
+    rename(PC6 = postcode6)
 
-# Load PC4 vectorial coordinates and compute their centroids
-setwd(this.dir())
-setwd('data/raw/')
-df_PC6_NL <- st_read('CBS-PC6-2019-v2')
+  ################################################################################
+  df_PC6_NL <- st_transform(df_PC6_NL, "+proj=longlat +datum=WGS84")
+  df_PC6_NL <- subset(df_PC6_NL, select = c("PC6"))
 
-################################################################################
-df_PC6_NL <- st_transform(df_PC6_NL, "+proj=longlat +datum=WGS84")
-df_PC6_NL = subset(df_PC6_NL, select = c('PC6'))
+  # Filter on DHZW
+  DHZW_PC4_codes <-
+    read.csv(DHZW_pc4_codes_csv, sep = ";", header = F)$V1
 
-# Filter on DHZW
-setwd(this.path::this.dir())
-setwd('data/codes')
-DHZW_PC4_codes <-
-  read.csv("DHZW_PC4_codes.csv", sep = ";" , header = F)$V1
+  df_PC6_NL$PC4 <- gsub(".{2}$", "", df_PC6_NL$PC6)
 
-df_PC6_NL$PC4 <- gsub('.{2}$', '', df_PC6_NL$PC6)
+  df_PC6_DHZW <- df_PC6_NL %>%
+    filter(PC4 %in% DHZW_PC4_codes)
 
-df_PC6_DHZW <- df_PC6_NL %>%
-  filter (PC4 %in% DHZW_PC4_codes)
+  df_PC6_NL <- subset(df_PC6_NL, select = -c(PC4))
+  df_PC6_DHZW <- subset(df_PC6_DHZW, select = -c(PC4))
 
-df_PC6_NL = subset(df_PC6_NL, select = -c(PC4))
-df_PC6_DHZW = subset(df_PC6_DHZW, select = -c(PC4))
+  ################################################################################
+  # Save DHZW
 
-################################################################################
-# Save DHZW
-
-# Save shapefile
-setwd(this.dir())
-setwd('data/processed/shapefiles/PC6_DHZW_shp/')
-write_sf(df_PC6_DHZW, 'PC6_DHZW_shp.shp')
+  # Save shapefile
+  pc6_DHZW_shp <- file.path(output_dir, "PC6_DHZW_shp.shp")
+  write_sf(df_PC6_DHZW, pc6_DHZW_shp)
+  return(pc6_DHZW_shp)
+}
