@@ -48,7 +48,7 @@ public class Activity {
         // start_time, duration, location, mask_state, disease_state
 
         return String.format(
-                "%s (%s) %s - %s",
+                "act_type: %s start: %s end: %s",
                 this.getActivityType(),
                 this.startTime,
                 new ActivityTime(this.startTime.getSeconds())

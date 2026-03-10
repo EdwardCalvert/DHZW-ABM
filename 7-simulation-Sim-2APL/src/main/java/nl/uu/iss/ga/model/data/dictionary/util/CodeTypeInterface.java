@@ -17,7 +17,8 @@ public interface CodeTypeInterface {
         return CodeTypeInterface.valueOf(type, codeValue);
     }
 
-    static <T extends Enum<T> & CodeTypeInterface> T parseAsEnum(Class<T> type, String codeValue) {
-        return parseAsEnum(type, ParserUtil.parseAsInt(codeValue));
-    }
+    //Deprecated - not used (no consumers affected).
+//    static <T extends Enum<T> & CodeTypeInterface> T parseAsEnum(Class<T> type, String codeValue) {
+//        return parseAsEnum(type, ParserUtil.parseAsInt(codeValue));
+//    }
 }

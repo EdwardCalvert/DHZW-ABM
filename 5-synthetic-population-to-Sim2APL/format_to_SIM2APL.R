@@ -41,11 +41,11 @@ format_to_sim2apl <- function(
   df_activities$day_of_week <- as.numeric(df_activities$day_of_week)
 
   # Remove all the activities that in a day happens the day after (even better to just delete them when generating the activities...)
-  df_activities <- df_activities[df_activities$start_time < 1400, ]
+  df_activities <- df_activities[df_activities$start_time < 86400, ]
 
   # Calculate time from beginning of the week (required by Sim2APL)
-  df_activities$start_time_seconds <- (((df_activities$day_of_week - 1) * 1440) + df_activities$start_time) * 60
-  df_activities$duration_seconds <- df_activities$duration * 60
+  df_activities$start_time_seconds <- (((df_activities$day_of_week - 1) * 86400) + df_activities$start_time) #* 60
+  df_activities$duration_seconds <- df_activities$duration #* 60
 
   # Modify the activity_number from the beginning of the week till the end of it
   df_activities <- df_activities %>%

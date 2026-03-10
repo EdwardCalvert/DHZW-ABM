@@ -13,16 +13,26 @@ public interface StringCodeTypeInterface extends CodeTypeInterface {
         return null;
     }
 
-    static int parseStringcode(String stringcode) {
-        return parseStringcode(stringcode, -1);
+    static int parseStringCode(String stringCode) {
+        return parseStringCode(stringCode, -1); //Method overload to supply default value.
     }
 
-    static int parseStringcode(String stringcode, int defaultInteger) {
-        try {
-            return Integer.parseInt(stringcode);
-        } catch (NumberFormatException e) {
-            return -1;
+    static int parseStringCode(String stringCode, int defaultInteger) {
+
+        if (stringCode == null) {
+            return defaultInteger;
         }
+        try {
+            // Check if the string is a valid integer (including negative sign)
+            if (stringCode.matches("-?\\d+")) {
+                return Integer.parseInt(stringCode);
+            }
+        }
+        catch (NumberFormatException e){
+            return defaultInteger;
+        }
+        // If not an integer, return the hash of the string
+        return stringCode.hashCode();
     }
 
     static <T extends Enum<T> & StringCodeTypeInterface> T parseAsEnum(Class<T> type, String codeValue) {

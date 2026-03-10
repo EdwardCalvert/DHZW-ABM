@@ -70,9 +70,9 @@ process_ODiN_data <- function(odin_ovin_dir, urbanisation_pc4_csv, DHZW_pc4_code
   ################################################################################
   # Calculate times
   
-  df$disp_start_time <- df$disp_start_hour * 60 + df$disp_start_min
+  df$disp_start_time <- (df$disp_start_hour * 60 + df$disp_start_min)*60 # start_time_in seconds
   df$disp_arrival_time <-
-    df$disp_arrival_hour * 60 + df$disp_arrival_min
+    (df$disp_arrival_hour * 60 + df$disp_arrival_min) *60
   df <-
     subset(
       df,

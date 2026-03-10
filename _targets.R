@@ -305,17 +305,18 @@ list(
       format_to_sim_activities_locations_csv
     ),
     format = "file"
-  ),
-  tar_target(
-    status,
-    run_routing(
-      file.path(output_dir, config$modules$routing),
-      final_output_dir,
-      otp_data_path,
-      otp_java_path,
-      pc6_DHZW_shp,
-      final_activities_locations_csv,
-      centroids_pc5_DHZW_csv
-    ),
   )
+  # ,
+  # tar_target(
+  #   status,
+  #   run_routing(
+  #     file.path(output_dir, config$modules$routing),
+  #     final_output_dir,
+  #     otp_data_path,
+  #     otp_java_path,
+  #     pc6_DHZW_shp,
+  #     final_activities_locations_csv,
+  #     centroids_pc5_DHZW_csv
+  #   ),
+  # )
 )

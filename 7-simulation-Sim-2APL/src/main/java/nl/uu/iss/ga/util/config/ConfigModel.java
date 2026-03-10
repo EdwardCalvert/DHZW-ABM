@@ -120,7 +120,12 @@ public class ConfigModel {
             createAgentFromSchedule(platform, environmentInterface, schedule, modeOfTransportTracker, activityTypeTracker);
         }
     }
-    private void createAgentFromSchedule(Platform platform, EnvironmentInterface environmentInterface, ActivitySchedule schedule, ModeOfTransportTracker modeOfTransportTracker, ActivityTypeTracker activityTypeTracker) {
+    private void createAgentFromSchedule(
+            Platform platform,
+            EnvironmentInterface environmentInterface,
+            ActivitySchedule schedule,
+            ModeOfTransportTracker modeOfTransportTracker,
+            ActivityTypeTracker activityTypeTracker) {
         MNLModalChoiceModel modalChoiceModel = new MNLModalChoiceModel();
         modalChoiceModel.setParameters(parametersReader);
 
@@ -228,6 +233,7 @@ public class ConfigModel {
         }
         catch (Exception e){
             LOGGER.log(Level.SEVERE, "Error " + e.toString());
+            //throw e;
         }
     }
 

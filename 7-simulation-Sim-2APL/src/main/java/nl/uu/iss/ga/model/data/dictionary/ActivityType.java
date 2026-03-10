@@ -16,7 +16,7 @@ public enum ActivityType implements StringCodeTypeInterface {
         this.stringCode = code;
 
         // Transform String into integer code for comparable
-        this.code = StringCodeTypeInterface.parseStringcode(code);
+        this.code = StringCodeTypeInterface.parseStringCode(code);
     }
 
     @Override

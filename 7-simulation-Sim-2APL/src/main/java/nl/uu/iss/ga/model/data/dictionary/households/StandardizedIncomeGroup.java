@@ -21,7 +21,7 @@ public enum StandardizedIncomeGroup implements StringCodeTypeInterface {
 
     StandardizedIncomeGroup(String code) {
         this.stringCode = code;
-        this.code = StringCodeTypeInterface.parseStringcode(code);
+        this.code = StringCodeTypeInterface.parseStringCode(code);
     }
 
     @Override

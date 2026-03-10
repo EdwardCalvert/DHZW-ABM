@@ -38,8 +38,8 @@ get_activites_from_trips_vector <- function(highly_urbanised_trips_csv) {
   df_activites <- df_trips |>
     arrange(agent_ID, disp_start_time) |>
     mutate(
-      start_min = disp_start_time * 60, # transform minutes into seconds
-      arr_min = disp_arrival_time * 60,
+      start_min = disp_start_time, #* 60, # transform minutes into seconds
+      arr_min = disp_arrival_time, #* 60,
       mapped_activity = recode(
         disp_activity,
         !!!activity_map,
