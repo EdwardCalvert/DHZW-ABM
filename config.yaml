@@ -1,5 +1,5 @@
 project_root: "."
-experiment_id: "effect-of-rush-hour"
+experiment_id: "synth_pop"
 data_version: "v1.2"
 parameters:
   rush_hour_start: 07:00

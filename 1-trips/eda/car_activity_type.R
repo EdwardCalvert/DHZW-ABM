@@ -80,9 +80,12 @@ process_ODiN_data <- function(odin_ovin_dir, urbanisation_pc4_csv, DHZW_pc4_code
   )
 
   unique(df$disp_modal_choice)
-  df_car <- df[df$disp_modal_choice == "bus_tram" &
+
+
+  df_car <- df[
     !is.na(df$disp_start_time) &
-    !is.na(df$day_of_week), ]
+      !is.na(df$day_of_week),
+  ]
 
   df_car$day_of_week <- factor(df_car$day_of_week,
     levels = c(2, 3, 4, 5, 6, 7, 1),
@@ -95,7 +98,25 @@ process_ODiN_data <- function(odin_ovin_dir, urbanisation_pc4_csv, DHZW_pc4_code
 
   df_car <- df_car[!is.na(df_car$start_hour), ]
 
+  df_age <- df_car[!is.na(df_car$age) & !is.na(df_car$disp_modal_choice), ]
 
+
+  ggplot(df_age, aes(x = age, fill = disp_modal_choice)) +
+    geom_bar(position = "stack", width = 1) +
+    # facet_wrap(~day_of_week, scales = "fixed", ncol = 2, drop = FALSE) +
+    scale_x_continuous(breaks = seq(0, 100, 10)) +
+    scale_fill_viridis_d(aesthetics = "fill", option = "virdis", direction = -1) +
+    theme_minimal() +
+    theme(legend.position = "bottom") +
+    labs(
+      fill = "Activity",
+      title = "Age against modal choice",
+      x = "Age",
+      y = "Count"
+    )
+
+
+  df_car <- df_car[df_car$disp_modal_choice == "car", ]
   df_dhzw <- df_car[df_car$hh_PC4 %in% DHZW_PC4_codes, ]
 
 
@@ -204,10 +225,11 @@ process_ODiN_data <- function(odin_ovin_dir, urbanisation_pc4_csv, DHZW_pc4_code
     theme(legend.position = "bottom") +
     labs(
       fill = "Activity",
-      title = "Temporal Distribution of Bus/Tram Trips by Activity and Weekday",
+      title = "Temporal Distribution of Car Trips by Activity and Weekday",
       x = "Hour of day",
       y = "Count"
     )
+
 
   ########################################################################################
   # Data cleaning
