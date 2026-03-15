@@ -15,8 +15,17 @@ assign_locations_PC4_proportions <- function(
     PC4_agent_IDs <- df_synth_pop[df_synth_pop$hh_PC4 == hh_PC4, ]$agent_ID
     #  df_activities_PC4 <- df_activities[df_activities$agent_ID %in% PC4_agent_IDs,]
 
+
     df_prop_PC4 <-
       df_prop[df_prop$hh_PC4 == hh_PC4, ]
+
+    probs <- as.numeric(df_prop_PC4[1, -which(names(df_prop_PC4) == "hh_PC4")])
+
+    if (any(is.na(probs)) || sum(probs) == 0) {
+      print(df_prop_PC4)
+      print(probs)
+      stop(paste("Invalid probability vector for hh_PC4:", hh_PC4))
+    }
 
     df_activities[df_activities$agent_ID %in% PC4_agent_IDs &
       df_activities$activity_type == activity_type, ] <-
@@ -25,14 +34,14 @@ assign_locations_PC4_proportions <- function(
       mutate(PC4_activity = sample(
         colnames(df_prop_PC4[, -which(names(df_prop_PC4) %in% c("hh_PC4"))]),
         size = n(),
-        prob = as.numeric(df_prop_PC4[1, -which(names(df_prop_PC4) %in% c("hh_PC4"))]),
+        prob = probs,
         replace = TRUE
       ))
   }
   #
   # ################################################################################
   # # For each PC4 pick a random location in it. If there are no locations in such area, look into the closest PC4
-
+  # print("Clear, completed step 1")
   for (PC4 in unique(df_activities[df_activities$activity_type == activity_type, ]$PC4_activity)) {
     if (PC4 %in% DHZW_PC4_codes) {
       # print(PC4)

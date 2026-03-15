@@ -5,7 +5,6 @@ run_routing <- function(output_dir,
                         pc6_DHZW_shp,
                         final_activities_locations_csv,
                         centroids_pc5_DHZW_csv) {
-  if (!dir.exists(output_dir)) dir.create(output_dir, recursive = TRUE)
   # do some check: (took 13 mintues before.)
   # build_otp_graph(otp_data_path, otp_java_path)
 

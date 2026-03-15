@@ -36,13 +36,13 @@ tar_option_set(
 tar_source(c(
   "output_directory_source_utility.R",
   "rename_location_files_vector_util.R",
-  "0-shapefiles/main.R", # Only main, other files not ready yet
   "0-shapefiles/PC6_centroids.R",
   "0-shapefiles/PC6_DHZW_Moerwijk.R",
   "0-shapefiles/PC6_DHZW.R",
   "0-shapefiles/PC5_centroids.R",
   "0-shapefiles/PC4_centroids.R",
   "0-synthetic-population/main.R", # Only main, other files not prepared yet
+  "0-synthetic-population/src/format-datasets/format-GenSynthPop_to_vanilla.R",
   "1-trips/main.R",
   "1-trips/data_preparation.R",
   "1-trips/utils.R",
@@ -70,6 +70,7 @@ list(
   tar_target(config, yaml::read_yaml(config_file)),
   tar_target(output_dir, get_output_path(config)),
   tar_target(final_output_dir, get_final_output_path(config)),
+  tar_target(experiment_id, config$experiment_id),
 
   # Open trip planner depdenencies
   tar_target(otp_data_path, "../dhzw_data/otp"),
@@ -92,25 +93,11 @@ list(
     "../dhzw_data/2025-cbs_pc4_2022_vol/cbs_pc4_2022_vol.gpkg", # 2021 data seemed corrupt
     format = "file"
   ),
-  tar_target(
-    shapefile_sources,
-    c(
-      here(config$modules$shapefiles, "data", "codes", "DHZW_neighbourhoods_codes.csv"),
-      here(config$modules$shapefiles, "data", "codes", "DHZW_neighbourhoods.csv"),
-      here(config$modules$shapefiles, "data", "codes", "DHZW_pc4_codes.csv")
-    ),
-    format = "file"
-  ),
-  tar_target(
-    shapefiles,
-    run_shapefiles(file.path(output_dir, config$modules$shapefiles), shapefile_sources),
-    format = "file"
-  ),
   # run shapefiles returns :
   # neighbourhood_codes.csv, neighbourhoods.csv, pc4_codes.csv
-  tar_target(neighborhood_codes_csv, shapefiles[1], format = "file"),
-  tar_target(neighbourhoods_csv, shapefiles[2], format = "file"),
-  tar_target(DHZW_pc4_codes_csv, shapefiles[3], format = "file"),
+  tar_target(neighborhood_codes_csv, here(config$modules$shapefiles, "data", "codes", "DHZW_neighbourhoods_codes.csv"), format = "file"),
+  tar_target(neighbourhoods_csv, here(config$modules$shapefiles, "data", "codes", "DHZW_neighbourhoods.csv"), format = "file"),
+  tar_target(DHZW_pc4_codes_csv, here(config$modules$shapefiles, "data", "codes", "DHZW_pc4_codes.csv"), format = "file"),
 
   # PC6
   tar_target(
@@ -173,25 +160,39 @@ list(
   tar_target(centroids_pc4_DHZW_csv, centroids_pc4_results[4], format = "file"),
 
   ## Synthetic population
-  # Aware this is pointless to copy, but leave for time being!?
   tar_target(
     synthetic_population_source,
-    here(config$modules$synthetic_population, "output", "synthetic-population-households", "synthetic_population_DHZW_2019.csv"),
+    here(config$configuration[[experiment_id]]$module_dir, config$configuration[[experiment_id]]$population),
+    format = "file"
+  ),
+  tar_target(
+    synthetic_household_source,
+    here(config$configuration[[experiment_id]]$module_dir, config$configuration[[experiment_id]]$households),
     format = "file"
   ),
   tar_target(
     synthetic_population_csv,
     run_synthetic_population(
       file.path(output_dir, config$modules$synthetic_population),
-      synthetic_population_source
+      synthetic_population_source,
+      experiment_id,
+      synthetic_household_source,
+      DHZW_pc4_codes_csv
     ),
     format = "file"
   ),
   tar_target(
     df_households_csv,
-    here(config$modules$synthetic_population, "output", "synthetic-population-households", "df_households_DHZW_2019.csv"),
+    run_synthetic_households(
+      file.path(output_dir, config$modules$synthetic_population),
+      synthetic_population_csv,
+      experiment_id,
+      synthetic_household_source,
+      DHZW_pc4_codes_csv
+    ),
     format = "file"
   ),
+
 
   ## Trips
   ## NEED TO ENCAPSULATE THESE DIRECTORIES INTO CONFIG FILE!!!!!!

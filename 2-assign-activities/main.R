@@ -3,11 +3,6 @@ run_assign_activities <- function(
   highly_urbanised_trips_csv,
   synthetic_population
 ) {
-  if (is.null(output_dir)) {
-    stop("Argument 'output_dir' is NULL.")
-  }
-
-  if (!dir.exists(output_dir)) dir.create(output_dir, recursive = TRUE)
   df_activities_all <- get_activites_from_trips_vector(highly_urbanised_trips_csv)
 
   activity_schedule_csv <- file.path(

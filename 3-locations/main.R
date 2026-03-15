@@ -7,8 +7,6 @@ run_locations <- function(
   centroids_PC6_DHZW_csv,
   DHZW_pc4_codes_csv
 ) {
-  if (!dir.exists(output_dir)) dir.create(output_dir, recursive = TRUE)
-
   results <- run_work_retail_sport_location_extraction(
     the_hague_BAG_shp,
     DHZW_pc4_codes_csv
@@ -91,17 +89,15 @@ run_locations <- function(
   write.csv(df_merged_locations, merged_locations_csv, row.names = FALSE)
 
   return(
-
-      c(
-        work_locations_csv,
-        sport_locations_csv,
-        shopping_locations_csv,
-        household_locations_full_csv,
-        household_locations_minimal_csv,
-        school_locations_shp,
-        school_locations_csv,
-        merged_locations_csv
-      )
-      
+    c(
+      work_locations_csv,
+      sport_locations_csv,
+      shopping_locations_csv,
+      household_locations_full_csv,
+      household_locations_minimal_csv,
+      school_locations_shp,
+      school_locations_csv,
+      merged_locations_csv
     )
+  )
 }

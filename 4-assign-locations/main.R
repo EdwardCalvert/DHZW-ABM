@@ -10,8 +10,6 @@ run_assign_locations <- function(
   centroids_PC6_DHZW_csv,
   centroids_pc4_DHZW_shp
 ) {
-  if (!dir.exists(output_dir)) dir.create(output_dir, recursive = TRUE)
-
   # Set names here due to some issue with the targets framework.
   location_files_vector <- rename_location_files_vector(location_files_vector)
 

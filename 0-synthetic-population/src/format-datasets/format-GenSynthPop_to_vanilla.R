@@ -1,0 +1,185 @@
+# library(dplyr)
+# #
+# df_vanilla <- read_csv("C:\\Users\\ed\\Development\\dhzw\\0-synthetic-population\\output\\synthetic-population-households\\synthetic_population_DHZW_2019.csv")
+# df_gs_pop <- read_csv("C:\\Users\\ed\\Development\\dhzw\\0-synthetic-population\\output\\gen-synth-pop\\synthetic_population_the_hague_south_west.csv")
+# df_gs_house <- read_csv("C:\\Users\\ed\\Development\\dhzw\\0-synthetic-population\\output\\gen-synth-pop\\synthetic_households_the_hague_south_west.csv")
+# #
+# col_names <- names(df_vanilla)
+# print(col_names)
+#
+# for (col in col_names) {
+#   if (!is.integer(df_vanilla[[col]])) {
+#     cat("\nUnique values for column:", col, "\n")
+#
+#     vals <- unique(df_vanilla[[col]])
+#
+#     print(head(vals, 10))
+#   }
+# }
+#
+# col_names <- names(df_gs_pop)
+# print(col_names)
+#
+# for (col in col_names) {
+#   if (!is.integer(df_gs_pop[[col]])) {
+#     cat("\nUnique values for column:", col, "\n")
+#
+#     vals <- unique(df_gs_pop[[col]])
+#
+#     print(head(vals, 10))
+#   }
+# }
+
+reformat_gen_synth_pop_to_correct_format <- function(df_gs_pop, df_gs_house, DHZW_pc4_codes_csv) {
+  DHZW_PC4_codes <- read.csv(DHZW_pc4_codes_csv, sep = ";", header = F)$V1
+
+  df_gs_pop <- df_gs_pop %>%
+    left_join(
+      df_gs_house %>% select(household_id, PC6, income_group, cars),
+      by = "household_id"
+    ) %>%
+    add_count(household_id, name = "hh_size")
+
+  df_gs_pop$hh_ID <- as.integer(gsub("[^0-9]", "", df_gs_pop$household_id))
+  df_gs_pop$household_id <- NULL
+  df_gs_pop$agent_ID <- paste0("agent_", as.integer(gsub("[^0-9]", "", df_gs_pop$agent_id)))
+  df_gs_pop$agent_id <- NULL
+
+  df_gs_pop$car_license <- recode(
+    df_gs_pop$car_license,
+    "no" = 0,
+    "yes" = 1
+  )
+
+  df_gs_pop$moped_license <- recode(
+    df_gs_pop$moped_license,
+    "no" = 0,
+    "yes" = 1
+  )
+
+  df_gs_pop$motorcycle_license <- NULL
+
+  df_gs_pop$is_child <- as.integer(df_gs_pop$age < 18)
+
+
+  df_gs_pop$current_education <- recode(
+    df_gs_pop$current_education,
+    "not_enrolled" = "no_current_edu",
+    "Hoger beroepsonderwijs" = "high",
+    "Wetenschappelijk onderwijs" = "high",
+    "Vo algemene leerjaren 1-3" = "low",
+    "Vmbo theoretische-gemengde leerweg 3-4" = "low",
+    "Vmbo basis-kaderberoeps 3-4" = "low",
+    "Praktijkonderwijs" = "low",
+    "Vwo 3-6" = "middle",
+    "Havo 3-5" = "middle",
+    "Speciale scholen" = "low",
+    "Basisonderwijs" = "low",
+    "Speciaal basisonderwijs" = "low",
+    "Vavo" = "middle",
+    "Basisberoepsopleiding (niveau 2)" = "middle",
+    "Middenkaderopleiding (niveau 4a)" = "middle",
+    "Vakopleiding (niveau 3)" = "middle",
+    "Assistentopleiding (niveau 1)" = "low"
+  )
+  df_gs_pop$edu_attainment <- recode(
+    df_gs_pop$absolved_education,
+    "no_education" = "nothing",
+    "111 Basisonderwijs" = "low",
+    "121 Vmbo-b/k, mbo1" = "low",
+    "122 Vmbo-g/t, havo-= vwo-onderbouw" = "low",
+    "122 Vmbo-g/t, havo-, vwo-onderbouw" = "low",
+    "211 Mbo2 en mbo3" = "middle",
+    "212 Mbo4" = "middle",
+    "213 Havo, vwo" = "middle",
+    "311 Hbo-, wo-bachelor" = "high",
+    "321 Hbo-, wo-master, doctor" = "high",
+  )
+  df_gs_pop$absolved_education <- NULL
+
+  df_gs_pop$car_ownership <- as.integer(df_gs_pop$cars >= 1)
+  df_gs_pop$cars <- NULL
+
+  df_gs_pop$income_group <- paste0("income_", df_gs_pop$income_group, "_10")
+
+  df_gs_pop$household_position <- NULL
+  df_gs_pop$hh_type <- "unkown"
+
+  df_gs_pop$migration_background <- recode(
+    df_gs_pop$migration_background,
+    "Dutch" = "Dutch",
+    "NonWestern" = "Non_Western",
+    "Western" = "Western"
+  )
+
+  # diff_pop <- union(
+  #   setdiff(names(df_gs_pop), names(df_vanilla)),
+  #   setdiff(names(df_vanilla), names(df_gs_pop))
+  # )
+  # print(diff_pop)
+  # if (length(diff_pop) > 0) {
+  #   stop("Error occured while reformatting gensytnth pop")
+  # }
+
+  df_gs_pop <- df_gs_pop %>%
+    mutate(PC4 = gsub(".{2}$", "", PC6)) %>%
+    filter(PC4 %in% DHZW_PC4_codes) %>%
+    select(-PC4)
+
+  df_gs_pop <- df_gs_pop[, c(
+    "hh_ID",
+    "neighb_code",
+    "agent_ID",
+    "age",
+    "gender",
+    "migration_background",
+    "is_child",
+    "current_education",
+    "edu_attainment",
+    "car_license",
+    "hh_type",
+    "PC6",
+    "hh_size",
+    "income_group",
+    "car_ownership",
+    "moped_license"
+  )]
+  return(df_gs_pop)
+}
+
+reformat_households_to_correct_format <- function(df_gs_pop, df_gs_house, DHZW_pc4_codes_csv) {
+  DHZW_PC4_codes <- read.csv(DHZW_pc4_codes_csv, sep = ";", header = F)$V1
+  df_gs_house <- df_gs_house[, -1] # remove 1st column (not named)
+
+  df_gs_house$hh_ID <- as.integer(gsub("[^0-9]", "", df_gs_house$household_id))
+  print(head(df_gs_house))
+  df_gs_house$household_id <- NULL
+  df_gs_house <- df_gs_house %>%
+    left_join(
+      df_gs_pop %>% select(hh_ID, hh_size) %>% distinct(),
+      by = c("hh_ID" = "hh_ID")
+    )
+  df_gs_house$hh_type <- "unknown"
+
+  df_gs_house$car_ownership <- as.integer(df_gs_house$cars > 0)
+  df_gs_house$cars <- NULL
+  df_gs_house$motorcycles <- NULL
+  df_gs_house$income_group <- paste0("income_", df_gs_house$income_group, "_10")
+
+
+  df_gs_house <- df_gs_house %>%
+    mutate(PC4 = gsub(".{2}$", "", PC6)) %>%
+    filter(PC4 %in% DHZW_PC4_codes) %>%
+    select(-PC4)
+
+  df_gs_house <- df_gs_house[, c(
+    "hh_ID",
+    "hh_size",
+    "neighb_code",
+    "hh_type",
+    "PC6",
+    "income_group",
+    "car_ownership"
+  )]
+  return(df_gs_house)
+}

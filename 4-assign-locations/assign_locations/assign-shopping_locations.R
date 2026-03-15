@@ -15,6 +15,8 @@ assign_shopping_locations <- function(
   # load synthetic population
   df_synth_pop <- read.csv(synthetic_population_csv)
   df_synth_pop$hh_PC4 <- gsub(".{2}$", "", df_synth_pop$PC6)
+  print("NAs:")
+  print(df_synth_pop[is.na(df_synth_pop$hh_PC4), ])
   df_synth_pop <- df_synth_pop %>%
     select(agent_ID, hh_PC4)
   df_activities <- merge(df_activities, df_synth_pop, by = "agent_ID")
@@ -32,6 +34,10 @@ assign_shopping_locations <- function(
   # Call function that assigns locations based on the PC4 proportions. For locations in DHZW, the lid contains the locations ID. Otherwise the PC4.
 
   print("Actively assigning shopping proportions")
+  # Print count of NAs per column
+  print(colSums(is.na(df_activities)))
+  print(colSums(is.na(df_shopping_prop)))
+  print(colSums(is.na(df_shopping_locations)))
   df_activities <- assign_locations_PC4_proportions(
     df_activities,
     "shopping",
