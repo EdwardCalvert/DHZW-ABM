@@ -23,12 +23,12 @@ public class MNLparametersReader implements Context  {
     private double betaTimeWalkTransport;
     private double betaChangesTransport;
 
-    public MNLparametersReader(File parameterFile, int parameterSetIndex) {
+    public MNLparametersReader(String parameterFilePath, int parameterSetIndex) {
         this.alpha = new HashMap<>();
         this.betaTime = new HashMap<>();
         this.betaCost = new HashMap<>();
 
-        this.readParameters(parameterFile, parameterSetIndex);
+        this.readParameters(new File(parameterFilePath), parameterSetIndex);
     }
 
     private void readParameters(File routingFile, int parameterSetIndex) {

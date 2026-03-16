@@ -14,6 +14,7 @@ import nl.uu.cs.iss.ga.sim2apl.core.platform.Platform;
 import nl.uu.cs.iss.ga.sim2apl.core.tick.SimulationEngine;
 
 import java.time.LocalDateTime;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public class Simulation {
@@ -40,6 +41,7 @@ public class Simulation {
         this.tickExecutor = new NoRescheduleBlockingTickExecutor<>(this.arguments.getThreads(), this.arguments.getSystemWideRandom());
 
         this.config = this.arguments.getConfigModel();
+
 
         preparePlatform();
 

@@ -1,6 +1,7 @@
 package main.java.nl.uu.iss.ga.util.config;
 
 import com.sun.jdi.InvalidTypeException;
+import main.java.nl.uu.iss.ga.model.UtilityFunctionModes;
 import main.java.nl.uu.iss.ga.model.data.Activity;
 import main.java.nl.uu.iss.ga.model.data.ActivityTour;
 import main.java.nl.uu.iss.ga.model.data.ActivitySchedule;
@@ -26,13 +27,10 @@ import org.tomlj.TomlArray;
 import org.tomlj.TomlTable;
 
 import java.io.File;
-import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
@@ -75,6 +73,10 @@ public class ConfigModel {
     private String distributionOutputBaseFolder;
     private File distributionOutput;
 
+    private String sttParameterFile;
+    private String votParameterFile;
+    private String utilFunction;
+
     public ConfigModel(ArgParse arguments, String name, TomlTable table) throws Exception {
         this.arguments = arguments;
         this.name = name;
@@ -91,6 +93,10 @@ public class ConfigModel {
         if(this.distributionOutputBaseFolder == null){
             throw new InvalidTypeException("distribution_output_base_folder needs a value");
         }
+
+        this.sttParameterFile = this.table.getString("stt_parameter_file");
+        this.votParameterFile = this.table.getString("vot_parameter_file");
+        this.utilFunction = this.table.getString("util_function");
 
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMdd_HHmmss");
         String timestamp = LocalDateTime.now().format(formatter);
@@ -136,6 +142,7 @@ public class ConfigModel {
         this.routingBusReader = new RoutingBusReader(this.routingBusFiles);
         this.routingTrainReader = new RoutingTrainReader(this.routingTrainFiles);
 
+        //thrwo  //need to work out what to do here- some polymorphism
         this.parametersReader = new MNLparametersReader(
                 this.arguments.getParameterSetFile(),
                 this.arguments.getParameterSetIndex()
@@ -337,6 +344,9 @@ public class ConfigModel {
     }
     public File getDistributionOutputBaseFolder(){
         return this.distributionOutput;
+    }
+    public String getUtilFunction(){
+        return this.utilFunction;
     }
 
 }

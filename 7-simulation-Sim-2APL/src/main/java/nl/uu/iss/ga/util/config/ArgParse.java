@@ -1,5 +1,6 @@
 package main.java.nl.uu.iss.ga.util.config;
 
+import main.java.nl.uu.iss.ga.model.UtilityFunctionModes;
 import net.sourceforge.argparse4j.ArgumentParsers;
 import net.sourceforge.argparse4j.annotation.Arg;
 import net.sourceforge.argparse4j.inf.ArgumentGroup;
@@ -114,6 +115,21 @@ public class ArgParse {
 
                 TomlTable table = result.getTable("config");
 
+                //If no parameter set file is defined, then set from fallback config
+                if(this.getParameterSetFile() == null ||this.getParameterSetFile() == "" ){
+                    String utilFunctionType = table.getString("util_function");
+
+                    if(utilFunctionType.equals(UtilityFunctionModes.VOT)){
+                         this.setParameterSetPath(table.getString("vot_parameter_file"));
+                    } else if (utilFunctionType.equals( UtilityFunctionModes.STT)) {
+                          this.setParameterSetPath(table.getString("stt_parameter_file"));
+                    }
+                    else{
+                        throw new RuntimeException("The util function type could not be understood. Try vot/stt instead of : " + utilFunctionType);
+                    }
+
+                }
+                LOGGER.log(Level.INFO, "Setting parameter file folder to: " +this.getParameterSetFile());
                 this.configModel = new ConfigModel(this, "config", table);
 
             } catch (Exception e) {
@@ -157,8 +173,11 @@ public class ArgParse {
         return parameterSetIndex;
     }
 
-    public File getParameterSetFile() {
-        return new File(this.parametersPath);
+    public String getParameterSetFile() {
+        return this.parametersPath;
+    }
+    private void setParameterSetPath(String newPath){
+        this.parametersPath = newPath;
     }
 
     public File getOutputFile() {
@@ -234,7 +253,7 @@ public class ArgParse {
 
         parser.addArgument("--parameter_file")
                 .type(String.class)
-                .required(true)
+                .required(false)
                 .dest("parametersPath")
                 .help("specify the file containing the values of the parameters");
 
