@@ -34,7 +34,6 @@ public class ArgParse {
     private long iterations;
     private LocalDate startdate;
 
-    private String outputDir;
 
     private int node;
 

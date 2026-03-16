@@ -26,10 +26,15 @@ import org.tomlj.TomlArray;
 import org.tomlj.TomlTable;
 
 import java.io.File;
+import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -41,6 +46,7 @@ public class ConfigModel {
     private final List<AgentID> agents = new ArrayList<>();
     private final String baseDir;
     private final String experimentId;
+    private final String populationSourceFolder;
     private final List<File> activityFiles;
     private final List<File> householdFiles;
     private final List<File> personFiles;
@@ -66,7 +72,8 @@ public class ConfigModel {
     private RoutingBusReader routingBusReader;
     private RoutingTrainReader routingTrainReader;
     private MNLparametersReader parametersReader;
-    private String outputFileName;
+    private String distributionOutputBaseFolder;
+    private File distributionOutput;
 
     public ConfigModel(ArgParse arguments, String name, TomlTable table) throws Exception {
         this.arguments = arguments;
@@ -74,12 +81,23 @@ public class ConfigModel {
         this.table = table;
 
 
-        this.baseDir =table.get("base_dir").toString();
-        this.experimentId = table.get("experiment_id").toString();
-        if(this.baseDir == null || this.experimentId == null){
-            throw new InvalidTypeException("Both baseDir and experimentId need values, none could be interpeted.");
+        this.baseDir =this.table.get("base_dir").toString();
+        this.experimentId = this.table.get("experiment_id").toString();
+        this.populationSourceFolder = this.table.get("population_source_folder").toString();
+        if(this.baseDir == null || this.experimentId == null || this.populationSourceFolder == null){
+            throw new InvalidTypeException("All of population_source_folder, baseDir and experimentId need values, none could be interpeted.");
+        }
+        this.distributionOutputBaseFolder = this.table.get("distribution_output_base_folder").toString();
+        if(this.distributionOutputBaseFolder == null){
+            throw new InvalidTypeException("distribution_output_base_folder needs a value");
         }
 
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMdd_HHmmss");
+        String timestamp = LocalDateTime.now().format(formatter);
+        Path folderpath = Paths.get(this.distributionOutputBaseFolder,this.experimentId, timestamp);
+        FileUtil.ensureFolderExists(folderpath);
+        this.distributionOutput = folderpath.toFile();
+        LOGGER.log(Level.INFO, "Setting output folder to: " +distributionOutput.toString());
 
         this.activityFiles = getFiles("activities", true);
         this.householdFiles = getFiles("households", true);
@@ -100,11 +118,11 @@ public class ConfigModel {
         } else {
             this.random = new Random();
         }
-
-        createOutFileName();
+        this.loadFiles();
     }
 
-    public void loadFiles() {
+
+    private void loadFiles() {
 
         this.householdReader = new HouseholdReader(this.householdFiles);
         this.personReader = new PersonReader(this.personFiles, this.householdReader.getHouseholds());
@@ -273,23 +291,6 @@ public class ConfigModel {
         return f;
     }
 
-    private void createOutFileName() {
-        String descriptor = this.arguments.getDescriptor() == null ? "" : this.arguments.getDescriptor();
-        if (this.arguments.getDescriptor() != null) {
-            if (!(descriptor.startsWith("-") || descriptor.startsWith("_")))
-                descriptor = "-" + descriptor;
-            if (!(descriptor.endsWith("-") | descriptor.endsWith("_")))
-                descriptor += "-";
-        }
-
-        this.outputFileName = String.format(
-                "radius-of-gyration-%s-%s%s.csv",
-                this.name,
-                this.arguments.getNode() >= 0 ? "node" + this.arguments.getNode() : "",
-                descriptor
-        );
-    }
-
     public Random getRandom() {
         return random;
     }
@@ -334,9 +335,8 @@ public class ConfigModel {
     public String getName() {
         return name;
     }
-
-
-    public String getOutFileName() {
-        return this.outputFileName;
+    public File getDistributionOutputBaseFolder(){
+        return this.distributionOutput;
     }
+
 }

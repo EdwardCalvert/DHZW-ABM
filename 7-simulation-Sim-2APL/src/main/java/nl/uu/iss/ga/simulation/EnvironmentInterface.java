@@ -6,8 +6,10 @@ import main.java.nl.uu.iss.ga.model.data.Activity;
 import main.java.nl.uu.iss.ga.model.data.dictionary.ActivityType;
 import main.java.nl.uu.iss.ga.model.data.dictionary.DayOfWeek;
 import main.java.nl.uu.iss.ga.model.data.dictionary.TransportMode;
+import main.java.nl.uu.iss.ga.model.data.dictionary.households.StandardizedIncomeGroup;
 import main.java.nl.uu.iss.ga.model.data.dictionary.util.CodeTypeInterface;
 import main.java.nl.uu.iss.ga.util.config.ArgParse;
+import main.java.nl.uu.iss.ga.util.config.ConfigModel;
 import main.java.nl.uu.iss.ga.util.tracking.ActivityTypeTracker;
 import main.java.nl.uu.iss.ga.util.tracking.ModeOfTransportTracker;
 import nl.uu.cs.iss.ga.sim2apl.core.deliberation.DeliberationResult;
@@ -23,6 +25,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Future;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.logging.Level;
@@ -30,29 +33,28 @@ import java.util.logging.Logger;
 
 public class EnvironmentInterface implements TickHookProcessor<Activity> {
 
-    private final boolean printOutput = true;
-
     private static final Logger LOGGER = Logger.getLogger(EnvironmentInterface.class.getName());
-    private final Platform platform;
+    private final boolean printOutput = true;
+    private final ConfigModel config;
     private final ArgParse arguments;
+    private final LocalDate startDate;
     private long currentTick = 0;
     private LocalDateTime simulationStarted;
-    private final LocalDate startDate;
     private DayOfWeek today = DayOfWeek.MONDAY;
 
     private ModeOfTransportTracker modeOfTransportTracker;
     private ActivityTypeTracker activityTypeTracker;
 
     public EnvironmentInterface(
-            Platform platform,
             ArgParse arguments,
             ModeOfTransportTracker modeOfTransportTracker,
-            ActivityTypeTracker activityTypeTracker
+            ActivityTypeTracker activityTypeTracker,
+            ConfigModel config
     ) {
-        this.platform = platform;
         this.arguments = arguments;
         this.modeOfTransportTracker = modeOfTransportTracker;
         this.activityTypeTracker = activityTypeTracker;
+        this.config = config;
 
         this.startDate = arguments.getStartdate();
 
@@ -116,12 +118,11 @@ public class EnvironmentInterface implements TickHookProcessor<Activity> {
                 TransportMode mode = entry.getKey();
                 AtomicInteger count = entry.getValue();
                 // Process entry
-                sum +=  count.get();
+                sum += count.get();
             }
-            System.out.printf("Total trips: %s",sum);
+            System.out.printf("Total trips: %s", sum);
             System.out.println("\nOverall mode choices:");
             System.out.println(modeOfTransportTracker.getTotalModeMap());
-
 
 
             System.out.println("\nMode x day:");
@@ -159,16 +160,27 @@ public class EnvironmentInterface implements TickHookProcessor<Activity> {
                     System.out.println(" " + mode + ": " + modeCarOwnership[b ? 1 : 0][mode.ordinal()]);
                 }
             }
+            System.out.println("\nIncome group x activity type");
+
+            AtomicInteger[][] incomeModeMap = modeOfTransportTracker.getIncomeModeMap();
+            for (StandardizedIncomeGroup standardizedIncomeGroup : StandardizedIncomeGroup.values()) {
+                System.out.println(standardizedIncomeGroup + ":");
+                for (TransportMode mode : TransportMode.values()) {
+                    System.out.println(" " + mode + ": " + incomeModeMap[standardizedIncomeGroup.ordinal()][mode.ordinal()]);
+                }
+            }
         }
 
         try {
+            File output_dir = this.config.getDistributionOutputBaseFolder();
             modeOfTransportTracker.appendOutput(this.arguments.getOutputFile());
-            modeOfTransportTracker.saveTotalModeToCsv(new File("src/main/resources/distance_analysis/"));
-            modeOfTransportTracker.saveDistanceToCsv(new File("src/main/resources/distance_analysis/"));
-/*          modeOfTransportTracker.saveModeDayToCsv(new File(this.arguments.getOutputDir()));
-            modeOfTransportTracker.saveModeActivityToCsv(new File(this.arguments.getOutputDir()));
-            modeOfTransportTracker.saveModeCarLicenseToCsv(new File(this.arguments.getOutputDir()));
-            modeOfTransportTracker.saveModeCarOwnershipToCsv(new File(this.arguments.getOutputDir()));*/
+            modeOfTransportTracker.saveTotalModeToCsv(output_dir);
+            modeOfTransportTracker.saveDistanceToCsv(output_dir);
+            modeOfTransportTracker.saveModeDayToCsv(output_dir);
+            modeOfTransportTracker.saveModeActivityToCsv(output_dir);
+            modeOfTransportTracker.saveModeCarLicenseToCsv(output_dir);
+            modeOfTransportTracker.saveModeCarOwnershipToCsv(output_dir);
+            modeOfTransportTracker.saveIncomeModeMap(output_dir);
         } catch (IOException e) {
             throw new RuntimeException(e);
         } catch (CsvValidationException e) {
@@ -177,7 +189,7 @@ public class EnvironmentInterface implements TickHookProcessor<Activity> {
     }
 
     /**
-     * From @url{https://stackoverflow.com/questions/3471397/how-can-i-pretty-print-a-duration-in-java#answer-16323209}
+     * Pretty print a duration
      *
      * @param duration Duration object to pretty print
      * @return Pretty printed duration

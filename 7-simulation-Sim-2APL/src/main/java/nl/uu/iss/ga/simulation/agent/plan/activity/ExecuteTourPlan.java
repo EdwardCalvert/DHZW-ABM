@@ -20,11 +20,10 @@ import java.util.Random;
 
 public class ExecuteTourPlan extends RunOncePlan<TripTour> {
     private final ActivityTour activityTour;
-    private TripTour tripTour;
     private final long pid;
     private final long hid;
-
-    private Random _random;
+    private final Random _random;
+    private TripTour tripTour;
 
     public ExecuteTourPlan(ActivityTour activityTour, Random random) {
         this.activityTour = activityTour;
@@ -46,7 +45,7 @@ public class ExecuteTourPlan extends RunOncePlan<TripTour> {
         Person person = planToAgentInterface.getContext(Person.class);
 
         // only agents that are older than 4 years old can decide their activities
-        if(person.getAge() >=4 ){
+        if (person.getAge() >= 4) {
 
             BeliefContext beliefContext = planToAgentInterface.getContext(BeliefContext.class);
 
@@ -73,7 +72,7 @@ public class ExecuteTourPlan extends RunOncePlan<TripTour> {
             RoutingBusBeliefContext routingBus = planToAgentInterface.getContext(RoutingBusBeliefContext.class);
             RoutingTrainBeliefContext routingTrain = planToAgentInterface.getContext(RoutingTrainBeliefContext.class);
 
-            /**
+            /*
              *  generation of transport mode for each trip
              */
             Activity activityOrigin = activities.get(0);
@@ -81,8 +80,13 @@ public class ExecuteTourPlan extends RunOncePlan<TripTour> {
             // initialise the trip tour
             for (Activity activityDestination : activities.subList(1, activities.size())) {
                 // not entirely outside DHZW and the postcodes are different
-                if ((activityOrigin.getLocation().isInDHZW() | activityDestination.getLocation().isInDHZW()) & (!activityOrigin.getLocation().getPostcode().equals(activityDestination.getLocation().getPostcode()))) {
-                    TwoStringKeys simmetricPostcodes = new TwoStringKeys(activityOrigin.getLocation().getPostcode(), activityDestination.getLocation().getPostcode());
+                if ((activityOrigin.getLocation().isInDHZW() | activityDestination.getLocation().isInDHZW()) & (
+                        !activityOrigin.getLocation().getPostcode().equals(activityDestination.getLocation().getPostcode()))) {
+
+                    TwoStringKeys simmetricPostcodes = new TwoStringKeys(
+                            activityOrigin.getLocation().getPostcode(),
+                            activityDestination.getLocation().getPostcode()
+                    );
 
                     Trip trip = new Trip(this.pid,
                             this.hid,
@@ -113,7 +117,15 @@ public class ExecuteTourPlan extends RunOncePlan<TripTour> {
                     double distance = routingSimmetric.getCarDistance(simmetricPostcodes);
                     trip.setDistance(distance);
 
-                    beliefContext.getModeOfTransportTracker().notifyTransportModeUsed(TransportMode.CAR_DRIVER, beliefContext.getToday(), trip.getArrivalActivity().getActivityType(), person.hasCarLicense(), person.getHousehold().hasCarOwnership(), trip.getBeelineDistance());
+                    beliefContext.getModeOfTransportTracker().notifyTransportModeUsed(
+                            TransportMode.CAR_DRIVER,
+                            beliefContext.getToday(),
+                            trip.getArrivalActivity().getActivityType(),
+                            person.hasCarLicense(),
+                            person.getHousehold().hasCarOwnership(),
+                            trip.getBeelineDistance(),
+                            person.getHousehold().getStandardizedIncomeGroup()
+                    );
                 } else {
                     // either first trip of the chain, either the car driver was not chosen as first mode
 
@@ -206,7 +218,7 @@ public class ExecuteTourPlan extends RunOncePlan<TripTour> {
                     trip.setTransportMode(transportMode);
 
                     double distance = 0;
-                    if(transportMode.equals(TransportMode.WALK) | transportMode.equals(TransportMode.BIKE) | transportMode.equals(TransportMode.CAR_PASSENGER) | transportMode.equals(TransportMode.CAR_DRIVER)) {
+                    if (transportMode.equals(TransportMode.WALK) | transportMode.equals(TransportMode.BIKE) | transportMode.equals(TransportMode.CAR_PASSENGER) | transportMode.equals(TransportMode.CAR_DRIVER)) {
                         distance = travelDistances.get(transportMode);
                     } else if (transportMode.equals(TransportMode.BUS_TRAM)) {
                         distance = routingBus.getTotalDistance(departurePostcode, arrivalPostcode);
@@ -215,7 +227,15 @@ public class ExecuteTourPlan extends RunOncePlan<TripTour> {
                     }
                     trip.setDistance(distance);
 
-                    beliefContext.getModeOfTransportTracker().notifyTransportModeUsed(transportMode, beliefContext.getToday(), trip.getArrivalActivity().getActivityType(), person.hasCarLicense(), person.getHousehold().hasCarOwnership(), trip.getDistance());
+                    beliefContext.getModeOfTransportTracker().notifyTransportModeUsed(
+                            transportMode,
+                            beliefContext.getToday(),
+                            trip.getArrivalActivity().getActivityType(),
+                            person.hasCarLicense(),
+                            person.getHousehold().hasCarOwnership(),
+                            trip.getDistance(),
+                            person.getHousehold().getStandardizedIncomeGroup()
+                    );
 
                     if (tripTour.getTripChain().indexOf(trip) == 0) {
                         firstMode = transportMode;
