@@ -1,10 +1,3 @@
-# library(opentripplanner)
-# library(this.path)
-# library(sf)
-# library(dplyr)
-# setwd(this.dir())
-# library(geosphere)
-
 calcuate_euclidian_distance <- function(final_output_dir, OD_symmetric_csv) {
   df <- read.csv(OD_symmetric_csv)
 

@@ -1,35 +1,3 @@
-# library(dplyr)
-# #
-# df_vanilla <- read_csv("C:\\Users\\ed\\Development\\dhzw\\0-synthetic-population\\output\\synthetic-population-households\\synthetic_population_DHZW_2019.csv")
-# df_gs_pop <- read_csv("C:\\Users\\ed\\Development\\dhzw\\0-synthetic-population\\output\\gen-synth-pop\\synthetic_population_the_hague_south_west.csv")
-# df_gs_house <- read_csv("C:\\Users\\ed\\Development\\dhzw\\0-synthetic-population\\output\\gen-synth-pop\\synthetic_households_the_hague_south_west.csv")
-# #
-# col_names <- names(df_vanilla)
-# print(col_names)
-#
-# for (col in col_names) {
-#   if (!is.integer(df_vanilla[[col]])) {
-#     cat("\nUnique values for column:", col, "\n")
-#
-#     vals <- unique(df_vanilla[[col]])
-#
-#     print(head(vals, 10))
-#   }
-# }
-#
-# col_names <- names(df_gs_pop)
-# print(col_names)
-#
-# for (col in col_names) {
-#   if (!is.integer(df_gs_pop[[col]])) {
-#     cat("\nUnique values for column:", col, "\n")
-#
-#     vals <- unique(df_gs_pop[[col]])
-#
-#     print(head(vals, 10))
-#   }
-# }
-
 reformat_gen_synth_pop_to_correct_format <- function(df_gs_pop, df_gs_house, DHZW_pc4_codes_csv) {
   DHZW_PC4_codes <- read.csv(DHZW_pc4_codes_csv, sep = ";", header = F)$V1
 

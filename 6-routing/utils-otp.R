@@ -20,7 +20,7 @@ compute_walk_bike_car <- function(otpcon, df, mode) {
             fromPlace = from,
             toPlace = to,
             mode = mode,
-            date_time = as.POSIXct(strptime("2023-03-06 17:00", "%Y-%m-%d %H:%M"))
+            date_time = as.POSIXct(strptime("2026-03-30 08:00", "%Y-%m-%d %H:%M"))
           )
 
           travel_time <- route$duration / 60 # minutes
