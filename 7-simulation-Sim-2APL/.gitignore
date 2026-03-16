@@ -13,7 +13,11 @@ buildNumber.properties
 
 .idea
 
+
 src/main/resources/routing
+src/main/resources/baseline_parameterset
+src/main/resources/base-pop
+src/main/resources/gen-synth-pop
 
 src/main/resources/DHZW_full
 src/main/resources/DHZW_sample
