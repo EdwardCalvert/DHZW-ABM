@@ -7,7 +7,7 @@ import java.util.Random;
 
 public class CumulativeDistribution {
 
-    public static TransportMode sampleWithCumulativeDistribution(HashMap<TransportMode, Double> choiceProbabilities){
+    public static TransportMode sampleWithCumulativeDistribution(HashMap<TransportMode, Double> choiceProbabilities, Random random){
         // calculate the cumulative proportions
         double[] cumulativeProportions = new double[choiceProbabilities.size()];
         double cumulativeSum = 0.0;
@@ -17,8 +17,6 @@ public class CumulativeDistribution {
             cumulativeProportions[index++] = cumulativeSum;
         }
 
-        // sample a random number
-        Random random = new Random(System.currentTimeMillis());
 
         // Generate a random number between 0 and 1
         double randomValue = random.nextDouble();

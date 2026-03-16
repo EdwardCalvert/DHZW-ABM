@@ -15,13 +15,9 @@ public class HouseholdReader {
     private static final Logger LOGGER = Logger.getLogger(HouseholdReader.class.getName());
 
     private final Map<Long, Household> households;
-    private final Random rnd;
 
-    public HouseholdReader(
-            List<File> householdFiles,
-            Random rnd
-    ) {
-        this.rnd = rnd;
+
+    public HouseholdReader(List<File> householdFiles) {
 
         this.households = new TreeMap<>();
         for(File f : householdFiles) {

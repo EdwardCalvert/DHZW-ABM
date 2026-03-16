@@ -35,8 +35,6 @@ import java.util.stream.Collectors;
 public class ConfigModel {
 
     private static final Logger LOGGER = Logger.getLogger(ConfigModel.class.getName());
-
-    private Random random;
     private final List<AgentID> agents = new ArrayList<>();
     private final List<File> activityFiles;
     private final List<File> householdFiles;
@@ -46,12 +44,13 @@ public class ConfigModel {
     private final List<File> routingWalkFiles;
     private final List<File> routingBikeFiles;
     private final List<File> routingCarFiles;
-
     private final List<File> routingBusFiles;
     private final List<File> routingTrainFiles;
-
     private final File stateFile;
-
+    private final ArgParse arguments;
+    private final TomlTable table;
+    private final String name;
+    private final Random random;
     private HouseholdReader householdReader;
     private PersonReader personReader;
     private ActivityFileReader activityFileReader;
@@ -62,9 +61,6 @@ public class ConfigModel {
     private RoutingBusReader routingBusReader;
     private RoutingTrainReader routingTrainReader;
     private MNLparametersReader parametersReader;
-    private final ArgParse arguments;
-    private final TomlTable table;
-    private final String name;
     private String outputFileName;
 
     public ConfigModel(ArgParse arguments, String name, TomlTable table) throws Exception {
@@ -86,7 +82,7 @@ public class ConfigModel {
 
         this.stateFile = getFile("statefile", false);
 
-        if(this.table.contains("seed")) {
+        if (this.table.contains("seed")) {
             this.random = new Random(table.getLong("seed"));
         } else {
             this.random = new Random();
@@ -97,10 +93,7 @@ public class ConfigModel {
 
     public void loadFiles() {
 
-        this.householdReader = new HouseholdReader(
-                this.householdFiles,
-                this.random
-        );
+        this.householdReader = new HouseholdReader(this.householdFiles);
         this.personReader = new PersonReader(this.personFiles, this.householdReader.getHouseholds());
         this.activityFileReader = new ActivityFileReader(this.activityFiles);
 
@@ -112,14 +105,21 @@ public class ConfigModel {
         this.routingBusReader = new RoutingBusReader(this.routingBusFiles);
         this.routingTrainReader = new RoutingTrainReader(this.routingTrainFiles);
 
-        this.parametersReader = new MNLparametersReader(this.arguments.getParameterSetFile(), this.arguments.getParameterSetIndex());
+        this.parametersReader = new MNLparametersReader(
+                this.arguments.getParameterSetFile(),
+                this.arguments.getParameterSetIndex()
+        );
     }
 
-    public void createAgents(Platform platform, EnvironmentInterface environmentInterface, ModeOfTransportTracker modeOfTransportTracker, ActivityTypeTracker activityTypeTracker) {
+    public void createAgents(Platform platform,
+                             EnvironmentInterface environmentInterface,
+                             ModeOfTransportTracker modeOfTransportTracker,
+                             ActivityTypeTracker activityTypeTracker) {
         for (ActivitySchedule schedule : this.activityFileReader.getActivitySchedules()) {
             createAgentFromSchedule(platform, environmentInterface, schedule, modeOfTransportTracker, activityTypeTracker);
         }
     }
+
     private void createAgentFromSchedule(
             Platform platform,
             EnvironmentInterface environmentInterface,
@@ -142,7 +142,7 @@ public class ConfigModel {
                 .addContext(routingBusBeliefContext)
                 .addContext(routingTrainBeliefContext)
                 .addContext(modalChoiceModel)
-                .addGoalPlanScheme(new GoalPlanScheme());
+                .addGoalPlanScheme(new GoalPlanScheme(this.random));
         try {
             URI uri = new URI(null, String.format("agent-%04d", schedule.getPid()),
                     platform.getHost(), platform.getPort(), null, null, null);
@@ -157,19 +157,19 @@ public class ConfigModel {
             long pid = schedule.getPid();
             long hid = schedule.getHid();
 
-            List <Activity> weekSchedule = new ArrayList<>(schedule.getSchedule().values());
+            List<Activity> weekSchedule = new ArrayList<>(schedule.getSchedule().values());
 
             List<String> postcodesVisited = new ArrayList<>();
 
             // loop into days of the week to split activities into each day
-            for (DayOfWeek day: DayOfWeek.values()) {
+            for (DayOfWeek day : DayOfWeek.values()) {
                 // collect all activities of today
-                List <Activity> activitiesInDay = schedule.getSchedule().values().stream()
-                        .filter( c -> c.getStartTime().getDayOfWeek().equals(day))
+                List<Activity> activitiesInDay = schedule.getSchedule().values().stream()
+                        .filter(c -> c.getStartTime().getDayOfWeek().equals(day))
                         .collect(Collectors.toList());
 
                 // there is a trip only if there are at least two activities
-                if(activitiesInDay.size()>1){
+                if (activitiesInDay.size() > 1) {
                     // initialise the new chain
                     ActivityTour activityTour = new ActivityTour(pid, hid, day);
 
@@ -177,11 +177,11 @@ public class ConfigModel {
                     activityTour.addActivity(previousActivity);
 
                     // loop through all the activities of the day
-                    for (Activity nextActivity: activitiesInDay.subList(1, activitiesInDay.size())) {
+                    for (Activity nextActivity : activitiesInDay.subList(1, activitiesInDay.size())) {
                         activityTour.addActivity(nextActivity);
 
                         // add the routing information to the belief
-                        if(!previousActivity.getLocation().getPostcode().equals(nextActivity.getLocation().getPostcode()) & (previousActivity.getLocation().isInDHZW() | nextActivity.getLocation().isInDHZW())){
+                        if (!previousActivity.getLocation().getPostcode().equals(nextActivity.getLocation().getPostcode()) & (previousActivity.getLocation().isInDHZW() | nextActivity.getLocation().isInDHZW())) {
                             // add walk, bike and car routing data
                             TwoStringKeys key = new TwoStringKeys(previousActivity.getLocation().getPostcode(), nextActivity.getLocation().getPostcode());
                             routingSimmetricBeliefContext.addWalkTime(key, this.routingWalkReader.getTravelTime(key));
@@ -217,7 +217,7 @@ public class ConfigModel {
                         }
 
                         // if it comes back home the tour closes and start a new one
-                        if (nextActivity.getActivityType().equals(ActivityType.HOME)){
+                        if (nextActivity.getActivityType().equals(ActivityType.HOME)) {
                             agent.adoptGoal(activityTour);
                             activityTour = new ActivityTour(pid, hid, day);
                             activityTour.addActivity(nextActivity);
@@ -230,18 +230,17 @@ public class ConfigModel {
 
         } catch (URISyntaxException e) {
             LOGGER.log(Level.SEVERE, "Failed to create AgentID for agent " + schedule.getPid(), e);
-        }
-        catch (Exception e){
-            LOGGER.log(Level.SEVERE, "Error " + e.toString());
+        } catch (Exception e) {
+            LOGGER.log(Level.SEVERE, "Error " + e);
             //throw e;
         }
     }
 
     private List<File> getFiles(String key, boolean required) throws Exception {
         List<File> files = new ArrayList<>();
-        if(this.table.contains(key)) {
+        if (this.table.contains(key)) {
             TomlArray arr = this.table.getArray(key);
-            for(int i = 0; i < arr.size(); i++) {
+            for (int i = 0; i < arr.size(); i++) {
                 files.add(ArgParse.findFile(new File(arr.getString(i))));
             }
         } else if (required) {
@@ -252,7 +251,7 @@ public class ConfigModel {
 
     private File getFile(String key, boolean required) throws Exception {
         File f = null;
-        if(this.table.contains(key)) {
+        if (this.table.contains(key)) {
             f = ArgParse.findFile(new File(this.table.getString(key)));
         } else if (required) {
             throw new Exception(String.format("Missing required key %s", key));
@@ -262,8 +261,8 @@ public class ConfigModel {
 
     private void createOutFileName() {
         String descriptor = this.arguments.getDescriptor() == null ? "" : this.arguments.getDescriptor();
-        if(this.arguments.getDescriptor() != null) {
-            if(!(descriptor.startsWith("-") || descriptor.startsWith("_")))
+        if (this.arguments.getDescriptor() != null) {
+            if (!(descriptor.startsWith("-") || descriptor.startsWith("_")))
                 descriptor = "-" + descriptor;
             if (!(descriptor.endsWith("-") | descriptor.endsWith("_")))
                 descriptor += "-";

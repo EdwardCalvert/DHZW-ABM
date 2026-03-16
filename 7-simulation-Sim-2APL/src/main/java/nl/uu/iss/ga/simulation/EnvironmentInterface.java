@@ -111,8 +111,18 @@ public class EnvironmentInterface implements TickHookProcessor<Activity> {
         );
 
         if (printOutput) {
+            int sum = 0;
+            for (Map.Entry<TransportMode, AtomicInteger> entry : modeOfTransportTracker.getTotalModeMap().entrySet()) {
+                TransportMode mode = entry.getKey();
+                AtomicInteger count = entry.getValue();
+                // Process entry
+                sum +=  count.get();
+            }
+            System.out.printf("Total trips: %s",sum);
             System.out.println("\nOverall mode choices:");
             System.out.println(modeOfTransportTracker.getTotalModeMap());
+
+
 
             System.out.println("\nMode x day:");
             AtomicInteger[][] modeDayMap = modeOfTransportTracker.getModeDayMap();

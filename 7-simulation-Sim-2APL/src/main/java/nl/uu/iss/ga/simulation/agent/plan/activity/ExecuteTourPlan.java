@@ -15,6 +15,7 @@ import nl.uu.cs.iss.ga.sim2apl.core.plan.builtin.RunOncePlan;
 
 import java.util.HashMap;
 import java.util.List;
+import java.util.Random;
 
 
 public class ExecuteTourPlan extends RunOncePlan<TripTour> {
@@ -23,10 +24,13 @@ public class ExecuteTourPlan extends RunOncePlan<TripTour> {
     private final long pid;
     private final long hid;
 
-    public ExecuteTourPlan(ActivityTour activityTour) {
+    private Random _random;
+
+    public ExecuteTourPlan(ActivityTour activityTour, Random random) {
         this.activityTour = activityTour;
         this.pid = activityTour.getPid();
         this.hid = activityTour.getHid();
+        this._random = random;
     }
 
     /**
@@ -198,7 +202,7 @@ public class ExecuteTourPlan extends RunOncePlan<TripTour> {
                     );
 
                     // decide the modal choice
-                    TransportMode transportMode = CumulativeDistribution.sampleWithCumulativeDistribution(choiceProbabilities);
+                    TransportMode transportMode = CumulativeDistribution.sampleWithCumulativeDistribution(choiceProbabilities, _random);
                     trip.setTransportMode(transportMode);
 
                     double distance = 0;
