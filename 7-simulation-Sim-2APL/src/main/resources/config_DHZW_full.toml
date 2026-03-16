@@ -1,15 +1,46 @@
 [simulation]
 #seed = 102
-startdate = 2026-03-29
+startdate = 2026-03-30
 iterations = 7 # Number of days, or end date
 
+
+
+
+#[config]
+#	activities = ["src/main/resources/base-pop/DHZW_full/DHZW_activities_locations.csv"]
+#	households = ["src/main/resources/base-pop/DHZW_full/DHZW_households.csv"]
+#	persons = ["src/main/resources/base-pop/DHZW_full/DHZW_synthetic_population.csv"]
+#	routing_walk = ["src/main/resources/base-pop/routing/walk_time_distance.csv"]
+#	routing_bike = ["src/main/resources/base-pop/routing/bike_time_distance.csv"]
+#	routing_car = ["src/main/resources/base-pop/routing/car_time_distance.csv"]
+#	routing_bus_tram = ["src/main/resources/base-pop/routing/routing_bus.csv"]
+#	routing_train = ["src/main/resources/base-pop/routing/routing_train.csv"]
+#	beeline_distance = ["src/main/resources/base-pop/routing/beeline_distance.csv"]
+#	seed=2929243944
+#
+#[config]
+#	activities = ["src/main/resources/gen-synth-pop/DHZW_full/DHZW_activities_locations.csv"]
+#	households = ["src/main/resources/gen-synth-pop/DHZW_full/DHZW_households.csv"]
+#	persons = ["src/main/resources/gen-synth-pop/DHZW_full/DHZW_synthetic_population.csv"]
+#	routing_walk = ["src/main/resources/gen-synth-pop/routing/walk_time_distance.csv"]
+#	routing_bike = ["src/main/resources/gen-synth-pop/routing/bike_time_distance.csv"]
+#	routing_car = ["src/main/resources/gen-synth-pop/routing/car_time_distance.csv"]
+#	routing_bus_tram = ["src/main/resources/gen-synth-pop/routing/routing_bus.csv"]
+#	routing_train = ["src/main/resources/gen-synth-pop/routing/routing_train.csv"]
+#	beeline_distance = ["src/main/resources/gen-synth-pop/routing/beeline_distance.csv"]
+#	seed=2929243944
+
+
 [config]
-	activities = ["src/main/resources/DHZW_full/DHZW_activities_locations4.csv"]
-	households = ["src/main/resources/DHZW_full/DHZW_households.csv"]
-	persons = ["src/main/resources/DHZW_full/DHZW_synthetic_population.csv"]
-	routing_walk = ["src/main/resources/routing/walk_time_distance.csv"]
-	routing_bike = ["src/main/resources/routing/bike_time_distance.csv"]
-	routing_car = ["src/main/resources/routing/car_time_distance.csv"]
-	routing_bus_tram = ["src/main/resources/routing/routing_bus.csv"]
-	routing_train = ["src/main/resources/routing/routing_train.csv"]
-	beeline_distance = ["src/main/resources/routing/beeline_distance.csv"]
+	base_dir = "src/main/resources/"
+	experiment_id = "gen-synth-pop"
+	activities = ["DHZW_full/DHZW_activities_locations.csv"]
+	households = ["DHZW_full/DHZW_households.csv"]
+	persons = ["DHZW_full/DHZW_synthetic_population.csv"]
+	routing_walk = ["routing/walk_time_distance.csv"]
+	routing_bike = ["routing/bike_time_distance.csv"]
+	routing_car = ["routing/car_time_distance.csv"]
+	routing_bus_tram = ["routing/routing_bus.csv"]
+	routing_train = ["routing/routing_train.csv"]
+	beeline_distance = ["routing/beeline_distance.csv"]
+	seed=2929243944

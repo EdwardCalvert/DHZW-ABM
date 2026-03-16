@@ -1,5 +1,6 @@
 package main.java.nl.uu.iss.ga.util.config;
 
+import com.sun.jdi.InvalidTypeException;
 import main.java.nl.uu.iss.ga.model.data.Activity;
 import main.java.nl.uu.iss.ga.model.data.ActivityTour;
 import main.java.nl.uu.iss.ga.model.data.ActivitySchedule;
@@ -27,6 +28,8 @@ import org.tomlj.TomlTable;
 import java.io.File;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -36,6 +39,8 @@ public class ConfigModel {
 
     private static final Logger LOGGER = Logger.getLogger(ConfigModel.class.getName());
     private final List<AgentID> agents = new ArrayList<>();
+    private final String baseDir;
+    private final String experimentId;
     private final List<File> activityFiles;
     private final List<File> householdFiles;
     private final List<File> personFiles;
@@ -67,6 +72,14 @@ public class ConfigModel {
         this.arguments = arguments;
         this.name = name;
         this.table = table;
+
+
+        this.baseDir =table.get("base_dir").toString();
+        this.experimentId = table.get("experiment_id").toString();
+        if(this.baseDir == null || this.experimentId == null){
+            throw new InvalidTypeException("Both baseDir and experimentId need values, none could be interpeted.");
+        }
+
 
         this.activityFiles = getFiles("activities", true);
         this.householdFiles = getFiles("households", true);
@@ -241,7 +254,8 @@ public class ConfigModel {
         if (this.table.contains(key)) {
             TomlArray arr = this.table.getArray(key);
             for (int i = 0; i < arr.size(); i++) {
-                files.add(ArgParse.findFile(new File(arr.getString(i))));
+                Path path = Paths.get(this.baseDir, this.experimentId, arr.getString(i));
+                files.add(ArgParse.findFile(path.toFile()));
             }
         } else if (required) {
             throw new Exception(String.format("Missing required key %s", key));
