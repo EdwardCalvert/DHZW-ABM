@@ -2,13 +2,11 @@ package main.java.nl.uu.iss.ga.util.config;
 
 import com.sun.jdi.InvalidTypeException;
 import main.java.nl.uu.iss.ga.model.UtilityFunctionModes;
-import main.java.nl.uu.iss.ga.model.data.Activity;
-import main.java.nl.uu.iss.ga.model.data.ActivityTour;
-import main.java.nl.uu.iss.ga.model.data.ActivitySchedule;
-import main.java.nl.uu.iss.ga.model.data.TripTour;
+import main.java.nl.uu.iss.ga.model.data.*;
 import main.java.nl.uu.iss.ga.model.data.dictionary.ActivityType;
 import main.java.nl.uu.iss.ga.model.data.dictionary.DayOfWeek;
 import main.java.nl.uu.iss.ga.model.data.dictionary.TwoStringKeys;
+import main.java.nl.uu.iss.ga.model.interfaces.IUtilityFunctionStrategy;
 import main.java.nl.uu.iss.ga.model.reader.*;
 import main.java.nl.uu.iss.ga.simulation.EnvironmentInterface;
 import main.java.nl.uu.iss.ga.simulation.agent.context.BeliefContext;
@@ -16,6 +14,7 @@ import main.java.nl.uu.iss.ga.simulation.agent.context.RoutingSimmetricBeliefCon
 import main.java.nl.uu.iss.ga.simulation.agent.context.RoutingBusBeliefContext;
 import main.java.nl.uu.iss.ga.simulation.agent.context.RoutingTrainBeliefContext;
 import main.java.nl.uu.iss.ga.simulation.agent.planscheme.GoalPlanScheme;
+import main.java.nl.uu.iss.ga.simulation.utilityfunctions.SttStrategy;
 import main.java.nl.uu.iss.ga.util.MNLModalChoiceModel;
 import main.java.nl.uu.iss.ga.util.tracking.ActivityTypeTracker;
 import main.java.nl.uu.iss.ga.util.tracking.ModeOfTransportTracker;
@@ -94,9 +93,10 @@ public class ConfigModel {
             throw new InvalidTypeException("distribution_output_base_folder needs a value");
         }
 
-        this.sttParameterFile = this.table.getString("stt_parameter_file");
-        this.votParameterFile = this.table.getString("vot_parameter_file");
-        this.utilFunction = this.table.getString("util_function");
+        //Don't think I need these.
+//        this.sttParameterFile = this.table.getString("stt_parameter_file");
+//        this.votParameterFile = this.table.getString("vot_parameter_file");
+//        this.utilFunction = this.table.getString("util_function");
 
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMdd_HHmmss");
         String timestamp = LocalDateTime.now().format(formatter);
@@ -152,9 +152,9 @@ public class ConfigModel {
     public void createAgents(Platform platform,
                              EnvironmentInterface environmentInterface,
                              ModeOfTransportTracker modeOfTransportTracker,
-                             ActivityTypeTracker activityTypeTracker) {
+                             IUtilityFunctionStrategy utilityFunction) {
         for (ActivitySchedule schedule : this.activityFileReader.getActivitySchedules()) {
-            createAgentFromSchedule(platform, environmentInterface, schedule, modeOfTransportTracker, activityTypeTracker);
+            createAgentFromSchedule(platform, environmentInterface, schedule, modeOfTransportTracker, utilityFunction);
         }
     }
 
@@ -163,11 +163,12 @@ public class ConfigModel {
             EnvironmentInterface environmentInterface,
             ActivitySchedule schedule,
             ModeOfTransportTracker modeOfTransportTracker,
-            ActivityTypeTracker activityTypeTracker) {
+            IUtilityFunctionStrategy utilityFunction) {
         MNLModalChoiceModel modalChoiceModel = new MNLModalChoiceModel();
         modalChoiceModel.setParameters(parametersReader);
 
-        BeliefContext beliefContext = new BeliefContext(environmentInterface, modeOfTransportTracker, activityTypeTracker);
+
+        BeliefContext beliefContext = new BeliefContext(environmentInterface, modeOfTransportTracker);
         RoutingSimmetricBeliefContext routingSimmetricBeliefContext = new RoutingSimmetricBeliefContext(environmentInterface);
         RoutingBusBeliefContext routingBusBeliefContext = new RoutingBusBeliefContext(environmentInterface);
         RoutingTrainBeliefContext routingTrainBeliefContext = new RoutingTrainBeliefContext(environmentInterface);
@@ -175,11 +176,11 @@ public class ConfigModel {
         AgentArguments<TripTour> arguments = new AgentArguments<TripTour>()
                 .addContext(this.personReader.getPersons().get(schedule.getPid()))
                 .addContext(schedule)
+                .addContext(utilityFunction)
                 .addContext(beliefContext)
                 .addContext(routingSimmetricBeliefContext)
                 .addContext(routingBusBeliefContext)
                 .addContext(routingTrainBeliefContext)
-                .addContext(modalChoiceModel)
                 .addGoalPlanScheme(new GoalPlanScheme(this.random));
         try {
             URI uri = new URI(null, String.format("agent-%04d", schedule.getPid()),

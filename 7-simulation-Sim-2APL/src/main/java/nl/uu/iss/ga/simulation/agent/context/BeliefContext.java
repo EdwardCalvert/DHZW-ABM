@@ -17,16 +17,14 @@ public class BeliefContext implements Context {
     private AgentID me;
     private final EnvironmentInterface environmentInterface;
     private final ModeOfTransportTracker modeOfTransportTracker;
-    private final ActivityTypeTracker activityTypeTracker;
+
 
     public BeliefContext(
             EnvironmentInterface environmentInterface,
-            ModeOfTransportTracker modeOfTransportTracker,
-            ActivityTypeTracker activityTypeTracker
+            ModeOfTransportTracker modeOfTransportTracker
     ) {
         this.environmentInterface = environmentInterface;
         this.modeOfTransportTracker = modeOfTransportTracker;
-        this.activityTypeTracker = activityTypeTracker;
     }
 
     public void setAgentID(AgentID me) {
@@ -45,7 +43,4 @@ public class BeliefContext implements Context {
         return modeOfTransportTracker;
     }
 
-    public ActivityTypeTracker getActivityTypeTracker() {
-        return activityTypeTracker;
-    }
 }

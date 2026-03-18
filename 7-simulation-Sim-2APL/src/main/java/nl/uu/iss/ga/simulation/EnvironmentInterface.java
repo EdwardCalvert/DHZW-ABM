@@ -43,19 +43,18 @@ public class EnvironmentInterface implements TickHookProcessor<Activity> {
     private DayOfWeek today = DayOfWeek.MONDAY;
 
     private ModeOfTransportTracker modeOfTransportTracker;
-    private ActivityTypeTracker activityTypeTracker;
+
 
     public EnvironmentInterface(
             ArgParse arguments,
             ModeOfTransportTracker modeOfTransportTracker,
-            ActivityTypeTracker activityTypeTracker,
+
             ConfigModel config
     ) {
         this.arguments = arguments;
         this.modeOfTransportTracker = modeOfTransportTracker;
-        this.activityTypeTracker = activityTypeTracker;
-        this.config = config;
 
+        this.config = config;
         this.startDate = arguments.getStartdate();
 
         if (this.startDate != null) {
@@ -87,9 +86,6 @@ public class EnvironmentInterface implements TickHookProcessor<Activity> {
         }
 
         String date = this.startDate.plusDays(tick).format(DateTimeFormatter.ISO_DATE);
-
-        //modeOfTransportTracker.reset();
-        activityTypeTracker.reset();
     }
 
     @Override

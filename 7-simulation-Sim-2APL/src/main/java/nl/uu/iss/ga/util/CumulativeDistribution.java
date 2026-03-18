@@ -3,11 +3,12 @@ package main.java.nl.uu.iss.ga.util;
 import main.java.nl.uu.iss.ga.model.data.dictionary.TransportMode;
 
 import java.util.HashMap;
+import java.util.Map;
 import java.util.Random;
 
 public class CumulativeDistribution {
 
-    public static TransportMode sampleWithCumulativeDistribution(HashMap<TransportMode, Double> choiceProbabilities, Random random){
+    public static TransportMode sampleWithCumulativeDistribution(Map<TransportMode, Double> choiceProbabilities, Random random){
         // calculate the cumulative proportions
         double[] cumulativeProportions = new double[choiceProbabilities.size()];
         double cumulativeSum = 0.0;

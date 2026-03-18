@@ -1,7 +1,9 @@
 package main.java.nl.uu.iss.ga.util;
 
 import main.java.nl.uu.iss.ga.model.data.dictionary.TransportMode;
+import main.java.nl.uu.iss.ga.model.interfaces.IUtilityFunctionStrategy;
 import main.java.nl.uu.iss.ga.model.reader.MNLparametersReader;
+import main.java.nl.uu.iss.ga.simulation.utilityfunctions.SttStrategy;
 import nl.uu.cs.iss.ga.sim2apl.core.agent.Context;
 
 import java.util.ArrayList;
@@ -9,6 +11,8 @@ import java.util.HashMap;
 import java.util.List;
 
 public class MNLModalChoiceModel implements Context {
+
+    //TODO: move these parameters into configuration etc.
     private static final double CAR_COST_KM = 0.49; // https://watkosteenauto.nl/wat-kost-een-auto-per-km/#:~:text=ANWB%20heeft%20een%20berekening%20vrijgegeven,middenklas%20auto%20%E2%82%AC0%2C49.
 
     // https://www.rrreis.nl/nieuwe-tarieven-en-prijzen-vanaf-1-januari-2023#:~:text=De%20totaalprijs%20voor%20reizen%20op,voor%20RRReis%20wordt%20%E2%82%AC%200%2C196.
@@ -17,6 +21,7 @@ public class MNLModalChoiceModel implements Context {
     private HashMap<TransportMode, Double> alpha = new HashMap<>();
     private HashMap<TransportMode, Double> betaTime = new HashMap<>();
     private HashMap<TransportMode, Double> betaCost = new HashMap<>();
+
 
     private double betaTimeWalkTransport;
     private double betaChangesTransport;
@@ -52,7 +57,7 @@ public class MNLModalChoiceModel implements Context {
         HashMap<TransportMode, Double> choiceProbabilities = new HashMap<>();
 
         // add the transport modes that are available
-        List<TransportMode> transportModeList = new ArrayList<TransportMode>();
+        List<TransportMode> transportModeList = new ArrayList<>();
         if(bikePossible) {
             transportModeList.add(TransportMode.BIKE);
         }

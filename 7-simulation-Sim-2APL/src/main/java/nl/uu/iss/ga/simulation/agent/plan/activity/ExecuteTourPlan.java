@@ -4,10 +4,14 @@ import main.java.nl.uu.iss.ga.model.data.*;
 import main.java.nl.uu.iss.ga.model.data.dictionary.TransportMode;
 
 import main.java.nl.uu.iss.ga.model.data.dictionary.TwoStringKeys;
+import main.java.nl.uu.iss.ga.model.interfaces.IUtilityFunctionStrategy;
+import main.java.nl.uu.iss.ga.model.reader.MNLparametersReader;
+import main.java.nl.uu.iss.ga.model.reader.ParameterReader;
 import main.java.nl.uu.iss.ga.simulation.agent.context.BeliefContext;
 import main.java.nl.uu.iss.ga.simulation.agent.context.RoutingBusBeliefContext;
 import main.java.nl.uu.iss.ga.simulation.agent.context.RoutingSimmetricBeliefContext;
 import main.java.nl.uu.iss.ga.simulation.agent.context.RoutingTrainBeliefContext;
+import main.java.nl.uu.iss.ga.simulation.utilityfunctions.SttStrategy;
 import main.java.nl.uu.iss.ga.util.CumulativeDistribution;
 import main.java.nl.uu.iss.ga.util.MNLModalChoiceModel;
 import nl.uu.cs.iss.ga.sim2apl.core.agent.PlanToAgentInterface;
@@ -15,10 +19,14 @@ import nl.uu.cs.iss.ga.sim2apl.core.plan.builtin.RunOncePlan;
 
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Random;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 
 public class ExecuteTourPlan extends RunOncePlan<TripTour> {
+    private static final Logger LOGGER = Logger.getLogger(MNLparametersReader.class.getName());
     private final ActivityTour activityTour;
     private final long pid;
     private final long hid;
@@ -49,7 +57,13 @@ public class ExecuteTourPlan extends RunOncePlan<TripTour> {
 
             BeliefContext beliefContext = planToAgentInterface.getContext(BeliefContext.class);
 
-            MNLModalChoiceModel modalChoiceModel = planToAgentInterface.getContext(MNLModalChoiceModel.class);
+            //MNLModalChoiceModel modalChoiceModel = planToAgentInterface.getContext(MNLModalChoiceModel.class);
+            //LOGGER.log(Level.INFO,"Hi mum");
+            IUtilityFunctionStrategy utilityFunction = planToAgentInterface.getContext(true? SttStrategy.class : SttStrategy.class);
+            if(utilityFunction == null){
+                throw new RuntimeException("No Utility Function supplied");
+            }
+            //LOGGER.log(Level.INFO,"Utility function" + utilityFunction.toString());
 
             HashMap<TransportMode, Double> travelTimes = new HashMap<TransportMode, Double>();
             HashMap<TransportMode, Double> travelDistances = new HashMap<TransportMode, Double>();
@@ -113,8 +127,8 @@ public class ExecuteTourPlan extends RunOncePlan<TripTour> {
 
                     String departurePostcode = trip.getDepartureActivity().getLocation().getPostcode();
                     String arrivalPostcode = trip.getArrivalActivity().getLocation().getPostcode();
-                    TwoStringKeys simmetricPostcodes = new TwoStringKeys(departurePostcode, arrivalPostcode);
-                    double distance = routingSimmetric.getCarDistance(simmetricPostcodes);
+                    TwoStringKeys symmetricPostcodes = new TwoStringKeys(departurePostcode, arrivalPostcode);
+                    double distance = routingSimmetric.getCarDistance(symmetricPostcodes);
                     trip.setDistance(distance);
 
                     beliefContext.getModeOfTransportTracker().notifyTransportModeUsed(
@@ -196,7 +210,7 @@ public class ExecuteTourPlan extends RunOncePlan<TripTour> {
                     }
 
                     // compute choice probabilities
-                    HashMap<TransportMode, Double> choiceProbabilities = modalChoiceModel.getChoiceProbabilities(
+                    Map<TransportMode, Double> choiceProbabilities = utilityFunction.getChoiceProbabilities(
                             walkPossible,
                             bikePossible,
                             carDriverPossible,
@@ -210,7 +224,8 @@ public class ExecuteTourPlan extends RunOncePlan<TripTour> {
                             walkTimeTrain,
                             busTimeTrain,
                             busDistanceTrain,
-                            nChangesTrain
+                            nChangesTrain,
+                            person
                     );
 
                     // decide the modal choice
@@ -246,7 +261,6 @@ public class ExecuteTourPlan extends RunOncePlan<TripTour> {
             }
 
         }
-
         return this.tripTour;
     }
 

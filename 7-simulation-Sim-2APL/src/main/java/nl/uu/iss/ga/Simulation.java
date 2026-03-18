@@ -1,9 +1,13 @@
 package main.java.nl.uu.iss.ga;
 
 import main.java.nl.uu.iss.ga.model.data.Activity;
+import main.java.nl.uu.iss.ga.model.data.SttParameterSet;
+import main.java.nl.uu.iss.ga.model.interfaces.IUtilityFunctionStrategy;
+import main.java.nl.uu.iss.ga.model.reader.ParameterReader;
 import main.java.nl.uu.iss.ga.simulation.DefaultTimingSimulationEngine;
 import main.java.nl.uu.iss.ga.simulation.EnvironmentInterface;
 import main.java.nl.uu.iss.ga.simulation.NoRescheduleBlockingTickExecutor;
+import main.java.nl.uu.iss.ga.simulation.utilityfunctions.SttStrategy;
 import main.java.nl.uu.iss.ga.util.Java2APLLogger;
 import main.java.nl.uu.iss.ga.util.config.ArgParse;
 import main.java.nl.uu.iss.ga.util.config.ConfigModel;
@@ -31,7 +35,6 @@ public class Simulation {
     private Platform platform;
     private NoRescheduleBlockingTickExecutor<Activity> tickExecutor;
     private ModeOfTransportTracker modeOfTransportTracker = new ModeOfTransportTracker();
-    private ActivityTypeTracker activityTypeTracker = new ActivityTypeTracker();
     private EnvironmentInterface environmentInterface;
     private SimulationEngine<Activity> simulationEngine;
     private ConfigModel config;
@@ -45,7 +48,10 @@ public class Simulation {
 
         preparePlatform();
 
-        this.config.createAgents(this.platform, this.environmentInterface, modeOfTransportTracker, activityTypeTracker);
+        SttParameterSet paramSet =  new SttParameterSet(new ParameterReader(this.arguments.getParameterSetFile(),this.arguments.getParameterSetIndex()));
+        IUtilityFunctionStrategy utilityFunction = new SttStrategy(paramSet);
+
+        this.config.createAgents(this.platform, this.environmentInterface, modeOfTransportTracker,utilityFunction);
 
         this.environmentInterface.setSimulationStarted();
         this.simulationEngine.start();
@@ -59,7 +65,6 @@ public class Simulation {
         this.environmentInterface = new EnvironmentInterface(
                 this.arguments,
                 this.modeOfTransportTracker,
-                this.activityTypeTracker,
                 this.config
         );
         this.simulationEngine = getLocalSimulationEngine();
