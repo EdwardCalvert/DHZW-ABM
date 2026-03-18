@@ -15,6 +15,7 @@ import main.java.nl.uu.iss.ga.simulation.agent.context.RoutingBusBeliefContext;
 import main.java.nl.uu.iss.ga.simulation.agent.context.RoutingTrainBeliefContext;
 import main.java.nl.uu.iss.ga.simulation.agent.planscheme.GoalPlanScheme;
 import main.java.nl.uu.iss.ga.simulation.utilityfunctions.SttStrategy;
+import main.java.nl.uu.iss.ga.simulation.utilityfunctions.UtilFunctionProvider;
 import main.java.nl.uu.iss.ga.util.MNLModalChoiceModel;
 import main.java.nl.uu.iss.ga.util.tracking.ActivityTypeTracker;
 import main.java.nl.uu.iss.ga.util.tracking.ModeOfTransportTracker;
@@ -96,7 +97,7 @@ public class ConfigModel {
         //Don't think I need these.
 //        this.sttParameterFile = this.table.getString("stt_parameter_file");
 //        this.votParameterFile = this.table.getString("vot_parameter_file");
-//        this.utilFunction = this.table.getString("util_function");
+        this.utilFunction = this.table.getString("util_function");
 
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMdd_HHmmss");
         String timestamp = LocalDateTime.now().format(formatter);
@@ -143,16 +144,16 @@ public class ConfigModel {
         this.routingTrainReader = new RoutingTrainReader(this.routingTrainFiles);
 
         //thrwo  //need to work out what to do here- some polymorphism
-        this.parametersReader = new MNLparametersReader(
-                this.arguments.getParameterSetFile(),
-                this.arguments.getParameterSetIndex()
-        );
+//        this.parametersReader = new MNLparametersReader(
+//                this.arguments.getParameterSetFile(),
+//                this.arguments.getParameterSetIndex()
+//        );
     }
 
     public void createAgents(Platform platform,
                              EnvironmentInterface environmentInterface,
                              ModeOfTransportTracker modeOfTransportTracker,
-                             IUtilityFunctionStrategy utilityFunction) {
+                             UtilFunctionProvider utilityFunction) {
         for (ActivitySchedule schedule : this.activityFileReader.getActivitySchedules()) {
             createAgentFromSchedule(platform, environmentInterface, schedule, modeOfTransportTracker, utilityFunction);
         }
@@ -163,9 +164,9 @@ public class ConfigModel {
             EnvironmentInterface environmentInterface,
             ActivitySchedule schedule,
             ModeOfTransportTracker modeOfTransportTracker,
-            IUtilityFunctionStrategy utilityFunction) {
-        MNLModalChoiceModel modalChoiceModel = new MNLModalChoiceModel();
-        modalChoiceModel.setParameters(parametersReader);
+            UtilFunctionProvider utilityFunction) {
+//        MNLModalChoiceModel modalChoiceModel = new MNLModalChoiceModel();
+//        modalChoiceModel.setParameters(parametersReader);
 
 
         BeliefContext beliefContext = new BeliefContext(environmentInterface, modeOfTransportTracker);
@@ -175,6 +176,7 @@ public class ConfigModel {
 
         AgentArguments<TripTour> arguments = new AgentArguments<TripTour>()
                 .addContext(this.personReader.getPersons().get(schedule.getPid()))
+                .addContext(this.householdReader.getHouseholds().get(schedule.getHid()))
                 .addContext(schedule)
                 .addContext(utilityFunction)
                 .addContext(beliefContext)
@@ -196,9 +198,7 @@ public class ConfigModel {
             long pid = schedule.getPid();
             long hid = schedule.getHid();
 
-            List<Activity> weekSchedule = new ArrayList<>(schedule.getSchedule().values());
 
-            List<String> postcodesVisited = new ArrayList<>();
 
             // loop into days of the week to split activities into each day
             for (DayOfWeek day : DayOfWeek.values()) {

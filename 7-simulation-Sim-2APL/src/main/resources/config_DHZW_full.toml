@@ -6,7 +6,7 @@ iterations = 7 # Number of days, or end date
 [config]
 base_dir = "src/main/resources/"
 population_source_folder = "gen-synth-pop"
-util_function = "stt" #one of "vot" or "stt" (Sensitivity To Time)
+util_function = "vot" #one of "vot" or "stt" (Sensitivity To Time)
 #Please note, supplying a value to --parameter_file will take precedence over this (vot/stt)_parameter_file, but not util_function.
 vot_parameter_file = "src/main/resources/baseline_parameterset/vot_parameterset.csv"
 stt_parameter_file = "src/main/resources/baseline_parameterset/stt_parameterset.csv"

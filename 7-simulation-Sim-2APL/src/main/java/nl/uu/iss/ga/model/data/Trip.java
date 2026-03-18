@@ -2,6 +2,7 @@ package main.java.nl.uu.iss.ga.model.data;
 
 import main.java.nl.uu.iss.ga.model.data.dictionary.ActivityType;
 import main.java.nl.uu.iss.ga.model.data.dictionary.TransportMode;
+import main.java.nl.uu.iss.ga.model.data.dictionary.TripPurpose;
 
 import java.util.logging.Level;
 
@@ -80,6 +81,13 @@ public class Trip {
     }
     public double getDistance (){
         return this.distance;
+    }
+    public TripPurpose getTripPurpose(){
+        ActivityType actType = this.departureActivity.getActivityType();
+        if(actType == ActivityType.WORK){
+            return TripPurpose.COMMUTE;
+        }
+        return TripPurpose.OTHER;
     }
 
     // endregion getter and setter

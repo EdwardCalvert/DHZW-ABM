@@ -1,7 +1,9 @@
 package main.java.nl.uu.iss.ga.simulation.utilityfunctions;
 
+import main.java.nl.uu.iss.ga.model.data.Household;
 import main.java.nl.uu.iss.ga.model.data.Person;
 import main.java.nl.uu.iss.ga.model.data.SttParameterSet;
+import main.java.nl.uu.iss.ga.model.data.Trip;
 import main.java.nl.uu.iss.ga.model.data.dictionary.TransportMode;
 import main.java.nl.uu.iss.ga.model.interfaces.IUtilityFunctionStrategy;
 import nl.uu.cs.iss.ga.sim2apl.core.agent.Context;
@@ -31,7 +33,9 @@ public class SttStrategy implements IUtilityFunctionStrategy, Context {
             double busTimeTrain,
             double busDistanceTrain,
             int nChangesTrain,
-            Person person) {
+            Person person,
+            Household household,
+            Trip trip) {
 
 
         // probability distribution of transport modes

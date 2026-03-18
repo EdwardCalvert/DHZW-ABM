@@ -8,6 +8,7 @@ import main.java.nl.uu.iss.ga.simulation.DefaultTimingSimulationEngine;
 import main.java.nl.uu.iss.ga.simulation.EnvironmentInterface;
 import main.java.nl.uu.iss.ga.simulation.NoRescheduleBlockingTickExecutor;
 import main.java.nl.uu.iss.ga.simulation.utilityfunctions.SttStrategy;
+import main.java.nl.uu.iss.ga.simulation.utilityfunctions.UtilFunctionProvider;
 import main.java.nl.uu.iss.ga.util.Java2APLLogger;
 import main.java.nl.uu.iss.ga.util.config.ArgParse;
 import main.java.nl.uu.iss.ga.util.config.ConfigModel;
@@ -47,11 +48,9 @@ public class Simulation {
 
 
         preparePlatform();
+        UtilFunctionProvider utilFunctionProvider = new UtilFunctionProvider(this.arguments.getParameterSetFile(),this.arguments.getParameterSetIndex(),this.config.getUtilFunction());
 
-        SttParameterSet paramSet =  new SttParameterSet(new ParameterReader(this.arguments.getParameterSetFile(),this.arguments.getParameterSetIndex()));
-        IUtilityFunctionStrategy utilityFunction = new SttStrategy(paramSet);
-
-        this.config.createAgents(this.platform, this.environmentInterface, modeOfTransportTracker,utilityFunction);
+        this.config.createAgents(this.platform, this.environmentInterface, modeOfTransportTracker,utilFunctionProvider);
 
         this.environmentInterface.setSimulationStarted();
         this.simulationEngine.start();

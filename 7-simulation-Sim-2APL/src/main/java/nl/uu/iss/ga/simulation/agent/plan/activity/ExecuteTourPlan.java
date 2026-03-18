@@ -12,6 +12,7 @@ import main.java.nl.uu.iss.ga.simulation.agent.context.RoutingBusBeliefContext;
 import main.java.nl.uu.iss.ga.simulation.agent.context.RoutingSimmetricBeliefContext;
 import main.java.nl.uu.iss.ga.simulation.agent.context.RoutingTrainBeliefContext;
 import main.java.nl.uu.iss.ga.simulation.utilityfunctions.SttStrategy;
+import main.java.nl.uu.iss.ga.simulation.utilityfunctions.UtilFunctionProvider;
 import main.java.nl.uu.iss.ga.util.CumulativeDistribution;
 import main.java.nl.uu.iss.ga.util.MNLModalChoiceModel;
 import nl.uu.cs.iss.ga.sim2apl.core.agent.PlanToAgentInterface;
@@ -51,6 +52,7 @@ public class ExecuteTourPlan extends RunOncePlan<TripTour> {
         List<Activity> activities = activityTour.getActivityTour();
         this.tripTour = new TripTour(activityTour.getPid(), activityTour.getDay());
         Person person = planToAgentInterface.getContext(Person.class);
+        Household household = planToAgentInterface.getContext(Household.class);
 
         // only agents that are older than 4 years old can decide their activities
         if (person.getAge() >= 4) {
@@ -59,7 +61,7 @@ public class ExecuteTourPlan extends RunOncePlan<TripTour> {
 
             //MNLModalChoiceModel modalChoiceModel = planToAgentInterface.getContext(MNLModalChoiceModel.class);
             //LOGGER.log(Level.INFO,"Hi mum");
-            IUtilityFunctionStrategy utilityFunction = planToAgentInterface.getContext(true? SttStrategy.class : SttStrategy.class);
+            IUtilityFunctionStrategy utilityFunction = planToAgentInterface.getContext(UtilFunctionProvider.class).getUtilityFunction();
             if(utilityFunction == null){
                 throw new RuntimeException("No Utility Function supplied");
             }
@@ -152,39 +154,42 @@ public class ExecuteTourPlan extends RunOncePlan<TripTour> {
                     travelTimes.clear();
                     travelDistances.clear();
 
-                    TwoStringKeys simmetricPostcodes = new TwoStringKeys(departurePostcode, arrivalPostcode);
-
-                    if (routingSimmetric.getWalkTime(simmetricPostcodes) == -1.0) {
+                    TwoStringKeys symmetricPostcodes = new TwoStringKeys(departurePostcode, arrivalPostcode);
+                    //
+                    //FIXME!!!!!!!!
+                    //The disabling of modes for longer trips should only be made for the "vot" utility funciont.
+                    //
+                    if (routingSimmetric.getWalkTime(symmetricPostcodes) == -1.0 || routingSimmetric.getWalkDistance(symmetricPostcodes)>5.0) {
                         walkPossible = false;
                     } else {
                         walkPossible = true;
-                        travelTimes.put(TransportMode.WALK, routingSimmetric.getWalkTime(simmetricPostcodes));
-                        travelDistances.put(TransportMode.WALK, routingSimmetric.getWalkDistance(simmetricPostcodes));
+                        travelTimes.put(TransportMode.WALK, routingSimmetric.getWalkTime(symmetricPostcodes));
+                        travelDistances.put(TransportMode.WALK, routingSimmetric.getWalkDistance(symmetricPostcodes));
                     }
 
-                    if (routingSimmetric.getBikeTime(simmetricPostcodes) == -1.0) {
+                    if (routingSimmetric.getBikeTime(symmetricPostcodes) == -1.0|| routingSimmetric.getBikeDistance(symmetricPostcodes) > 15.0) {
                         bikePossible = false;
                     } else {
                         bikePossible = true;
-                        travelTimes.put(TransportMode.BIKE, routingSimmetric.getBikeTime(simmetricPostcodes));
-                        travelDistances.put(TransportMode.BIKE, routingSimmetric.getWalkDistance(simmetricPostcodes));
+                        travelTimes.put(TransportMode.BIKE, routingSimmetric.getBikeTime(symmetricPostcodes));
+                        travelDistances.put(TransportMode.BIKE, routingSimmetric.getWalkDistance(symmetricPostcodes));
                     }
 
                     // if trip is feasible by car and the household has a car, the agent can be passenger
-                    if (routingSimmetric.getCarTime(simmetricPostcodes) != -1.0 & person.getHousehold().hasCarOwnership()) {
+                    if (routingSimmetric.getCarDistance(symmetricPostcodes) != -1.0 & person.getHousehold().hasCarOwnership()) {
                         carPassengerPossible = true;
-                        travelTimes.put(TransportMode.CAR_PASSENGER, routingSimmetric.getCarTime(simmetricPostcodes));
-                        travelDistances.put(TransportMode.CAR_PASSENGER, routingSimmetric.getCarDistance(simmetricPostcodes));
+                        travelTimes.put(TransportMode.CAR_PASSENGER, routingSimmetric.getCarTime(symmetricPostcodes));
+                        travelDistances.put(TransportMode.CAR_PASSENGER, routingSimmetric.getCarDistance(symmetricPostcodes));
                     } else {
                         carPassengerPossible = false;
                     }
 
                     // car is either chosen at the beginning or never anymore. If it is taken at the first round, it is automatically applied to all the other trips.
                     carDriverPossible = false;
-                    if (tripTour.getTripChain().indexOf(trip) == 0 & person.hasCarLicense() & person.getHousehold().hasCarOwnership() & routingSimmetric.getCarTime(simmetricPostcodes) != -1.0) {
+                    if (tripTour.getTripChain().indexOf(trip) == 0 & person.hasCarLicense() & person.getHousehold().hasCarOwnership() & routingSimmetric.getCarTime(symmetricPostcodes) != -1.0) {
                         carDriverPossible = true;
-                        travelTimes.put(TransportMode.CAR_DRIVER, routingSimmetric.getCarTime(simmetricPostcodes));
-                        travelDistances.put(TransportMode.CAR_DRIVER, routingSimmetric.getCarDistance(simmetricPostcodes));
+                        travelTimes.put(TransportMode.CAR_DRIVER, routingSimmetric.getCarTime(symmetricPostcodes));
+                        travelDistances.put(TransportMode.CAR_DRIVER, routingSimmetric.getCarDistance(symmetricPostcodes));
                     }
 
                     // if the bus is possible
@@ -225,7 +230,9 @@ public class ExecuteTourPlan extends RunOncePlan<TripTour> {
                             busTimeTrain,
                             busDistanceTrain,
                             nChangesTrain,
-                            person
+                            person,
+                            household,
+                            trip
                     );
 
                     // decide the modal choice

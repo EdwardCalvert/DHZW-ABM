@@ -73,4 +73,4 @@ Furthermore, it is important to note that the car driver mode is filtered based 
 The probability mode choice distribution is computed using a [`multinomial logit (MNL) model`](src/main/java/nl/uu/iss/ga/util/MNLModalChoiceModel.java). Utilities are scored for each mode and the probability mode choice distribution is computed.
 Coefficients can be initialised with any value desired. This can also be used for sensitivity analysis and calibration.
 The parameter sets file needs to be specified by the command line with the argument `parameter_file`. In addition, each row of this file is a different parameter set (useful when iteratively running different parameter sets for sensitivity analysis or calibration). Hence, the argument `parameterset_index` specifies the index within such file.
-[`baselines_parameterset.csv`](src/main/resources/baseline_parameterset/parameterset.csv) contains the a parameter set where all the values are neutral. 
+[`baselines_parameterset.csv`](src/main/resources/baseline_parameterset/stt_parameterset.csv) contains the a parameter set where all the values are neutral. 
