@@ -34,7 +34,6 @@ public class SttStrategy implements IUtilityFunctionStrategy, Context {
             double busDistanceTrain,
             int nChangesTrain,
             Person person,
-            Household household,
             Trip trip) {
 
 

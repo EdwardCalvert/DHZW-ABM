@@ -5,6 +5,8 @@ import main.java.nl.uu.iss.ga.model.data.dictionary.TripPurpose;
 import main.java.nl.uu.iss.ga.model.data.dictionary.households.IncomeThirds;
 import main.java.nl.uu.iss.ga.model.reader.ParameterReader;
 
+import java.lang.reflect.Field;
+
 public class VotParameterSet {
 
     public VotParameterSet(ParameterReader parameterReader){
@@ -43,6 +45,36 @@ public class VotParameterSet {
         this.ptCostKm = parameterReader.getDoubleParameter(20);
         this.ptBaseCost = parameterReader.getDoubleParameter(21);
         this.weightAccessEgress = parameterReader.getDoubleParameter(22);
+
+//        // Assuming Double[][] vot
+//        for (int i = 0; i < vot.length; i++) { // Check rows
+//            for (int j = 0; j < vot[i].length; j++) { // Check columns for that specific row
+//                if (vot[i][j] == null) {
+//                    throw new RuntimeException(String.format("Null parameter at vot[%d][%d]", i, j));
+//                }
+//            }
+//        }
+        validateParameters();
+
+    }
+
+    public void validateParameters()  {
+        for (Field field : this.getClass().getDeclaredFields()) {
+            // Ensure we only check the object wrappers, as primitives can't be null
+            if (field.getType() == Double.class) {
+                field.setAccessible(true);
+                Object fieldValue = null;
+                try{
+                    fieldValue = field.get(this);
+                }
+                catch(IllegalAccessException e){
+                    e.printStackTrace();
+                }
+                if (fieldValue == null) {
+                    throw new RuntimeException("Parameter field is missing/null: " + field.getName());
+                }
+            }
+        }
     }
     public final double alphaWalk;
     public final double alphaBike;

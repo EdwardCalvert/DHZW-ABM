@@ -25,6 +25,5 @@ public interface IUtilityFunctionStrategy extends Context {
             double busDistanceTrain,
             int nChangesTrain,
             Person person,
-            Household household,
             Trip trip) ;
 }

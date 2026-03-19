@@ -83,7 +83,7 @@ public class Trip {
         return this.distance;
     }
     public TripPurpose getTripPurpose(){
-        ActivityType actType = this.departureActivity.getActivityType();
+        ActivityType actType = this.arrivalActivity.getActivityType();
         if(actType == ActivityType.WORK){
             return TripPurpose.COMMUTE;
         }

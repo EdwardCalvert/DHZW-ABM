@@ -26,9 +26,8 @@ public class ColorLogFormatter extends Formatter {
         if (logRecord.getThrown() != null) {
             StringWriter sw = new StringWriter();
             PrintWriter pw = new PrintWriter(sw);
-            pw.println();
+            // This writes the full stack trace, including file names and line numbers
             logRecord.getThrown().printStackTrace(pw);
-            pw.close();
             throwable = sw.toString();
         }
 
