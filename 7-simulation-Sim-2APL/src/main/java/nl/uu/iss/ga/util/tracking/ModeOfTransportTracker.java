@@ -6,6 +6,7 @@ import com.opencsv.exceptions.CsvValidationException;
 import main.java.nl.uu.iss.ga.model.data.dictionary.ActivityType;
 import main.java.nl.uu.iss.ga.model.data.dictionary.DayOfWeek;
 import main.java.nl.uu.iss.ga.model.data.dictionary.TransportMode;
+import main.java.nl.uu.iss.ga.model.data.dictionary.households.IncomeThirds;
 import main.java.nl.uu.iss.ga.model.data.dictionary.households.StandardizedIncomeGroup;
 
 import java.io.File;
@@ -24,8 +25,8 @@ public class ModeOfTransportTracker {
     private Map<ActivityType, AtomicInteger> distanceActivityMap;
     private Map<ActivityType, AtomicInteger> activityMap;
     private Map<StandardizedIncomeGroup, AtomicInteger> standardizedIncomeMap;
-    private AtomicInteger[][] incomeActivityMap = new AtomicInteger[StandardizedIncomeGroup.values().length][ActivityType.values().length];
-    private AtomicInteger[][] incomeModeMap = new AtomicInteger[StandardizedIncomeGroup.values().length][TransportMode.values().length];
+    private AtomicInteger[][] incomeActivityMap = new AtomicInteger[IncomeThirds.values().length][ActivityType.values().length];
+    private AtomicInteger[][] incomeModeMap = new AtomicInteger[IncomeThirds.values().length][TransportMode.values().length];
     private AtomicInteger[][] modeDayMap = new AtomicInteger[DayOfWeek.values().length][TransportMode.values().length];
     private AtomicInteger[][] modeActivityMap = new AtomicInteger[ActivityType.values().length][TransportMode.values().length];
     private AtomicInteger[][] modeCarLicenseMap = new AtomicInteger[2][TransportMode.values().length];
@@ -99,12 +100,12 @@ public class ModeOfTransportTracker {
         }
     }
 
-    public void notifyTransportModeUsed(TransportMode mode, DayOfWeek day, ActivityType activityType, boolean hasCarLicense, boolean hasCar, double distance, StandardizedIncomeGroup standardizedIncomeGroup) {
+    public void notifyTransportModeUsed(TransportMode mode, DayOfWeek day, ActivityType activityType, boolean hasCarLicense, boolean hasCar, double distance, IncomeThirds incomeThird) {
         this.totalModeMap.get(mode).getAndIncrement();
         this.activityMap.get(activityType).getAndIncrement();
-        this.standardizedIncomeMap.get(standardizedIncomeGroup);
-        this.incomeActivityMap[standardizedIncomeGroup.ordinal()][activityType.ordinal()].getAndIncrement();
-        this.incomeModeMap[standardizedIncomeGroup.ordinal()][mode.ordinal()].getAndIncrement();
+        this.standardizedIncomeMap.get(incomeThird);
+        this.incomeActivityMap[incomeThird.ordinal()][activityType.ordinal()].getAndIncrement();
+        this.incomeModeMap[incomeThird.ordinal()][mode.ordinal()].getAndIncrement();
         this.modeDayMap[day.ordinal()][mode.ordinal()].getAndIncrement();
         this.modeActivityMap[activityType.ordinal()][mode.ordinal()].getAndIncrement();
         this.modeCarLicenseMap[hasCarLicense ? 1 : 0][mode.ordinal()].getAndIncrement();
@@ -291,7 +292,7 @@ public class ModeOfTransportTracker {
         row[2] = "frequency";
 
         writer.writeNext(row);
-        for (StandardizedIncomeGroup incomeGroup : StandardizedIncomeGroup.values()) {
+        for (IncomeThirds incomeGroup : IncomeThirds.values()) {
             row = new String[3];
             row[0] = String.valueOf(incomeGroup);
             for (TransportMode mode : TransportMode.values()) {

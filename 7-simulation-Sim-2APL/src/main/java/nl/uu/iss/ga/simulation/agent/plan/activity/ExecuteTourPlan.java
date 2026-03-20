@@ -136,7 +136,7 @@ public class ExecuteTourPlan extends RunOncePlan<TripTour> {
                             person.hasCarLicense(),
                             person.getHousehold().hasCarOwnership(),
                             trip.getBeelineDistance(),
-                            person.getHousehold().getStandardizedIncomeGroup()
+                            person.getHousehold().getIncomeThird()
                     );
                 } else {
                     // either first trip of the chain, either the car driver was not chosen as first mode
@@ -251,7 +251,7 @@ public class ExecuteTourPlan extends RunOncePlan<TripTour> {
                                 person.hasCarLicense(),
                                 person.getHousehold().hasCarOwnership(),
                                 trip.getDistance(),
-                                person.getHousehold().getStandardizedIncomeGroup()
+                                person.getHousehold().getIncomeThird()
                         );
 
 
