@@ -51,14 +51,14 @@ public class VotStrategy implements IUtilityFunctionStrategy, Context {
             choiceProbabilities.put(TransportMode.WALK,
                     p.alphaWalk
                             + p.betaCost(h.getIncomeThird())
-                            * (p.vot(TransportMode.WALK, tripPurpose) * travelTimes.get(TransportMode.WALK))
+                            * (p.vot(TransportMode.WALK, tripPurpose) * (travelTimes.get(TransportMode.WALK))/60)
             );
         }
         if (bikePossible) {
             choiceProbabilities.put(TransportMode.BIKE,
                     p.alphaBike
                             + p.betaCost(h.getIncomeThird())
-                            * (p.vot(TransportMode.BIKE, tripPurpose) * travelTimes.get(TransportMode.BIKE))
+                            * (p.vot(TransportMode.BIKE, tripPurpose) * (travelTimes.get(TransportMode.BIKE))/60)
             );
         }
         if (carDriverPossible) {
@@ -78,10 +78,10 @@ public class VotStrategy implements IUtilityFunctionStrategy, Context {
                                 + p.betaCost(h.getIncomeThird())
                                 * (
                                 (p.ptCostKm * travelDistances.get(TransportMode.TRAIN) + p.ptBaseCost)
-                                        + p.vot(TransportMode.TRAIN, tripPurpose) * travelTimes.get(TransportMode.TRAIN)
-                                        + p.vot(TransportMode.BUS_TRAM, tripPurpose) * p.weightAccessEgress * busTimeTrain
+                                        + p.vot(TransportMode.TRAIN, tripPurpose) * (travelTimes.get(TransportMode.TRAIN)/60)
+                                        + p.vot(TransportMode.BUS_TRAM, tripPurpose) * p.weightAccessEgress * (busTimeTrain/60)
                                         + (p.ptCostKm * busDistanceTrain + p.ptBaseCost)
-                                        + p.vot(TransportMode.WALK, tripPurpose) * p.weightAccessEgress * walkTimeTrain
+                                        + p.vot(TransportMode.WALK, tripPurpose) * p.weightAccessEgress * (walkTimeTrain/60)
                         )
                                 + p.betaChangesTransport * nChangesTrain);
             }
@@ -93,8 +93,8 @@ public class VotStrategy implements IUtilityFunctionStrategy, Context {
                             + p.betaCost(h.getIncomeThird())
                             * (
                                 (p.ptCostKm * travelDistances.get(TransportMode.BUS_TRAM) + p.ptBaseCost)
-                                + p.vot(TransportMode.BUS_TRAM, tripPurpose) * travelTimes.get(TransportMode.BUS_TRAM)
-                                + p.vot(TransportMode.BUS_TRAM, tripPurpose) * p.weightAccessEgress * walkTimeBus
+                                + p.vot(TransportMode.BUS_TRAM, tripPurpose) * (travelTimes.get(TransportMode.BUS_TRAM)/60)
+                                + p.vot(TransportMode.BUS_TRAM, tripPurpose) * p.weightAccessEgress * (walkTimeBus/60)
                     )
                             + p.betaChangesTransport * nChangesBus);
         }
@@ -131,7 +131,7 @@ public class VotStrategy implements IUtilityFunctionStrategy, Context {
         return p.alphaCarDriver
                 + p.betaCost(h.getIncomeThird())
                 * (p.carCostKm * travelDistances.get(mode)
-                + p.vot(TransportMode.CAR_DRIVER, tripPurpose) + travelTimes.get(mode));
+                + p.vot(TransportMode.CAR_DRIVER, tripPurpose) + (travelTimes.get(mode)/60));
     }
 
 }

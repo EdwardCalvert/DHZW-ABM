@@ -27,10 +27,6 @@ public class Simulation {
     public static final LocalDateTime instantiated = LocalDateTime.now();
 
     public static void main(String[] args) {
-        Thread.setDefaultUncaughtExceptionHandler((thread, throwable) -> {
-            // Record the thread name (which usually contains the Agent ID in Sim-2APL)
-            LOGGER.log(Level.SEVERE, "Thread "+ thread.getName() + " died: " + throwable.getMessage());
-        });
         ArgParse parser = new ArgParse(args);
         new Simulation(parser);
     }
@@ -61,8 +57,6 @@ public class Simulation {
     }
 
     private void preparePlatform() {
-
-        new Thread(() -> { throw new RuntimeException("Test Exception"); }).start();
         DefaultMessenger messenger = new DefaultMessenger();
 
         this.platform = Platform.newPlatform(tickExecutor, messenger);

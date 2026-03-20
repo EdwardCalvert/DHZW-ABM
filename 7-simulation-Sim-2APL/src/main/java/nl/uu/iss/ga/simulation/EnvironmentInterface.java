@@ -34,7 +34,7 @@ import java.util.logging.Logger;
 public class EnvironmentInterface implements TickHookProcessor<Activity> {
 
     private static final Logger LOGGER = Logger.getLogger(EnvironmentInterface.class.getName());
-    private final boolean printOutput = true;
+    private final boolean printOutput = false;
     private final ConfigModel config;
     private final ArgParse arguments;
     private final LocalDate startDate;
@@ -111,9 +111,6 @@ public class EnvironmentInterface implements TickHookProcessor<Activity> {
         if (printOutput) {
             int sum = 0;
 
-            System.out.println("\nOverall mode choices:");
-            System.out.println(modeOfTransportTracker.getTotalModeMap());
-
 
             System.out.println("\nMode x day:");
             AtomicInteger[][] modeDayMap = modeOfTransportTracker.getModeDayMap();
@@ -160,11 +157,12 @@ public class EnvironmentInterface implements TickHookProcessor<Activity> {
                 }
             }
             for (Map.Entry<TransportMode, AtomicInteger> entry : modeOfTransportTracker.getTotalModeMap().entrySet()) {
-                TransportMode mode = entry.getKey();
                 AtomicInteger count = entry.getValue();
-                // Process entry
                 sum += count.get();
             }
+
+            System.out.println("\nOverall mode choices:");
+            System.out.println(modeOfTransportTracker.getTotalModeMap());
             System.out.printf("Total trips: %s", sum);
         }
 
