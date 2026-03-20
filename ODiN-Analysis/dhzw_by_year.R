@@ -6,7 +6,7 @@ library(readr)
 library(ggplot2)
 library("this.path")
 setwd(this.path::this.dir())
-source("src/utils.R")
+source("utils.R")
 
 # setwd(this.path::this.dir())
 # source('../0-DHZW_assign_locations-main/src/utils_data_preparation.R')
@@ -121,6 +121,15 @@ df <- rbind(
   df_ODiN
 )
 
+# car_driver, car_passenger
+df$disp_modal_choice <- ifelse(
+  df$disp_modal_choice == "car",
+  paste0(df$disp_modal_choice, "_", df$transport_role),
+  df$disp_modal_choice
+)
+
+df <- df[!is.na(df$disp_modal_choice) & df$disp_modal_choice != "other" & df$disp_modal_choice != "car_other", ]
+
 # For individuals with at least a displacement, filter only the ones that start the  day from one. This is because in the simulation the delibration cycle is at midnight everyday, so the agetns must then start from home everyday.
 df <- filter_start_day_from_home(df)
 
@@ -208,6 +217,7 @@ ggplot(df_summary, aes(x = year, y = percentage, color = disp_modal_choice)) +
 
 df_combined <- df_combined[!is.na(df_combined$disp_modal_choice), ]
 df_summary_combined <- df_combined %>%
+  mutate(year = year - 2000) %>%
   group_by(source, year, disp_modal_choice) %>%
   tally() %>%
   group_by(source, year) %>%
@@ -215,21 +225,22 @@ df_summary_combined <- df_combined %>%
   ungroup()
 
 ggplot(df_summary_combined, aes(x = year, y = percentage, fill = disp_modal_choice)) +
-  geom_area(alpha = 0.8, stat = "identity") +
+  geom_area(alpha = 0.8, stat = "identity", color = "white", linewidth = 0.2) +
   facet_wrap(~source) +
   scale_x_continuous(breaks = unique(df_summary_combined$year)) +
   labs(
-    title = "Relative Modal Choice Proportions",
-    x = "Year",
+    title = "Relative proportions of reported mode choices in OViN and ODiN datasets from 2010 to 2019, and 2023",
+    x = "Year (20--)",
     y = "Percentage (%)",
-    fill = "Modal Choice"
+    fill = "Mode Choice"
   ) +
-  theme_minimal()
+  theme_minimal() +
+  theme(legend.position = "bottom")
 
 ggplot(df_summary_combined, aes(x = year, y = percentage, color = disp_modal_choice)) +
   geom_line(linewidth = 1) +
   geom_point() +
-  facet_wrap(~source) + # Optional: use facets to reduce visual clutter if modal choices are numerous
+  facet_wrap(~source) +
   labs(
     title = "Comparison of Modal Choice Trends",
     y = "Percentage (%)",
@@ -238,6 +249,114 @@ ggplot(df_summary_combined, aes(x = year, y = percentage, color = disp_modal_cho
   ) +
   theme_minimal()
 
+
+df_combined$hh_income_group <- recode(df_combined$hh_income_group,
+  "income_1_10" = "low",
+  "income_2_10" = "low",
+  "income_3_10" = "low",
+  "income_4_10" = "average",
+  "income_5_10" = "average",
+  "income_6_10" = "average",
+  "income_7_10" = "average",
+  "income_8_10" = "high",
+  "income_9_10" = "high",
+  "income_10_10" = "high",
+  "unknown" = "unknown"
+)
+
+df_income_grouped <- df_combined %>%
+  mutate(year = year - 2000) %>%
+  filter(hh_income_group != "unknown") %>%
+  mutate(hh_income_group = factor(hh_income_group,
+    levels = c("low", "average", "high", "unknown")
+  )) %>%
+  group_by(source, hh_income_group, disp_modal_choice) %>%
+  tally() %>%
+  group_by(source, hh_income_group) %>%
+  mutate(percentage = (n / sum(n)) * 100) %>%
+  ungroup()
+
+setwd(this.path::this.dir())
+write.csv(df_income_grouped, "both_areas_income_grouped.csv", row.names = FALSE)
+
+df_dhzw_income <- df_income_grouped[df_income_grouped$source == "DHZW Only", ]
+df_dhzw_income$source <- NULL
+write.csv(df_dhzw_income, "DHZW_income_group_proportions.csv", row.names = FALSE)
+
+ggplot(df_income_grouped, aes(x = hh_income_group, y = n, fill = disp_modal_choice)) +
+  geom_col(position = position_dodge2(width = 1, padding = 0), alpha = 0.8, color = "white", linewidth = 0.2) +
+  geom_vline(xintercept = c(1.5, 2.5), linetype = "dashed", color = "gray80") +
+  geom_text(
+    aes(label = round(n, 1)),
+    position = position_dodge2(width = 0.8),
+    vjust = -0.5,
+    size = 3
+  ) +
+  facet_wrap(~source, scale = "free") +
+  labs(
+    title = "Count of Mode Choice by Income Group",
+    x = "Household Income Group",
+    y = "Count",
+    fill = "Mode Choice"
+  ) +
+  theme_minimal() +
+  theme(legend.position = "bottom", panel.spacing.x = unit(3, "lines"))
+
+ggplot(df_income_grouped, aes(x = hh_income_group, y = percentage, fill = disp_modal_choice)) +
+  geom_col(position = position_dodge2(width = 1, padding = 0), alpha = 0.8, color = "white", linewidth = 0.2) +
+  geom_vline(xintercept = c(1.5, 2.5), linetype = "dashed", color = "gray80") +
+  geom_text(
+    aes(label = round(percentage, 1)),
+    position = position_dodge2(width = 0.8),
+    vjust = -0.5,
+    size = 3
+  ) +
+  facet_wrap(~source) +
+  labs(
+    title = "Mode Choice Distribution in percent by Income Group",
+    x = "Household Income Group",
+    y = "Percentage (%)",
+    fill = "Mode Choice"
+  ) +
+  theme_minimal() +
+  theme(legend.position = "bottom", panel.spacing.x = unit(3, "lines"))
+
+
+df_percentage_summary <- df_combined %>%
+  mutate(year = year - 2000) %>%
+  filter(hh_income_group != "unknown") %>%
+  mutate(hh_income_group = factor(hh_income_group,
+    levels = c("low", "average", "high", "unknown")
+  )) %>%
+  group_by(source, disp_modal_choice) %>%
+  tally() %>%
+  group_by(source) %>%
+  mutate(percentage = (n / sum(n)) * 100) %>%
+  ungroup()
+
+write.csv(df_percentage_summary, "both_area_proportions.csv", row.names = FALSE)
+
+df_dhzw_percentage <- df_percentage_summary[df_percentage_summary$source == "DHZW Only", ]
+df_dhzw_percentage$source <- NULL
+write.csv(df_dhzw_percentage, "DHZW_modal_choice_proporitions.csv", row.names = FALSE)
+
+ggplot(df_percentage_summary, aes(y = percentage, x = disp_modal_choice, fill = disp_modal_choice)) +
+  geom_col(position = position_dodge2(width = 1, padding = 0), alpha = 0.8, color = "white", linewidth = 0.2) +
+  geom_text(
+    aes(label = round(percentage, 1)),
+    position = position_dodge2(width = 0.8),
+    vjust = -0.5,
+    size = 3
+  ) +
+  facet_wrap(~source, scale = "free") +
+  labs(
+    title = "Reported mode choices in percent from the OViN and ODiN datasets from 2010 to 2019, and 2023 ",
+    x = "Mode choice",
+    y = "Percentage (%)",
+    fill = "Mode Choice"
+  ) +
+  theme_minimal() +
+  theme(legend.position = "bottom", panel.spacing.x = unit(3, "lines"))
 
 # Prepare relative data
 df_summary <- df %>%
