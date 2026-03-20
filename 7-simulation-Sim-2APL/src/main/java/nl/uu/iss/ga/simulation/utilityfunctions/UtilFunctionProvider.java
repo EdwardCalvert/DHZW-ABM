@@ -1,12 +1,8 @@
 package main.java.nl.uu.iss.ga.simulation.utilityfunctions;
 
 import main.java.nl.uu.iss.ga.model.data.*;
-import main.java.nl.uu.iss.ga.model.data.dictionary.TransportMode;
-import main.java.nl.uu.iss.ga.model.interfaces.IUtilityFunctionStrategy;
 import main.java.nl.uu.iss.ga.model.reader.ParameterReader;
 import nl.uu.cs.iss.ga.sim2apl.core.agent.Context;
-
-import java.util.Map;
 
 /**
  * This is a wrapper to encapsulate all configuration of the util class instantiation

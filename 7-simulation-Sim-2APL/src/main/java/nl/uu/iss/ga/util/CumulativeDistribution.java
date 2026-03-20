@@ -11,9 +11,6 @@ public class CumulativeDistribution {
 
     public static TransportMode sampleWithCumulativeDistribution(Map<TransportMode, Double> choiceProbabilities, Random random){
 
-//        return Collections.max(choiceProbabilities.entrySet(),
-//                Map.Entry.comparingByValue()).getKey();
-        // calculate the cumulative proportions
         double[] cumulativeProportions = new double[choiceProbabilities.size()];
         double cumulativeSum = 0.0;
         int index = 0;

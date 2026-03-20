@@ -1,25 +1,19 @@
 package main.java.nl.uu.iss.ga;
 
 import main.java.nl.uu.iss.ga.model.data.Activity;
-import main.java.nl.uu.iss.ga.model.data.SttParameterSet;
-import main.java.nl.uu.iss.ga.model.interfaces.IUtilityFunctionStrategy;
-import main.java.nl.uu.iss.ga.model.reader.ParameterReader;
 import main.java.nl.uu.iss.ga.simulation.DefaultTimingSimulationEngine;
 import main.java.nl.uu.iss.ga.simulation.EnvironmentInterface;
 import main.java.nl.uu.iss.ga.simulation.NoRescheduleBlockingTickExecutor;
-import main.java.nl.uu.iss.ga.simulation.utilityfunctions.SttStrategy;
 import main.java.nl.uu.iss.ga.simulation.utilityfunctions.UtilFunctionProvider;
 import main.java.nl.uu.iss.ga.util.Java2APLLogger;
 import main.java.nl.uu.iss.ga.util.config.ArgParse;
 import main.java.nl.uu.iss.ga.util.config.ConfigModel;
-import main.java.nl.uu.iss.ga.util.tracking.ActivityTypeTracker;
 import main.java.nl.uu.iss.ga.util.tracking.ModeOfTransportTracker;
 import nl.uu.cs.iss.ga.sim2apl.core.defaults.messenger.DefaultMessenger;
 import nl.uu.cs.iss.ga.sim2apl.core.platform.Platform;
 import nl.uu.cs.iss.ga.sim2apl.core.tick.SimulationEngine;
 
 import java.time.LocalDateTime;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public class Simulation {

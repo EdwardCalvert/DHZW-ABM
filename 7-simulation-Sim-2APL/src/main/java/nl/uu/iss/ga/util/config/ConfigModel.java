@@ -1,12 +1,10 @@
 package main.java.nl.uu.iss.ga.util.config;
 
 import com.sun.jdi.InvalidTypeException;
-import main.java.nl.uu.iss.ga.model.UtilityFunctionModes;
 import main.java.nl.uu.iss.ga.model.data.*;
 import main.java.nl.uu.iss.ga.model.data.dictionary.ActivityType;
 import main.java.nl.uu.iss.ga.model.data.dictionary.DayOfWeek;
 import main.java.nl.uu.iss.ga.model.data.dictionary.TwoStringKeys;
-import main.java.nl.uu.iss.ga.model.interfaces.IUtilityFunctionStrategy;
 import main.java.nl.uu.iss.ga.model.reader.*;
 import main.java.nl.uu.iss.ga.simulation.EnvironmentInterface;
 import main.java.nl.uu.iss.ga.simulation.agent.context.BeliefContext;
@@ -14,10 +12,7 @@ import main.java.nl.uu.iss.ga.simulation.agent.context.RoutingSimmetricBeliefCon
 import main.java.nl.uu.iss.ga.simulation.agent.context.RoutingBusBeliefContext;
 import main.java.nl.uu.iss.ga.simulation.agent.context.RoutingTrainBeliefContext;
 import main.java.nl.uu.iss.ga.simulation.agent.planscheme.GoalPlanScheme;
-import main.java.nl.uu.iss.ga.simulation.utilityfunctions.SttStrategy;
 import main.java.nl.uu.iss.ga.simulation.utilityfunctions.UtilFunctionProvider;
-import main.java.nl.uu.iss.ga.util.MNLModalChoiceModel;
-import main.java.nl.uu.iss.ga.util.tracking.ActivityTypeTracker;
 import main.java.nl.uu.iss.ga.util.tracking.ModeOfTransportTracker;
 import nl.uu.cs.iss.ga.sim2apl.core.agent.Agent;
 import nl.uu.cs.iss.ga.sim2apl.core.agent.AgentArguments;
@@ -142,12 +137,6 @@ public class ConfigModel {
 
         this.routingBusReader = new RoutingBusReader(this.routingBusFiles);
         this.routingTrainReader = new RoutingTrainReader(this.routingTrainFiles);
-
-        //thrwo  //need to work out what to do here- some polymorphism
-//        this.parametersReader = new MNLparametersReader(
-//                this.arguments.getParameterSetFile(),
-//                this.arguments.getParameterSetIndex()
-//        );
     }
 
     public void createAgents(Platform platform,
@@ -165,8 +154,6 @@ public class ConfigModel {
             ActivitySchedule schedule,
             ModeOfTransportTracker modeOfTransportTracker,
             UtilFunctionProvider utilityFunction) {
-//        MNLModalChoiceModel modalChoiceModel = new MNLModalChoiceModel();
-//        modalChoiceModel.setParameters(parametersReader);
 
 
         BeliefContext beliefContext = new BeliefContext(environmentInterface, modeOfTransportTracker);
