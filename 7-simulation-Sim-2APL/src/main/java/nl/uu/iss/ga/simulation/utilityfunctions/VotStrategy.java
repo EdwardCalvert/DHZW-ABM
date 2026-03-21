@@ -53,7 +53,10 @@ public class VotStrategy implements IUtilityFunctionStrategy, Context {
                     + p.vot(TransportMode.CAR_DRIVER, tripPurpose) + (m.getDistance(TransportMode.CAR_DRIVER)/60)));
         }
         if (m.modePresent(TransportMode.CAR_PASSENGER) ) {
-            modeUtilities.put(TransportMode.CAR_PASSENGER,-100.0);
+            modeUtilities.put(TransportMode.CAR_PASSENGER, p.alphaCarPassenger
+                    + p.betaCost(h.getIncomeThird())
+                    * (p.carCostKm * m.getDistance(TransportMode.CAR_PASSENGER)
+                    + p.vot(TransportMode.CAR_DRIVER, tripPurpose) + (m.getDistance(TransportMode.CAR_PASSENGER)/60)));
         }
 
         if (m.modePresent(TransportMode.TRAIN)) {

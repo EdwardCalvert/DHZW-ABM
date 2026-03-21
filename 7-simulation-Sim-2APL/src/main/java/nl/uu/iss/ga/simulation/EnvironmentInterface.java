@@ -6,6 +6,7 @@ import main.java.nl.uu.iss.ga.model.data.Activity;
 import main.java.nl.uu.iss.ga.model.data.dictionary.ActivityType;
 import main.java.nl.uu.iss.ga.model.data.dictionary.DayOfWeek;
 import main.java.nl.uu.iss.ga.model.data.dictionary.TransportMode;
+import main.java.nl.uu.iss.ga.model.data.dictionary.households.IncomeThirds;
 import main.java.nl.uu.iss.ga.model.data.dictionary.households.StandardizedIncomeGroup;
 import main.java.nl.uu.iss.ga.model.data.dictionary.util.CodeTypeInterface;
 import main.java.nl.uu.iss.ga.util.config.ArgParse;
@@ -34,7 +35,7 @@ import java.util.logging.Logger;
 public class EnvironmentInterface implements TickHookProcessor<Activity> {
 
     private static final Logger LOGGER = Logger.getLogger(EnvironmentInterface.class.getName());
-    private final boolean printOutput = false;
+    private final boolean printOutput = true;
     private final ConfigModel config;
     private final ArgParse arguments;
     private final LocalDate startDate;
@@ -150,10 +151,10 @@ public class EnvironmentInterface implements TickHookProcessor<Activity> {
             System.out.println("\nIncome group x activity type");
 
             AtomicInteger[][] incomeModeMap = modeOfTransportTracker.getIncomeModeMap();
-            for (StandardizedIncomeGroup standardizedIncomeGroup : StandardizedIncomeGroup.values()) {
-                System.out.println(standardizedIncomeGroup + ":");
+            for (IncomeThirds incomeThird : IncomeThirds.values()) {
+                System.out.println(incomeThird + ":");
                 for (TransportMode mode : TransportMode.values()) {
-                    System.out.println(" " + mode + ": " + incomeModeMap[standardizedIncomeGroup.ordinal()][mode.ordinal()]);
+                    System.out.println(" " + mode + ": " + incomeModeMap[incomeThird.ordinal()][mode.ordinal()]);
                 }
             }
             for (Map.Entry<TransportMode, AtomicInteger> entry : modeOfTransportTracker.getTotalModeMap().entrySet()) {
@@ -181,6 +182,7 @@ public class EnvironmentInterface implements TickHookProcessor<Activity> {
         } catch (CsvValidationException e) {
             throw new RuntimeException(e);
         }
+
     }
 
     /**

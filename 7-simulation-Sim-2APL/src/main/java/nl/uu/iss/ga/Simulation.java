@@ -4,6 +4,7 @@ import main.java.nl.uu.iss.ga.model.data.Activity;
 import main.java.nl.uu.iss.ga.simulation.DefaultTimingSimulationEngine;
 import main.java.nl.uu.iss.ga.simulation.EnvironmentInterface;
 import main.java.nl.uu.iss.ga.simulation.NoRescheduleBlockingTickExecutor;
+import main.java.nl.uu.iss.ga.simulation.modalselection.ModalSelectionProvider;
 import main.java.nl.uu.iss.ga.simulation.utilityfunctions.UtilFunctionProvider;
 import main.java.nl.uu.iss.ga.util.Java2APLLogger;
 import main.java.nl.uu.iss.ga.util.config.ArgParse;
@@ -43,8 +44,9 @@ public class Simulation {
 
         preparePlatform();
         UtilFunctionProvider utilFunctionProvider = new UtilFunctionProvider(this.arguments.getParameterSetFile(),this.arguments.getParameterSetIndex(),this.config.getUtilFunction());
+        ModalSelectionProvider modalSelectionProvider = new ModalSelectionProvider(this.config.getModalSelectionStrategy(),this.config.getRandom());
 
-        this.config.createAgents(this.platform, this.environmentInterface, modeOfTransportTracker,utilFunctionProvider);
+        this.config.createAgents(this.platform, this.environmentInterface, modeOfTransportTracker,utilFunctionProvider, modalSelectionProvider);
 
         this.environmentInterface.setSimulationStarted();
         this.simulationEngine.start();

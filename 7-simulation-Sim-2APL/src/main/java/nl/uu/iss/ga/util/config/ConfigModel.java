@@ -12,6 +12,7 @@ import main.java.nl.uu.iss.ga.simulation.agent.context.RoutingSimmetricBeliefCon
 import main.java.nl.uu.iss.ga.simulation.agent.context.RoutingBusBeliefContext;
 import main.java.nl.uu.iss.ga.simulation.agent.context.RoutingTrainBeliefContext;
 import main.java.nl.uu.iss.ga.simulation.agent.planscheme.GoalPlanScheme;
+import main.java.nl.uu.iss.ga.simulation.modalselection.ModalSelectionProvider;
 import main.java.nl.uu.iss.ga.simulation.utilityfunctions.UtilFunctionProvider;
 import main.java.nl.uu.iss.ga.util.tracking.ModeOfTransportTracker;
 import nl.uu.cs.iss.ga.sim2apl.core.agent.Agent;
@@ -39,6 +40,7 @@ public class ConfigModel {
     private final List<AgentID> agents = new ArrayList<>();
     private final String baseDir;
     private final String experimentId;
+    private final String modalSelectionStrategy;
     private final String populationSourceFolder;
     private final List<File> activityFiles;
     private final List<File> householdFiles;
@@ -64,12 +66,9 @@ public class ConfigModel {
     private BeelineDistanceReader beelineDistanceReader;
     private RoutingBusReader routingBusReader;
     private RoutingTrainReader routingTrainReader;
-    private MNLparametersReader parametersReader;
     private String distributionOutputBaseFolder;
     private File distributionOutput;
 
-    private String sttParameterFile;
-    private String votParameterFile;
     private String utilFunction;
 
     public ConfigModel(ArgParse arguments, String name, TomlTable table) throws Exception {
@@ -78,20 +77,17 @@ public class ConfigModel {
         this.table = table;
 
 
-        this.baseDir =this.table.get("base_dir").toString();
-        this.experimentId = this.table.get("experiment_id").toString();
-        this.populationSourceFolder = this.table.get("population_source_folder").toString();
+        this.baseDir =this.table.getString("base_dir");
+        this.experimentId = this.table.getString("experiment_id");
+        this.modalSelectionStrategy = this.table.getString("modal_selection_strategy");
+        this.populationSourceFolder = this.table.getString("population_source_folder");
         if(this.baseDir == null || this.experimentId == null || this.populationSourceFolder == null){
             throw new InvalidTypeException("All of population_source_folder, baseDir and experimentId need values, none could be interpeted.");
         }
-        this.distributionOutputBaseFolder = this.table.get("distribution_output_base_folder").toString();
+        this.distributionOutputBaseFolder = this.table.getString("distribution_output_base_folder");
         if(this.distributionOutputBaseFolder == null){
             throw new InvalidTypeException("distribution_output_base_folder needs a value");
         }
-
-        //Don't think I need these.
-//        this.sttParameterFile = this.table.getString("stt_parameter_file");
-//        this.votParameterFile = this.table.getString("vot_parameter_file");
         this.utilFunction = this.table.getString("util_function");
 
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMdd_HHmmss");
@@ -116,9 +112,13 @@ public class ConfigModel {
         this.stateFile = getFile("statefile", false);
 
         if (this.table.contains("seed")) {
-            this.random = new Random(table.getLong("seed"));
+            Long randomSeed= table.getLong("seed");
+            this.random = new Random(randomSeed);
+            LOGGER.log(Level.INFO,"Random initialised with seed: "+ randomSeed);
         } else {
-            this.random = new Random();
+            long seed = 31415962;
+            this.random = new Random(seed);
+            LOGGER.log(Level.INFO,"Random initialised with seed: "+seed);
         }
         this.loadFiles();
     }
@@ -142,9 +142,10 @@ public class ConfigModel {
     public void createAgents(Platform platform,
                              EnvironmentInterface environmentInterface,
                              ModeOfTransportTracker modeOfTransportTracker,
-                             UtilFunctionProvider utilityFunction) {
+                             UtilFunctionProvider utilityFunction,
+                             ModalSelectionProvider modalSelectionProvider ) {
         for (ActivitySchedule schedule : this.activityFileReader.getActivitySchedules()) {
-            createAgentFromSchedule(platform, environmentInterface, schedule, modeOfTransportTracker, utilityFunction);
+            createAgentFromSchedule(platform, environmentInterface, schedule, modeOfTransportTracker, utilityFunction, modalSelectionProvider);
         }
     }
 
@@ -153,7 +154,8 @@ public class ConfigModel {
             EnvironmentInterface environmentInterface,
             ActivitySchedule schedule,
             ModeOfTransportTracker modeOfTransportTracker,
-            UtilFunctionProvider utilityFunction) {
+            UtilFunctionProvider utilityFunction,
+            ModalSelectionProvider modalSelectionProvider ) {
 
 
         BeliefContext beliefContext = new BeliefContext(environmentInterface, modeOfTransportTracker);
@@ -161,11 +163,12 @@ public class ConfigModel {
         RoutingBusBeliefContext routingBusBeliefContext = new RoutingBusBeliefContext(environmentInterface);
         RoutingTrainBeliefContext routingTrainBeliefContext = new RoutingTrainBeliefContext(environmentInterface);
 
-        AgentArguments<TripTour> arguments = new AgentArguments<TripTour>()
+        AgentArguments<TripTour> arguments2 = new AgentArguments<TripTour>()
                 .addContext(this.personReader.getPersons().get(schedule.getPid()))
                 .addContext(this.householdReader.getHouseholds().get(schedule.getHid()))
                 .addContext(schedule)
                 .addContext(utilityFunction)
+                .addContext(modalSelectionProvider)
                 .addContext(beliefContext)
                 .addContext(routingSimmetricBeliefContext)
                 .addContext(routingBusBeliefContext)
@@ -175,7 +178,7 @@ public class ConfigModel {
             URI uri = new URI(null, String.format("agent-%04d", schedule.getPid()),
                     platform.getHost(), platform.getPort(), null, null, null);
             AgentID aid = new AgentID(uri);
-            Agent<TripTour> agent = new Agent<>(platform, arguments, aid);
+            Agent<TripTour> agent = new Agent<>(platform, arguments2, aid);
             this.agents.add(aid);
             beliefContext.setAgentID(aid);
             routingSimmetricBeliefContext.setAgentID(aid);
@@ -335,6 +338,9 @@ public class ConfigModel {
     }
     public String getUtilFunction(){
         return this.utilFunction;
+    }
+    public String getModalSelectionStrategy(){
+        return this.modalSelectionStrategy;
     }
 
 }

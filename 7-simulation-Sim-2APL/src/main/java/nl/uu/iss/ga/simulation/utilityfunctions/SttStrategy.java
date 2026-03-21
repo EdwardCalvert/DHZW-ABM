@@ -34,7 +34,7 @@ public class SttStrategy implements IUtilityFunctionStrategy, Context {
                     p.alphaBike()
                             + p.betaTimeBike() * m.getTime(TransportMode.BIKE));
         }
-        if (m.modePresent(TransportMode.BIKE) ) {
+        if (m.modePresent(TransportMode.CAR_DRIVER) ) {
             modeUtilities.put(TransportMode.CAR_DRIVER,
                     p.alphaCarDriver()
                             + p.betaTimeCarDriver() * m.getTime(TransportMode.CAR_DRIVER)

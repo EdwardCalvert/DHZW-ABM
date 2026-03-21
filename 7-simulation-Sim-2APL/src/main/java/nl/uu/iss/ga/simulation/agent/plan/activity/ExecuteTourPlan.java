@@ -5,10 +5,7 @@ import main.java.nl.uu.iss.ga.model.data.dictionary.ModeAttributes;
 import main.java.nl.uu.iss.ga.model.data.dictionary.TransportMode;
 
 import main.java.nl.uu.iss.ga.model.data.dictionary.TwoStringKeys;
-import main.java.nl.uu.iss.ga.simulation.modalselection.AggregateModalSelectionStrategy;
-import main.java.nl.uu.iss.ga.simulation.modalselection.IModalSelectionStrategy;
-import main.java.nl.uu.iss.ga.simulation.modalselection.ModeAttributesCalculator;
-import main.java.nl.uu.iss.ga.simulation.modalselection.SequentialModalSelectionStrategy;
+import main.java.nl.uu.iss.ga.simulation.modalselection.*;
 import main.java.nl.uu.iss.ga.simulation.utilityfunctions.IUtilityFunctionStrategy;
 import main.java.nl.uu.iss.ga.model.reader.MNLparametersReader;
 import main.java.nl.uu.iss.ga.simulation.agent.context.BeliefContext;
@@ -59,11 +56,13 @@ public class ExecuteTourPlan extends RunOncePlan<TripTour> {
             if (utilityFunction == null) {
                 throw new RuntimeException("No Utility Function supplied");
             }
+            IModalSelectionStrategy modalSelectionStrategy = planToAgentInterface.getContext(ModalSelectionProvider.class).getModalChoiceStrategy();
 
 
             RoutingSimmetricBeliefContext routingSymmetric = planToAgentInterface.getContext(RoutingSimmetricBeliefContext.class);
             RoutingBusBeliefContext routingBus = planToAgentInterface.getContext(RoutingBusBeliefContext.class);
             RoutingTrainBeliefContext routingTrain = planToAgentInterface.getContext(RoutingTrainBeliefContext.class);
+
 
             /*
              *  generation of transport mode for each trip
@@ -91,7 +90,7 @@ public class ExecuteTourPlan extends RunOncePlan<TripTour> {
                 }
                 activityOrigin = activityDestination;
             }
-            IModalSelectionStrategy modalSelectionStrategy = new AggregateModalSelectionStrategy(_random);
+
             modalSelectionStrategy.assignModes(tripTour,person,beliefContext,routingSymmetric,routingBus,routingTrain,utilityFunction,new ModeAttributesCalculator());
 
         }
