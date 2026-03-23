@@ -10,36 +10,38 @@ import java.lang.reflect.Field;
 public class VotParameterSet {
 
     public VotParameterSet(ParameterReader parameterReader){
-        this.alphaWalk = parameterReader.getDoubleParameter(0);
-        this.alphaBike = parameterReader.getDoubleParameter(1);
-        this.alphaCarDriver = parameterReader.getDoubleParameter(2);
-        this.alphaCarPassenger = parameterReader.getDoubleParameter(3);
-        this.alphaBus = parameterReader.getDoubleParameter(4);
-        this.alphaTrain = parameterReader.getDoubleParameter(5);
-        this.betaChangesTransport = parameterReader.getDoubleParameter(6);
+        this.alphaWalk = parameterReader.getDoubleParameter("alphaWalk");
+        this.alphaBike = parameterReader.getDoubleParameter("alphaBike");
+        this.alphaCarDriver = parameterReader.getDoubleParameter("alphaCarDriver");
+        this.alphaCarPassenger = parameterReader.getDoubleParameter("alphaCarPassenger");
+        this.alphaBus = parameterReader.getDoubleParameter("alphaBus");
+        this.alphaTrain = parameterReader.getDoubleParameter("alphaTrain");
+        this.betaChangesTransport = parameterReader.getDoubleParameter("betaChangesTransport");
         betaCost = new double[IncomeThirds.values().length];
-        betaCost[IncomeThirds.LOW.ordinal()] = parameterReader.getDoubleParameter(7);
-        betaCost[IncomeThirds.AVERAGE.ordinal()] = parameterReader.getDoubleParameter(8);
-        betaCost[IncomeThirds.HIGH.ordinal()] = parameterReader.getDoubleParameter(9);
+        betaCost[IncomeThirds.LOW.ordinal()] = parameterReader.getDoubleParameter("betaCostLow");
+        betaCost[IncomeThirds.AVERAGE.ordinal()] = parameterReader.getDoubleParameter("betaCostMed");
+        betaCost[IncomeThirds.HIGH.ordinal()] = parameterReader.getDoubleParameter("betaCostHigh");
 
         vot = new double[TransportMode.values().length][TripPurpose.values().length];
-        vot[TransportMode.WALK.ordinal()][TripPurpose.COMMUTE.ordinal()] = parameterReader.getDoubleParameter(10);
-        vot[TransportMode.BUS_TRAM.ordinal()][TripPurpose.COMMUTE.ordinal()] = parameterReader.getDoubleParameter(11);
-        vot[TransportMode.CAR_DRIVER.ordinal()][TripPurpose.COMMUTE.ordinal()] = parameterReader.getDoubleParameter(12);
-        vot[TransportMode.BUS_TRAM.ordinal()][TripPurpose.COMMUTE.ordinal()] = parameterReader.getDoubleParameter(13);
-        vot[TransportMode.TRAIN.ordinal()][TripPurpose.COMMUTE.ordinal()] = parameterReader.getDoubleParameter(14);
+        vot[TransportMode.WALK.ordinal()][TripPurpose.COMMUTE.ordinal()] = parameterReader.getDoubleParameter("votCommuteWalk");
+        vot[TransportMode.BIKE.ordinal()][TripPurpose.COMMUTE.ordinal()] = parameterReader.getDoubleParameter("votCommuteBike");
+        vot[TransportMode.CAR_DRIVER.ordinal()][TripPurpose.COMMUTE.ordinal()] = parameterReader.getDoubleParameter("votCommuteCar");
+        vot[TransportMode.BUS_TRAM.ordinal()][TripPurpose.COMMUTE.ordinal()] = parameterReader.getDoubleParameter("votCommuteBus");
+        vot[TransportMode.TRAIN.ordinal()][TripPurpose.COMMUTE.ordinal()] = parameterReader.getDoubleParameter("votCommuteTrain");
 
-        vot[TransportMode.WALK.ordinal()][TripPurpose.OTHER.ordinal()] = parameterReader.getDoubleParameter(15);
-        vot[TransportMode.BIKE.ordinal()][TripPurpose.OTHER.ordinal()] = parameterReader.getDoubleParameter(16);
-        vot[TransportMode.CAR_DRIVER.ordinal()][TripPurpose.OTHER.ordinal()] = parameterReader.getDoubleParameter(17);
-        vot[TransportMode.BUS_TRAM.ordinal()][TripPurpose.OTHER.ordinal()] = parameterReader.getDoubleParameter(18);
-        vot[TransportMode.TRAIN.ordinal()][TripPurpose.OTHER.ordinal()] = parameterReader.getDoubleParameter(19);
+        vot[TransportMode.WALK.ordinal()][TripPurpose.OTHER.ordinal()] = parameterReader.getDoubleParameter("votOtherWalk");
+        vot[TransportMode.BIKE.ordinal()][TripPurpose.OTHER.ordinal()] = parameterReader.getDoubleParameter("votOtherBike");
+        vot[TransportMode.CAR_DRIVER.ordinal()][TripPurpose.OTHER.ordinal()] = parameterReader.getDoubleParameter("votOtherCar");
+        vot[TransportMode.BUS_TRAM.ordinal()][TripPurpose.OTHER.ordinal()] = parameterReader.getDoubleParameter("votOtherBus");
+        vot[TransportMode.TRAIN.ordinal()][TripPurpose.OTHER.ordinal()] = parameterReader.getDoubleParameter("votOtherTrain");
 
 
-        this.carCostKm = parameterReader.getDoubleParameter(20);
-        this.ptCostKm = parameterReader.getDoubleParameter(21);
-        this.ptBaseCost = parameterReader.getDoubleParameter(22);
-        this.weightAccessEgress = parameterReader.getDoubleParameter(23);
+        this.carCostKm = parameterReader.getDoubleParameter("carCostKm");
+        this.ptCostKm = parameterReader.getDoubleParameter("ptCostKm");
+        this.ptBaseCost = parameterReader.getDoubleParameter("ptBaseCost");
+        this.weightWalk = parameterReader.getDoubleParameter("weightWalk");
+        this.weightWait = parameterReader.getDoubleParameter("weightWait");
+        this.weightFeeder = parameterReader.getDoubleParameter("weightFeeder");
         validateParameters();
 
     }
@@ -83,5 +85,7 @@ public class VotParameterSet {
     public final double carCostKm;
     public final double ptCostKm;
     public final double ptBaseCost;
-    public final double weightAccessEgress;
+    public final double weightWalk;
+    public final double weightWait;
+    public final double weightFeeder;
 }

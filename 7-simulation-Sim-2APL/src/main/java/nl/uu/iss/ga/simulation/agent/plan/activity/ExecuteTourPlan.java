@@ -1,13 +1,10 @@
 package main.java.nl.uu.iss.ga.simulation.agent.plan.activity;
 
 import main.java.nl.uu.iss.ga.model.data.*;
-import main.java.nl.uu.iss.ga.model.data.dictionary.ModeAttributes;
-import main.java.nl.uu.iss.ga.model.data.dictionary.TransportMode;
 
 import main.java.nl.uu.iss.ga.model.data.dictionary.TwoStringKeys;
 import main.java.nl.uu.iss.ga.simulation.modalselection.*;
 import main.java.nl.uu.iss.ga.simulation.utilityfunctions.IUtilityFunctionStrategy;
-import main.java.nl.uu.iss.ga.model.reader.MNLparametersReader;
 import main.java.nl.uu.iss.ga.simulation.agent.context.BeliefContext;
 import main.java.nl.uu.iss.ga.simulation.agent.context.RoutingBusBeliefContext;
 import main.java.nl.uu.iss.ga.simulation.agent.context.RoutingSimmetricBeliefContext;
@@ -22,7 +19,7 @@ import java.util.logging.Logger;
 
 
 public class ExecuteTourPlan extends RunOncePlan<TripTour> {
-    private static final Logger LOGGER = Logger.getLogger(MNLparametersReader.class.getName());
+    private static final Logger LOGGER = Logger.getLogger(ExecuteTourPlan.class.getName());
     private final ActivityTour activityTour;
     private final long pid;
     private final long hid;

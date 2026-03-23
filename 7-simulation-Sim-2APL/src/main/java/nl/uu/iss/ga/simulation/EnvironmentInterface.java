@@ -1,5 +1,7 @@
 package main.java.nl.uu.iss.ga.simulation;
 
+import com.opencsv.CSVReader;
+import com.opencsv.CSVWriter;
 import com.opencsv.exceptions.CsvValidationException;
 import main.java.nl.uu.iss.ga.Simulation;
 import main.java.nl.uu.iss.ga.model.data.Activity;
@@ -7,18 +9,20 @@ import main.java.nl.uu.iss.ga.model.data.dictionary.ActivityType;
 import main.java.nl.uu.iss.ga.model.data.dictionary.DayOfWeek;
 import main.java.nl.uu.iss.ga.model.data.dictionary.TransportMode;
 import main.java.nl.uu.iss.ga.model.data.dictionary.households.IncomeThirds;
-import main.java.nl.uu.iss.ga.model.data.dictionary.households.StandardizedIncomeGroup;
 import main.java.nl.uu.iss.ga.model.data.dictionary.util.CodeTypeInterface;
+import main.java.nl.uu.iss.ga.util.FitnessFunctionScorer;
 import main.java.nl.uu.iss.ga.util.config.ArgParse;
 import main.java.nl.uu.iss.ga.util.config.ConfigModel;
-import main.java.nl.uu.iss.ga.util.tracking.ActivityTypeTracker;
 import main.java.nl.uu.iss.ga.util.tracking.ModeOfTransportTracker;
 import nl.uu.cs.iss.ga.sim2apl.core.deliberation.DeliberationResult;
-import nl.uu.cs.iss.ga.sim2apl.core.platform.Platform;
 import nl.uu.cs.iss.ga.sim2apl.core.tick.TickHookProcessor;
 
 import java.io.File;
+import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -26,7 +30,6 @@ import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Future;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.logging.Level;
@@ -35,7 +38,7 @@ import java.util.logging.Logger;
 public class EnvironmentInterface implements TickHookProcessor<Activity> {
 
     private static final Logger LOGGER = Logger.getLogger(EnvironmentInterface.class.getName());
-    private final boolean printOutput = true;
+    private final boolean printOutput = false;
     private final ConfigModel config;
     private final ArgParse arguments;
     private final LocalDate startDate;
@@ -166,9 +169,9 @@ public class EnvironmentInterface implements TickHookProcessor<Activity> {
             System.out.println(modeOfTransportTracker.getTotalModeMap());
             System.out.printf("Total trips: %s", sum);
         }
-
+        File output_dir = this.config.getDistributionOutputBaseFolder();
         try {
-            File output_dir = this.config.getDistributionOutputBaseFolder();
+
             modeOfTransportTracker.appendOutput(this.arguments.getOutputFile());
             modeOfTransportTracker.saveTotalModeToCsv(output_dir);
             modeOfTransportTracker.saveDistanceToCsv(output_dir);
@@ -182,7 +185,66 @@ public class EnvironmentInterface implements TickHookProcessor<Activity> {
         } catch (CsvValidationException e) {
             throw new RuntimeException(e);
         }
+        //Create a copy of the parameterset in the output folder,
+        // so that my head doesn't blow up when I look at the results
+        try{
+            //Copy configuration file.
+            File configurationFile = arguments.getConfiguration();
+            Files.copy(configurationFile.toPath(), Paths.get(output_dir.toString(), configurationFile.getName()));
 
+            //Copy parameterset, useful for debugging etc
+            String[] header;
+            String[] params;
+            try (CSVReader parameterSetReader = new CSVReader(new FileReader(arguments.getParameterSetFile()))) {
+                header = parameterSetReader.readNext();
+                parameterSetReader.skip(this.arguments.getParameterSetIndex());
+                params = parameterSetReader.readNext();
+            }
+
+            File outputFile = Paths.get(output_dir.toString(), "paramset.csv").toFile();
+            try (CSVWriter writer = new CSVWriter(new FileWriter(outputFile))) {
+                writer.writeNext(header);
+                writer.writeNext(params);
+            }
+
+            //Write output score instead
+            FitnessFunctionScorer fs = new FitnessFunctionScorer();
+            Double score = fs.scoreIncome(modeOfTransportTracker.getIncomeModeMap(), new File("src/main/resources/calibration_files/DHZW_income_group_proportions.csv"));
+
+
+            CSVWriter writer = new CSVWriter(new FileWriter(new File(output_dir, "income_mode_percent.csv")));
+
+            String[] row = new String[5];
+            row[0] = "income_group";
+            row[1] = "mode_choice";
+            row[2] = "simulated percent";
+            row[3] = "expected percent";
+            row[4] = "difference";
+            Double[][] percentages = fs.getSimulatedPercentages();
+            HashMap<IncomeThirds, HashMap<TransportMode, Double>> stuff = fs.getExpectedPercentages();
+            writer.writeNext(row);
+            for (IncomeThirds incomeGroup : IncomeThirds.values()) {
+                row = new String[5];
+                row[0] = String.valueOf(incomeGroup);
+                for (TransportMode mode : TransportMode.values()) {
+                    row[1] = String.valueOf(mode);
+                    Double value = percentages[incomeGroup.ordinal()][mode.ordinal()];
+                    row[2] = String.valueOf(value*100);
+                    row[3] = String.valueOf(stuff.get(incomeGroup).get(mode)*100);
+                    row[4] = String.valueOf((stuff.get(incomeGroup).get(mode) - value)*100);
+                    writer.writeNext(row);
+                }
+            }
+            writer.close();
+
+
+
+            System.out.print(score);
+            Files.write(Paths.get(output_dir.toString(), "score.txt"), score.toString().getBytes());
+        }
+        catch (Exception e){
+            LOGGER.log(Level.SEVERE, "Attempted to copy the parameter set and the configuration file to the output dir, but failed.");
+        }
     }
 
     /**

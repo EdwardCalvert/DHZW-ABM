@@ -156,6 +156,9 @@ public class ArgParse {
     public Random getSystemWideRandom() {
         return random;
     }
+    public File getConfiguration(){
+        return  this.configuration;
+    }
 
     public int getNode() {
         return node;

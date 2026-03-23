@@ -4,27 +4,27 @@ import main.java.nl.uu.iss.ga.model.reader.ParameterReader;
 
 public class SttParameterSet {
     public SttParameterSet(ParameterReader parameterReader){
-        this.alphaWalk = parameterReader.getDoubleParameter(0);
-        this.alphaBike = parameterReader.getDoubleParameter(1);
-        this.alphaCarDriver = parameterReader.getDoubleParameter(2);
-        this.alphaCarPassenger = parameterReader.getDoubleParameter(3);
-        this.alphaBus = parameterReader.getDoubleParameter(4);
-        this.alphaTrain = parameterReader.getDoubleParameter(5);
-        this.betaTimeWalk = parameterReader.getDoubleParameter(6);
-        this.betaTimeBike = parameterReader.getDoubleParameter(7);
-        this.betaTimeCarDriver = parameterReader.getDoubleParameter(8);
-        this.betaTimeCarPassenger = parameterReader.getDoubleParameter(9);
-        this.betaTimeBus = parameterReader.getDoubleParameter(10);
-        this.betaTimeTrain = parameterReader.getDoubleParameter(11);
-        this.betaCostCarDriver = parameterReader.getDoubleParameter(12);
-        this.betaCostCarPassenger = parameterReader.getDoubleParameter(13);
-        this.betaCostBus = parameterReader.getDoubleParameter(14);
-        this.betaCostTrain = parameterReader.getDoubleParameter(15);
-        this.betaTimeWalkTransport = parameterReader.getDoubleParameter(16);
-        this.betaChangesTransport = parameterReader.getDoubleParameter(17);
-        this.carCostKm = parameterReader.getDoubleParameter(18);
-        this.ptCostKm = parameterReader.getDoubleParameter(19);
-        this.ptBaseCost = parameterReader.getDoubleParameter(20);
+        this.alphaWalk = parameterReader.getDoubleParameter("alphaWalk");
+        this.alphaBike = parameterReader.getDoubleParameter("alphaBike");
+        this.alphaCarDriver = parameterReader.getDoubleParameter("alphaCarDriver");
+        this.alphaCarPassenger = parameterReader.getDoubleParameter("alphaCarPassenger");
+        this.alphaBus = parameterReader.getDoubleParameter("alphaBus");
+        this.alphaTrain = parameterReader.getDoubleParameter("alphaTrain");
+        this.betaTimeWalk = parameterReader.getDoubleParameter("betaTimeWalk");
+        this.betaTimeBike = parameterReader.getDoubleParameter("betaTimeBike");
+        this.betaTimeCarDriver = parameterReader.getDoubleParameter("betaTimeCarDriver");
+        this.betaTimeCarPassenger = parameterReader.getDoubleParameter("betaTimeCarPassenger");
+        this.betaTimeBus = parameterReader.getDoubleParameter("betaTimeBus");
+        this.betaTimeTrain = parameterReader.getDoubleParameter("betaTimeTrain");
+        this.betaCostCarDriver = parameterReader.getDoubleParameter("betaCostCarDriver");
+        this.betaCostCarPassenger = parameterReader.getDoubleParameter("betaCostCarPassenger");
+        this.betaCostBus = parameterReader.getDoubleParameter("betaCostBus");
+        this.betaCostTrain = parameterReader.getDoubleParameter("betaCostTrain");
+        this.betaTimeWalkTransport = parameterReader.getDoubleParameter("betaTimeWalkTransport");
+        this.betaChangesTransport = parameterReader.getDoubleParameter("betaChangesTransport");
+        this.carCostKm = parameterReader.getDoubleParameter("carCostKm");
+        this.ptCostKm = parameterReader.getDoubleParameter("ptCostKm");
+        this.ptBaseCost = parameterReader.getDoubleParameter("ptBaseCost");
     }
 
     private final double alphaWalk;

@@ -6,13 +6,15 @@ import com.opencsv.exceptions.CsvValidationException;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public class ParameterReader {
     CSVReader reader;
     private static final Logger LOGGER = Logger.getLogger(ParameterReader.class.getName());
-    private String[] parameterSet;
+    private Map<String, String> parameterSet = new HashMap<>();
 
     public ParameterReader(String parameterFilePath, int parameterSetIndex){
         this.loadParameters(new File(parameterFilePath), parameterSetIndex);
@@ -23,27 +25,23 @@ public class ParameterReader {
 
         try {
             this.reader = new CSVReader(new FileReader(routingFile));
+            String[] headers = reader.readNext(); // Capture keys
             reader.skip(parameterSetIndex);
-            this.parameterSet = reader.readNext();
+            String[] values = reader.readNext();
 
-            // Skip the first line of the CSV file (the header)
-            reader.skip(parameterSetIndex);
+            for (int i = 0; i < headers.length; i++) {
+                parameterSet.put(headers[i], values[i]);
+            }
         }catch (IOException | CsvValidationException e) {
             throw new RuntimeException(e);
         }
-        LOGGER.log(Level.INFO, "Read " + parameterSet[0]);
+        LOGGER.log(Level.INFO, "Read " + parameterSet);
     }
-    public double getDoubleParameter(int paramIndex){
-        if(paramIndex>= parameterSet.length || paramIndex <0){
-            throw new RuntimeException("You attempted to access a parameter with an index greater than that in the file");
+    public double getDoubleParameter(String paramName) {
+        if (!parameterSet.containsKey(paramName)) {
+            throw new RuntimeException("Parameter " + paramName + " not found.");
         }
-        return Double.parseDouble(this.parameterSet[paramIndex]);
+        return Double.parseDouble(this.parameterSet.get(paramName));
     }
 
-    public String getParameter(int paramIndex){
-        if(paramIndex>= parameterSet.length || paramIndex <0){
-            throw new RuntimeException("You attempted to access a parameter with an index greater than that in the file");
-        }
-        return this.parameterSet[paramIndex];
-    }
 }
