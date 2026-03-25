@@ -56,6 +56,11 @@ public class ModeAttributesCalculator {
             modeAtributes.setDistance(TransportMode.BUS_TRAM, routingBus.getBusDistance(departurePostcode, arrivalPostcode));
             modeAtributes.nChangesBus = routingBus.getChange(departurePostcode, arrivalPostcode);
             modeAtributes.walkTimeBus = routingBus.getWalkTime(departurePostcode, arrivalPostcode);
+            modeAtributes.waitTimeBus = routingBus.getWaitTime(departurePostcode, arrivalPostcode);
+//            if(modeAtributes.getTime(TransportMode.BUS_TRAM).equals( modeAtributes.getDistance(TransportMode.BUS_TRAM))){
+//                System.out.println("Do a little dance");
+//                int test = 1;
+//            }
         }
 
         // if the trip is partially outside, the train could be possible
@@ -66,6 +71,11 @@ public class ModeAttributesCalculator {
             modeAtributes.walkTimeTrain = routingTrain.getWalkTime(departurePostcode, arrivalPostcode);
             modeAtributes.busTimeTrain = routingTrain.getBusTime(departurePostcode, arrivalPostcode);
             modeAtributes.busDistanceTrain = routingTrain.getBusDistance(departurePostcode, arrivalPostcode);
+            modeAtributes.waitTimeTrain = routingTrain.getWaitTime(departurePostcode, arrivalPostcode);
+//            if(modeAtributes.getTime(TransportMode.TRAIN).equals( modeAtributes.getDistance(TransportMode.TRAIN))){
+//                System.out.println("Do a little dance");
+//                int test = 1;
+//            }
         }
         return modeAtributes;
     }

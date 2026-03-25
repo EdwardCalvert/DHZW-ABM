@@ -10,7 +10,8 @@ import main.java.nl.uu.iss.ga.model.data.dictionary.DayOfWeek;
 import main.java.nl.uu.iss.ga.model.data.dictionary.TransportMode;
 import main.java.nl.uu.iss.ga.model.data.dictionary.households.IncomeThirds;
 import main.java.nl.uu.iss.ga.model.data.dictionary.util.CodeTypeInterface;
-import main.java.nl.uu.iss.ga.util.FitnessFunctionScorer;
+import main.java.nl.uu.iss.ga.util.IncomeFitnessFunctionScorer;
+import main.java.nl.uu.iss.ga.util.PercentageFitnessFunctionScorer;
 import main.java.nl.uu.iss.ga.util.config.ArgParse;
 import main.java.nl.uu.iss.ga.util.config.ConfigModel;
 import main.java.nl.uu.iss.ga.util.tracking.ModeOfTransportTracker;
@@ -27,7 +28,6 @@ import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Future;
@@ -206,41 +206,31 @@ public class EnvironmentInterface implements TickHookProcessor<Activity> {
                 writer.writeNext(header);
                 writer.writeNext(params);
             }
-
+            IncomeFitnessFunctionScorer incomeScorer = new IncomeFitnessFunctionScorer();
             //Write output score instead
-            FitnessFunctionScorer fs = new FitnessFunctionScorer();
-            Double score = fs.scoreIncome(modeOfTransportTracker.getIncomeModeMap(), new File("src/main/resources/calibration_files/DHZW_income_group_proportions.csv"));
+            Double score = incomeScorer.scoreIncome(modeOfTransportTracker.getIncomeModeMap(), new File("src/main/resources/calibration_files/DHZW_income_group_proportions.csv"));
+            incomeScorer.saveScore(output_dir);
+            incomeScorer.saveIncome(output_dir);
 
+            PercentageFitnessFunctionScorer percentageScorer = new PercentageFitnessFunctionScorer();
+            Double percentageScore = percentageScorer.scoreIncome(modeOfTransportTracker.getTotalModeMap(),
+                    new File("src/main/resources/calibration_files/DHZW_modal_choice_proporitions.csv"),
+                    header,
+                    params
+            );
+            percentageScorer.saveScore(output_dir);
+            percentageScorer.saveDistribution(output_dir);
 
-            CSVWriter writer = new CSVWriter(new FileWriter(new File(output_dir, "income_mode_percent.csv")));
-
-            String[] row = new String[5];
-            row[0] = "income_group";
-            row[1] = "mode_choice";
-            row[2] = "simulated percent";
-            row[3] = "expected percent";
-            row[4] = "difference";
-            Double[][] percentages = fs.getSimulatedPercentages();
-            HashMap<IncomeThirds, HashMap<TransportMode, Double>> stuff = fs.getExpectedPercentages();
-            writer.writeNext(row);
-            for (IncomeThirds incomeGroup : IncomeThirds.values()) {
-                row = new String[5];
-                row[0] = String.valueOf(incomeGroup);
-                for (TransportMode mode : TransportMode.values()) {
-                    row[1] = String.valueOf(mode);
-                    Double value = percentages[incomeGroup.ordinal()][mode.ordinal()];
-                    row[2] = String.valueOf(value*100);
-                    row[3] = String.valueOf(stuff.get(incomeGroup).get(mode)*100);
-                    row[4] = String.valueOf((stuff.get(incomeGroup).get(mode) - value)*100);
-                    writer.writeNext(row);
-                }
+            if(config.getScoreAgainst().equals("income")){
+                System.out.print(score);
             }
-            writer.close();
+            else if(config.getScoreAgainst().equals("percent")){
+                System.out.print(percentageScore);
+            }
+            else{
+                System.out.print("The score setting couldn't be understood");
+            }
 
-
-
-            System.out.print(score);
-            Files.write(Paths.get(output_dir.toString(), "score.txt"), score.toString().getBytes());
         }
         catch (Exception e){
             LOGGER.log(Level.SEVERE, "Attempted to copy the parameter set and the configuration file to the output dir, but failed.");

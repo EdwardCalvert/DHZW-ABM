@@ -42,6 +42,9 @@ public class VotParameterSet {
         this.weightWalk = parameterReader.getDoubleParameter("weightWalk");
         this.weightWait = parameterReader.getDoubleParameter("weightWait");
         this.weightFeeder = parameterReader.getDoubleParameter("weightFeeder");
+
+        this.weightVotCosts = parameterReader.getDoubleParameter("weightVotCosts");
+        this.weightTangibleCosts = parameterReader.getDoubleParameter("weightTangibleCosts");
         validateParameters();
 
     }
@@ -88,4 +91,6 @@ public class VotParameterSet {
     public final double weightWalk;
     public final double weightWait;
     public final double weightFeeder;
+    public final double weightTangibleCosts;
+    public final double weightVotCosts;
 }

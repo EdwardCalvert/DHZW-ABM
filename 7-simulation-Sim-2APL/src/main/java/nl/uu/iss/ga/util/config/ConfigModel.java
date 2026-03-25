@@ -68,6 +68,7 @@ public class ConfigModel {
     private RoutingTrainReader routingTrainReader;
     private String distributionOutputBaseFolder;
     private File distributionOutput;
+    private String scoreAgainst;
 
     private String utilFunction;
 
@@ -89,6 +90,7 @@ public class ConfigModel {
             throw new InvalidTypeException("distribution_output_base_folder needs a value");
         }
         this.utilFunction = this.table.getString("util_function");
+        this.scoreAgainst = this.table.getString("score_against");
 
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMdd_HHmmss");
         String timestamp = LocalDateTime.now().format(formatter);
@@ -108,6 +110,7 @@ public class ConfigModel {
         this.routingCarFiles = getFiles("routing_car", true);
         this.routingBusFiles = getFiles("routing_bus_tram", true);
         this.routingTrainFiles = getFiles("routing_train", true);
+
 
         this.stateFile = getFile("statefile", false);
 
@@ -223,6 +226,7 @@ public class ConfigModel {
 
                             // add bus routing data
                             routingBusBeliefContext.addBusTime(previousActivity.getLocation().getPostcode(), nextActivity.getLocation().getPostcode(), this.routingBusReader.getBusTime(previousActivity.getLocation().getPostcode(), nextActivity.getLocation().getPostcode()));
+                            routingBusBeliefContext.addWaitTime(previousActivity.getLocation().getPostcode(), nextActivity.getLocation().getPostcode(), this.routingBusReader.getWaitingTime(previousActivity.getLocation().getPostcode(), nextActivity.getLocation().getPostcode()));
                             routingBusBeliefContext.addBusDistance(previousActivity.getLocation().getPostcode(), nextActivity.getLocation().getPostcode(), this.routingBusReader.getBusDistance(previousActivity.getLocation().getPostcode(), nextActivity.getLocation().getPostcode()));
                             routingBusBeliefContext.addWalkTime(previousActivity.getLocation().getPostcode(), nextActivity.getLocation().getPostcode(), this.routingBusReader.getWalkTime(previousActivity.getLocation().getPostcode(), nextActivity.getLocation().getPostcode()));
                             routingBusBeliefContext.addChanges(previousActivity.getLocation().getPostcode(), nextActivity.getLocation().getPostcode(), this.routingBusReader.getChange(previousActivity.getLocation().getPostcode(), nextActivity.getLocation().getPostcode()));
@@ -233,6 +237,7 @@ public class ConfigModel {
                             // add train routing data only if the trip goes outside. no need on useless empty data for trips inside or completely outside DHZW
                             if (previousActivity.getLocation().isInDHZW() ^ nextActivity.getLocation().isInDHZW()) {   // XOR operator
                                 routingTrainBeliefContext.addTrainTime(previousActivity.getLocation().getPostcode(), nextActivity.getLocation().getPostcode(), this.routingTrainReader.getTrainTime(previousActivity.getLocation().getPostcode(), nextActivity.getLocation().getPostcode()));
+                                routingTrainBeliefContext.addWaitTime(previousActivity.getLocation().getPostcode(), nextActivity.getLocation().getPostcode(), this.routingTrainReader.getWaitingTime(previousActivity.getLocation().getPostcode(), nextActivity.getLocation().getPostcode()));
                                 routingTrainBeliefContext.addTrainDistance(previousActivity.getLocation().getPostcode(), nextActivity.getLocation().getPostcode(), this.routingTrainReader.getTrainDistance(previousActivity.getLocation().getPostcode(), nextActivity.getLocation().getPostcode()));
                                 routingTrainBeliefContext.addBusTime(previousActivity.getLocation().getPostcode(), nextActivity.getLocation().getPostcode(), this.routingTrainReader.getBusTime(previousActivity.getLocation().getPostcode(), nextActivity.getLocation().getPostcode()));
                                 routingTrainBeliefContext.addBusDistance(previousActivity.getLocation().getPostcode(), nextActivity.getLocation().getPostcode(), this.routingTrainReader.getBusDistance(previousActivity.getLocation().getPostcode(), nextActivity.getLocation().getPostcode()));
@@ -330,6 +335,9 @@ public class ConfigModel {
         return activityFileReader;
     }
 
+    public String getScoreAgainst(){
+        return scoreAgainst;
+    }
     public String getName() {
         return name;
     }

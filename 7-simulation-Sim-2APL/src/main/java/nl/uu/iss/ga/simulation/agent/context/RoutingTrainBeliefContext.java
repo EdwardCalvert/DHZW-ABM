@@ -14,6 +14,7 @@ public class RoutingTrainBeliefContext implements Context {
     private AgentID me;
     private final EnvironmentInterface environmentInterface;
     private HashMap<String, HashMap<String, Double>> trainTimes;
+    private HashMap<String, HashMap<String, Double>> waitTimes;
     private HashMap<String, HashMap<String, Double>> trainDistances;
     private HashMap<String, HashMap<String, Double>> busTimes;
     private HashMap<String, HashMap<String, Double>> busDistances;
@@ -28,6 +29,7 @@ public class RoutingTrainBeliefContext implements Context {
     public RoutingTrainBeliefContext(EnvironmentInterface environmentInterface) {
         this.environmentInterface = environmentInterface;
         this.trainTimes = new HashMap<String, HashMap<String, Double>>();
+        this.waitTimes = new HashMap<>();
         this.trainDistances = new HashMap<String, HashMap<String, Double>>();
         this.busTimes = new HashMap<String, HashMap<String, Double>>();
         this.busDistances = new HashMap<String, HashMap<String, Double>>();
@@ -55,6 +57,9 @@ public class RoutingTrainBeliefContext implements Context {
 
     public double getTrainTime(String departure, String arrival){
         return this.trainTimes.get(departure).get(arrival);
+    }
+    public double getWaitTime(String departure, String arrival){
+        return this.waitTimes.get(departure).get(arrival);
     }
     public double getTrainDistance(String departure, String arrival){
         return this.trainDistances.get(departure).get(arrival);
@@ -91,6 +96,15 @@ public class RoutingTrainBeliefContext implements Context {
             HashMap<String, Double> tmpMap = new HashMap<String, Double>();
             tmpMap.put(location2, transitTime);
             this.trainTimes.put(location1, tmpMap);
+        }
+    }
+    public void addWaitTime(String location1, String location2, double waitTime) {
+        if(this.waitTimes.containsKey(location1)) {
+            this.waitTimes.get(location1).put(location2, waitTime);
+        } else {
+            HashMap<String, Double> tmpMap = new HashMap<String, Double>();
+            tmpMap.put(location2, waitTime);
+            this.waitTimes.put(location1, tmpMap);
         }
     }
     public void addTrainDistance(String location1, String location2, double transitDistance) {

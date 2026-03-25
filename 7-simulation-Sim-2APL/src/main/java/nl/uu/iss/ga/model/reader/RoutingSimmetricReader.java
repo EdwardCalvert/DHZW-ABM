@@ -60,11 +60,10 @@ public class RoutingSimmetricReader {
 
             while ((line = reader.readNext()) != null) {
                 // Parse the ID combination and value from the CSV line
-                String[] ids = line[0].split(",");
                 String id1 = line[0].trim();
                 String id2 = line[1].trim();
-                double travelTime = Double.parseDouble(line[6].trim());
-                double distance = Double.parseDouble(line[7].trim());
+                double travelTime = Double.parseDouble(line[8].trim());
+                double distance = Double.parseDouble(line[9].trim());
 
                 // Create a TwoStringKeys object for the ID combination
                 TwoStringKeys key = new TwoStringKeys(id1, id2);
