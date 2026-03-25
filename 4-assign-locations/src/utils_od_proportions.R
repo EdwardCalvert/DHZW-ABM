@@ -1,6 +1,3 @@
-library(tidyr)
-library(purrr)
-
 # calculate PC4 proportion for each residential postcode
 calculate_od_proportions <- function(df_trips, DHZW_PC4_codes) {
   df_od <- data.frame(matrix(ncol = (length(unique(df_trips$disp_arrival_PC4))+1), nrow = length(DHZW_PC4_codes)))
@@ -25,5 +22,5 @@ calculate_od_proportions <- function(df_trips, DHZW_PC4_codes) {
   
   df <- cbind(normalised, df_od$hh_PC4)
   df <- df %>%
-    rename('hh_PC4' = `df_od$hh_PC4`)
+    dplyr::rename('hh_PC4' = `df_od$hh_PC4`)
 }

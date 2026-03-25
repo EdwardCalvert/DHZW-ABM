@@ -1,20 +1,24 @@
 
 #RENAME ME!!!!
-process_ODiN_data <- function(odin_ovin_path, urbanisation_pc4_csv, DHZW_pc4_codes_csv){
+calculate_ODiN_displacements <- function(
+    output_dir, 
+    odin_ovin_path, 
+    urbanisation_pc4_csv, 
+    DHZW_pc4_codes_csv){
   
   df_OViN <- lapply(c(2010:2017), function(y) {
     read_sav(file.path(odin_ovin_path, paste0(y, "_OViN.sav")))%>% 
-      filter_attributes_OViN()
+      al_filter_attributes_OViN()
   }) %>% bind_rows()
   
   df_ODiN <- lapply(c(2018, 2019), function(y) {
     read_sav(file.path(odin_ovin_path, paste0(y, "_ODiN.sav"))) %>% 
-      filter_attributes_ODiN()
+      al_filter_attributes_ODiN()
   }) %>% bind_rows()
   
   
   # Since the residential PC4 is not given, for the individuals that at have least one displacement I retrieve it from the first displacement.
-  df_OViN <- extract_residential_PC4_from_first_displacement(df_OViN)
+  df_OViN <- al_extract_residential_PC4_from_first_displacement(df_OViN)
   
   df_OViN <- subset(df_OViN, select=-c(municipality_urbanization))
   
@@ -26,14 +30,11 @@ process_ODiN_data <- function(odin_ovin_path, urbanisation_pc4_csv, DHZW_pc4_cod
   # Filter individuals that live in DHZW. Since I am analysing the PC4, I only care about individuals with at least a displacement
   df <- df[!is.na(df$disp_counter),]
   
-  setwd(this.path::this.dir())
-  setwd('data/codes')
-  DHZW_PC4_codes <-
-    read.csv("DHZW_PC4_codes.csv", sep = ";" , header = F)$V1
+  DHZW_PC4_codes <- read.csv(DHZW_pc4_codes_csv, sep = ";" , header = F)$V1
   df <- df[df$hh_PC4 %in% DHZW_PC4_codes,]
   
   # Filter only individuals with at least a displacement that starts the day from home
-  df <- filter_start_day_from_home(df)
+  df <- al_filter_start_day_from_home(df)
   
   df$disp_activity <- recode(
     df$disp_activity,
@@ -118,7 +119,7 @@ process_ODiN_data <- function(odin_ovin_path, urbanisation_pc4_csv, DHZW_pc4_cod
   df <- df[df$n_cars_hh!='unknown' & !is.na(df$n_cars_hh),]
   
   df <- df %>%
-    rename(car_hh_ownership = n_cars_hh)
+    dplyr::rename(car_hh_ownership = n_cars_hh)
   
   # Shift Sunday at the end of the week
   df$day_of_week <- recode(
@@ -201,7 +202,9 @@ process_ODiN_data <- function(odin_ovin_path, urbanisation_pc4_csv, DHZW_pc4_cod
     drop_na()
   
   # Save dataset
-  setwd(this.path::this.dir())
-  setwd("data/processed")
-  write.csv(df_total, 'displacements_DHZW.csv', row.names = FALSE)
+  
+  displacements_DHZW_csv <- file.path(output_dir, 'displacements_DHZW.csv')
+  write.csv(df_total, displacements_DHZW_csv, row.names = FALSE)
+  
+  return(displacements_DHZW_csv)
 }

@@ -1,5 +1,6 @@
 package main.java.nl.uu.iss.ga.simulation;
 
+import main.java.nl.uu.iss.ga.Simulation;
 import nl.uu.cs.iss.ga.sim2apl.core.agent.AgentID;
 import nl.uu.cs.iss.ga.sim2apl.core.deliberation.DeliberationResult;
 import nl.uu.cs.iss.ga.sim2apl.core.deliberation.DeliberationRunnable;
@@ -7,10 +8,13 @@ import nl.uu.cs.iss.ga.sim2apl.core.tick.TickExecutor;
 
 import java.util.*;
 import java.util.concurrent.*;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
 public class NoRescheduleBlockingTickExecutor<T> implements TickExecutor<T> {
 
+    private static final Logger LOGGER = Logger.getLogger(Simulation.class.getName());
     private int tick;
     private int stepDuration;
     private Random random;
@@ -51,15 +55,6 @@ public class NoRescheduleBlockingTickExecutor<T> implements TickExecutor<T> {
         this.scheduledRunnables = new ConcurrentLinkedQueue<>();
         timingsMap.put("reassignPointer", Long.toString(System.currentTimeMillis() - millis));
 
-        // TODO this would be an interesting test to perform, but we get exceptions left and right?
-
-//        millis = System.currentTimeMillis();
-//        if (this.random != null) {
-//            runnables.sort(Comparator.comparing((deliberationRunnable) -> deliberationRunnable != null && deliberationRunnable.getAgentID() != null ? deliberationRunnable.getAgentID().getUuID() : ""));
-//            Collections.shuffle(runnables, this.random);
-//        }
-//        timingsMap.put("sort", Long.toString(System.currentTimeMillis() - millis));
-
         HashMap<AgentID, List<T>> agentPlanActions = null;
         List<Future<DeliberationResult<T>>> currentAgentFutures = null;
         long startTime = System.currentTimeMillis();
@@ -69,16 +64,11 @@ public class NoRescheduleBlockingTickExecutor<T> implements TickExecutor<T> {
             currentAgentFutures = this.executor.invokeAll(runnables);
             timingsMap.put("deliberation", Long.toString(System.currentTimeMillis() - millis));
 
-//            millis = System.currentTimeMillis();
-//            agentPlanActions = new HashMap<>(currentAgentFutures.size());
-//            for(Future<DeliberationResult<T>> futureResult : currentAgentFutures) {
-//                DeliberationResult<T> result = futureResult.get();
-//                agentPlanActions.put(result.getAgentID(), result.getActions().stream().filter(Objects::nonNull).collect(Collectors.toList()));
-//            }
-//            timingsMap.put("gatheringActions", Long.toString(System.currentTimeMillis() - millis));
 
         } catch (InterruptedException var8) {
             var8.printStackTrace();
+            LOGGER.log(Level.SEVERE,"Excetiopn" + executor.toString());
+            throw new RuntimeException("Soz dude");
         }
 
         this.stepDuration = (int)(System.currentTimeMillis() - startTime);

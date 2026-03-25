@@ -1,26 +1,33 @@
 package main.java.nl.uu.iss.ga.simulation;
 
+import com.opencsv.CSVReader;
+import com.opencsv.CSVWriter;
 import com.opencsv.exceptions.CsvValidationException;
 import main.java.nl.uu.iss.ga.Simulation;
 import main.java.nl.uu.iss.ga.model.data.Activity;
 import main.java.nl.uu.iss.ga.model.data.dictionary.ActivityType;
 import main.java.nl.uu.iss.ga.model.data.dictionary.DayOfWeek;
 import main.java.nl.uu.iss.ga.model.data.dictionary.TransportMode;
+import main.java.nl.uu.iss.ga.model.data.dictionary.households.IncomeThirds;
 import main.java.nl.uu.iss.ga.model.data.dictionary.util.CodeTypeInterface;
+import main.java.nl.uu.iss.ga.util.IncomeFitnessFunctionScorer;
+import main.java.nl.uu.iss.ga.util.PercentageFitnessFunctionScorer;
 import main.java.nl.uu.iss.ga.util.config.ArgParse;
-import main.java.nl.uu.iss.ga.util.tracking.ActivityTypeTracker;
+import main.java.nl.uu.iss.ga.util.config.ConfigModel;
 import main.java.nl.uu.iss.ga.util.tracking.ModeOfTransportTracker;
 import nl.uu.cs.iss.ga.sim2apl.core.deliberation.DeliberationResult;
-import nl.uu.cs.iss.ga.sim2apl.core.platform.Platform;
 import nl.uu.cs.iss.ga.sim2apl.core.tick.TickHookProcessor;
 
 import java.io.File;
+import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Future;
@@ -30,30 +37,28 @@ import java.util.logging.Logger;
 
 public class EnvironmentInterface implements TickHookProcessor<Activity> {
 
-    private final boolean printOutput = false;
-
     private static final Logger LOGGER = Logger.getLogger(EnvironmentInterface.class.getName());
-    private final Platform platform;
+    private final boolean printOutput = false;
+    private final ConfigModel config;
     private final ArgParse arguments;
+    private final LocalDate startDate;
     private long currentTick = 0;
     private LocalDateTime simulationStarted;
-    private final LocalDate startDate;
     private DayOfWeek today = DayOfWeek.MONDAY;
 
     private ModeOfTransportTracker modeOfTransportTracker;
-    private ActivityTypeTracker activityTypeTracker;
+
 
     public EnvironmentInterface(
-            Platform platform,
             ArgParse arguments,
             ModeOfTransportTracker modeOfTransportTracker,
-            ActivityTypeTracker activityTypeTracker
+
+            ConfigModel config
     ) {
-        this.platform = platform;
         this.arguments = arguments;
         this.modeOfTransportTracker = modeOfTransportTracker;
-        this.activityTypeTracker = activityTypeTracker;
 
+        this.config = config;
         this.startDate = arguments.getStartdate();
 
         if (this.startDate != null) {
@@ -85,9 +90,6 @@ public class EnvironmentInterface implements TickHookProcessor<Activity> {
         }
 
         String date = this.startDate.plusDays(tick).format(DateTimeFormatter.ISO_DATE);
-
-        //modeOfTransportTracker.reset();
-        activityTypeTracker.reset();
     }
 
     @Override
@@ -111,8 +113,8 @@ public class EnvironmentInterface implements TickHookProcessor<Activity> {
         );
 
         if (printOutput) {
-            System.out.println("\nOverall mode choices:");
-            System.out.println(modeOfTransportTracker.getTotalModeMap());
+            int sum = 0;
+
 
             System.out.println("\nMode x day:");
             AtomicInteger[][] modeDayMap = modeOfTransportTracker.getModeDayMap();
@@ -149,25 +151,94 @@ public class EnvironmentInterface implements TickHookProcessor<Activity> {
                     System.out.println(" " + mode + ": " + modeCarOwnership[b ? 1 : 0][mode.ordinal()]);
                 }
             }
-        }
+            System.out.println("\nIncome group x activity type");
 
+            AtomicInteger[][] incomeModeMap = modeOfTransportTracker.getIncomeModeMap();
+            for (IncomeThirds incomeThird : IncomeThirds.values()) {
+                System.out.println(incomeThird + ":");
+                for (TransportMode mode : TransportMode.values()) {
+                    System.out.println(" " + mode + ": " + incomeModeMap[incomeThird.ordinal()][mode.ordinal()]);
+                }
+            }
+            for (Map.Entry<TransportMode, AtomicInteger> entry : modeOfTransportTracker.getTotalModeMap().entrySet()) {
+                AtomicInteger count = entry.getValue();
+                sum += count.get();
+            }
+
+            System.out.println("\nOverall mode choices:");
+            System.out.println(modeOfTransportTracker.getTotalModeMap());
+            System.out.printf("Total trips: %s", sum);
+        }
+        File output_dir = this.config.getDistributionOutputBaseFolder();
         try {
+
             modeOfTransportTracker.appendOutput(this.arguments.getOutputFile());
-            modeOfTransportTracker.saveTotalModeToCsv(new File("src/main/resources/distance_analysis/"));
-            modeOfTransportTracker.saveDistanceToCsv(new File("src/main/resources/distance_analysis/"));
-/*          modeOfTransportTracker.saveModeDayToCsv(new File(this.arguments.getOutputDir()));
-            modeOfTransportTracker.saveModeActivityToCsv(new File(this.arguments.getOutputDir()));
-            modeOfTransportTracker.saveModeCarLicenseToCsv(new File(this.arguments.getOutputDir()));
-            modeOfTransportTracker.saveModeCarOwnershipToCsv(new File(this.arguments.getOutputDir()));*/
+            modeOfTransportTracker.saveTotalModeToCsv(output_dir);
+            modeOfTransportTracker.saveDistanceToCsv(output_dir);
+            modeOfTransportTracker.saveModeDayToCsv(output_dir);
+            modeOfTransportTracker.saveModeActivityToCsv(output_dir);
+            modeOfTransportTracker.saveModeCarLicenseToCsv(output_dir);
+            modeOfTransportTracker.saveModeCarOwnershipToCsv(output_dir);
+            modeOfTransportTracker.saveIncomeModeMap(output_dir);
         } catch (IOException e) {
             throw new RuntimeException(e);
         } catch (CsvValidationException e) {
             throw new RuntimeException(e);
         }
+        //Create a copy of the parameterset in the output folder,
+        // so that my head doesn't blow up when I look at the results
+        try{
+            //Copy configuration file.
+            File configurationFile = arguments.getConfiguration();
+            Files.copy(configurationFile.toPath(), Paths.get(output_dir.toString(), configurationFile.getName()));
+
+            //Copy parameterset, useful for debugging etc
+            String[] header;
+            String[] params;
+            try (CSVReader parameterSetReader = new CSVReader(new FileReader(arguments.getParameterSetFile()))) {
+                header = parameterSetReader.readNext();
+                parameterSetReader.skip(this.arguments.getParameterSetIndex());
+                params = parameterSetReader.readNext();
+            }
+
+            File outputFile = Paths.get(output_dir.toString(), "paramset.csv").toFile();
+            try (CSVWriter writer = new CSVWriter(new FileWriter(outputFile))) {
+                writer.writeNext(header);
+                writer.writeNext(params);
+            }
+            IncomeFitnessFunctionScorer incomeScorer = new IncomeFitnessFunctionScorer();
+            //Write output score instead
+            Double score = incomeScorer.scoreIncome(modeOfTransportTracker.getIncomeModeMap(), new File("src/main/resources/calibration_files/DHZW_income_group_proportions.csv"));
+            incomeScorer.saveScore(output_dir);
+            incomeScorer.saveIncome(output_dir);
+
+            PercentageFitnessFunctionScorer percentageScorer = new PercentageFitnessFunctionScorer();
+            Double percentageScore = percentageScorer.scoreIncome(modeOfTransportTracker.getTotalModeMap(),
+                    new File("src/main/resources/calibration_files/DHZW_modal_choice_proporitions.csv"),
+                    header,
+                    params
+            );
+            percentageScorer.saveScore(output_dir);
+            percentageScorer.saveDistribution(output_dir);
+
+            if(config.getScoreAgainst().equals("income")){
+                System.out.print(score);
+            }
+            else if(config.getScoreAgainst().equals("percent")){
+                System.out.print(percentageScore);
+            }
+            else{
+                System.out.print("The score setting couldn't be understood");
+            }
+
+        }
+        catch (Exception e){
+            LOGGER.log(Level.SEVERE, "Attempted to copy the parameter set and the configuration file to the output dir, but failed.");
+        }
     }
 
     /**
-     * From @url{https://stackoverflow.com/questions/3471397/how-can-i-pretty-print-a-duration-in-java#answer-16323209}
+     * Pretty print a duration
      *
      * @param duration Duration object to pretty print
      * @return Pretty printed duration

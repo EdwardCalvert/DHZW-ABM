@@ -8,6 +8,7 @@ import nl.uu.cs.iss.ga.sim2apl.core.agent.Trigger;
 import nl.uu.cs.iss.ga.sim2apl.core.plan.Plan;
 import nl.uu.cs.iss.ga.sim2apl.core.plan.PlanScheme;
 
+import java.util.Random;
 import java.util.logging.Logger;
 
 public class GoalPlanScheme implements PlanScheme<TripTour> {
@@ -15,6 +16,11 @@ public class GoalPlanScheme implements PlanScheme<TripTour> {
     private static final Logger LOGGER = Logger.getLogger(GoalPlanScheme.class.getName());
 
     AgentContextInterface<TripTour> agentContextInterface;
+    private Random _random;
+
+    public GoalPlanScheme(Random random){
+        this._random = random;
+    }
 
     @Override
     public Plan<TripTour> instantiate(Trigger trigger, AgentContextInterface<TripTour> agentContextInterface) {
@@ -28,7 +34,7 @@ public class GoalPlanScheme implements PlanScheme<TripTour> {
 
             // look for a plan only if the chain is about this new day
             if (context.getToday().equals(activityTour.getDay())) {
-                return new ExecuteTourPlan(activityTour);
+                return new ExecuteTourPlan(activityTour, _random);
             }
         }
 

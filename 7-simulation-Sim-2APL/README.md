@@ -62,6 +62,12 @@ Install the package using Maven:
 $ mvn -U clean install
 ```
 
+or download from the artefacts tab on the 2APL repo, and source using:
+
+```bash
+mvn install:install-file -Dfile='sim2apl-matrix-2.0.0-SNAPSHOT.jar' -DgroupId='nl.uu.iss.ga' -DartifactId=sim2apl-matrix -Dversion='2.0.0-SNAPSHOT' -Dpackaging=jar
+```
+
 This will automatically add the library to your local Maven repository, so no further action is required here.
 
 ### This library

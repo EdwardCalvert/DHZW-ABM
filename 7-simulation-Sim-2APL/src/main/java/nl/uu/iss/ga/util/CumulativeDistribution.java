@@ -2,13 +2,15 @@ package main.java.nl.uu.iss.ga.util;
 
 import main.java.nl.uu.iss.ga.model.data.dictionary.TransportMode;
 
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.Map;
 import java.util.Random;
 
 public class CumulativeDistribution {
 
-    public static TransportMode sampleWithCumulativeDistribution(HashMap<TransportMode, Double> choiceProbabilities){
-        // calculate the cumulative proportions
+    public static TransportMode sampleWithCumulativeDistribution(Map<TransportMode, Double> choiceProbabilities, Random random){
+
         double[] cumulativeProportions = new double[choiceProbabilities.size()];
         double cumulativeSum = 0.0;
         int index = 0;
@@ -17,8 +19,6 @@ public class CumulativeDistribution {
             cumulativeProportions[index++] = cumulativeSum;
         }
 
-        // sample a random number
-        Random random = new Random(System.currentTimeMillis());
 
         // Generate a random number between 0 and 1
         double randomValue = random.nextDouble();

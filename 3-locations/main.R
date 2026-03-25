@@ -7,8 +7,6 @@ run_locations <- function(
   centroids_PC6_DHZW_csv,
   DHZW_pc4_codes_csv
 ) {
-  if (!dir.exists(output_dir)) dir.create(output_dir, recursive = TRUE)
-
   results <- run_work_retail_sport_location_extraction(
     the_hague_BAG_shp,
     DHZW_pc4_codes_csv
@@ -29,10 +27,10 @@ run_locations <- function(
     row.names = FALSE
   )
 
-  retail_locations_csv <- file.path(output_dir, "retail_DHZW.csv")
+  shopping_locations_csv <- file.path(output_dir, "retail_DHZW.csv")
   write.csv(
     results$retail,
-    retail_locations_csv,
+    shopping_locations_csv,
     row.names = FALSE
   )
 
@@ -55,7 +53,7 @@ run_locations <- function(
     "df_households_minimal.csv"
   )
   write.csv(
-    household_results$df_households,
+    household_results$df_households_minimal,
     household_locations_minimal_csv,
     row.names = FALSE
   )
@@ -84,20 +82,22 @@ run_locations <- function(
     sport_locations_csv,
     work_locations_csv,
     school_locations_csv,
-    retail_locations_csv
+    shopping_locations_csv
   )
 
   merged_locations_csv <- file.path(output_dir, "locations_merged.csv")
   write.csv(df_merged_locations, merged_locations_csv, row.names = FALSE)
 
-  return(c(
-    work_locations_csv = work_locations_csv,
-    sport_locations_csv = sport_locations_csv,
-    retail_locations_csv = retail_locations_csv,
-    household_locations_full_csv = household_locations_full_csv,
-    household_locations_minimal_csv = household_locations_minimal_csv,
-    school_locations_shp = school_locations_shp,
-    school_locations_csv = school_locations_csv,
-    merged_locations_csv = merged_locations_csv
-  ))
+  return(
+    c(
+      work_locations_csv,
+      sport_locations_csv,
+      shopping_locations_csv,
+      household_locations_full_csv,
+      household_locations_minimal_csv,
+      school_locations_shp,
+      school_locations_csv,
+      merged_locations_csv
+    )
+  )
 }

@@ -1,12 +1,13 @@
 package main.java.nl.uu.iss.ga.util.tracking;
 
-import com.opencsv.CSVParser;
 import com.opencsv.CSVReader;
 import com.opencsv.CSVWriter;
 import com.opencsv.exceptions.CsvValidationException;
 import main.java.nl.uu.iss.ga.model.data.dictionary.ActivityType;
 import main.java.nl.uu.iss.ga.model.data.dictionary.DayOfWeek;
 import main.java.nl.uu.iss.ga.model.data.dictionary.TransportMode;
+import main.java.nl.uu.iss.ga.model.data.dictionary.households.IncomeThirds;
+import main.java.nl.uu.iss.ga.model.data.dictionary.households.StandardizedIncomeGroup;
 
 import java.io.File;
 import java.io.FileReader;
@@ -23,6 +24,9 @@ public class ModeOfTransportTracker {
     private Map<TransportMode, AtomicInteger> distanceMap;
     private Map<ActivityType, AtomicInteger> distanceActivityMap;
     private Map<ActivityType, AtomicInteger> activityMap;
+    private Map<StandardizedIncomeGroup, AtomicInteger> standardizedIncomeMap;
+    private AtomicInteger[][] incomeActivityMap = new AtomicInteger[IncomeThirds.values().length][ActivityType.values().length];
+    private AtomicInteger[][] incomeModeMap = new AtomicInteger[IncomeThirds.values().length][TransportMode.values().length];
     private AtomicInteger[][] modeDayMap = new AtomicInteger[DayOfWeek.values().length][TransportMode.values().length];
     private AtomicInteger[][] modeActivityMap = new AtomicInteger[ActivityType.values().length][TransportMode.values().length];
     private AtomicInteger[][] modeCarLicenseMap = new AtomicInteger[2][TransportMode.values().length];
@@ -49,6 +53,25 @@ public class ModeOfTransportTracker {
         for(ActivityType activity : ActivityType.values()) {
             activityMap.put(activity, new AtomicInteger(0));
         }
+
+        standardizedIncomeMap = new ConcurrentHashMap<>();
+        for(StandardizedIncomeGroup incomeGroup: StandardizedIncomeGroup.values()){
+            standardizedIncomeMap.put(incomeGroup,new AtomicInteger(0));
+        }
+
+        for(int i = 0; i< this.incomeActivityMap.length; i++){
+            for(int j = 0; j<this.incomeActivityMap[i].length; j++){
+                this.incomeActivityMap[i][j] = new AtomicInteger(0);
+            }
+        }
+
+
+        for(int i = 0; i< this.incomeModeMap.length; i++){
+            for(int j = 0; j<this.incomeModeMap[i].length; j++){
+                this.incomeModeMap[i][j] = new AtomicInteger(0);
+            }
+        }
+
 
         // Initialise map for mode x day frequencies
         for (int i = 0; i < this.modeDayMap.length; i++) {
@@ -77,9 +100,12 @@ public class ModeOfTransportTracker {
         }
     }
 
-    public void notifyTransportModeUsed(TransportMode mode, DayOfWeek day, ActivityType activityType, boolean hasCarLicense, boolean hasCar, double distance) {
+    public void notifyTransportModeUsed(TransportMode mode, DayOfWeek day, ActivityType activityType, boolean hasCarLicense, boolean hasCar, double distance, IncomeThirds incomeThird) {
         this.totalModeMap.get(mode).getAndIncrement();
         this.activityMap.get(activityType).getAndIncrement();
+        this.standardizedIncomeMap.get(incomeThird);
+        this.incomeActivityMap[incomeThird.ordinal()][activityType.ordinal()].getAndIncrement();
+        this.incomeModeMap[incomeThird.ordinal()][mode.ordinal()].getAndIncrement();
         this.modeDayMap[day.ordinal()][mode.ordinal()].getAndIncrement();
         this.modeActivityMap[activityType.ordinal()][mode.ordinal()].getAndIncrement();
         this.modeCarLicenseMap[hasCarLicense ? 1 : 0][mode.ordinal()].getAndIncrement();
@@ -90,6 +116,12 @@ public class ModeOfTransportTracker {
 
     public Map<TransportMode, AtomicInteger> getTotalModeMap() {
         return totalModeMap;
+    }
+    public Map<StandardizedIncomeGroup,AtomicInteger> getStandardizedIncomeMap(){
+        return this.standardizedIncomeMap;
+    }
+    public AtomicInteger[][] getIncomeModeMap(){
+        return this.incomeModeMap;
     }
     public AtomicInteger[][] getModeDayMap() {
         return this.modeDayMap;
@@ -244,6 +276,28 @@ public class ModeOfTransportTracker {
             for (TransportMode mode : TransportMode.values()) {
                 row[1] = String.valueOf(mode);
                 AtomicInteger value = this.modeCarOwnershipMap[b ? 1 : 0][mode.ordinal()];
+                row[2] = String.valueOf(value.get());
+                writer.writeNext(row);
+            }
+        }
+        writer.close();
+    }
+
+    public void saveIncomeModeMap(File outputDir) throws IOException {
+        CSVWriter writer = new CSVWriter(new FileWriter(new File( outputDir,"income-mode-frequency.csv")));
+
+        String[] row = new String[3];
+        row[0] = "income_group";
+        row[1] = "mode_choice";
+        row[2] = "frequency";
+
+        writer.writeNext(row);
+        for (IncomeThirds incomeGroup : IncomeThirds.values()) {
+            row = new String[3];
+            row[0] = String.valueOf(incomeGroup);
+            for (TransportMode mode : TransportMode.values()) {
+                row[1] = String.valueOf(mode);
+                AtomicInteger value = this.incomeModeMap[incomeGroup.ordinal()][mode.ordinal()];
                 row[2] = String.valueOf(value.get());
                 writer.writeNext(row);
             }

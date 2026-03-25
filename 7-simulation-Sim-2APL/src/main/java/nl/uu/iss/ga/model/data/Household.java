@@ -1,13 +1,15 @@
 package main.java.nl.uu.iss.ga.model.data;
 
 import main.java.nl.uu.iss.ga.model.data.dictionary.households.HouseholdType;
+import main.java.nl.uu.iss.ga.model.data.dictionary.households.IncomeThirds;
 import main.java.nl.uu.iss.ga.model.data.dictionary.households.StandardizedIncomeGroup;
 import main.java.nl.uu.iss.ga.model.data.dictionary.util.ParserUtil;
 import main.java.nl.uu.iss.ga.model.data.dictionary.util.StringCodeTypeInterface;
+import nl.uu.cs.iss.ga.sim2apl.core.agent.Context;
 
 import java.util.Map;
 
-public class Household {
+public class Household implements Context {
     private final Long hid;
     private final int hhSize;
     private final String pc6;
@@ -49,6 +51,7 @@ public class Household {
                 ParserUtil.parseIntAsBoolean(keyValue.get("car_ownership"))
         );
     }
+
     public Long getHid() {
         return this.hid;
     }
@@ -56,6 +59,7 @@ public class Household {
     public int getHhSize() {
         return this.hhSize;
     }
+
     public String getPc6() {
         return this.pc6;
     }
@@ -70,6 +74,19 @@ public class Household {
 
     public StandardizedIncomeGroup getStandardizedIncomeGroup() {
         return this.standardizedIncomeGroup;
+    }
+
+    public IncomeThirds getIncomeThird() {
+        if (standardizedIncomeGroup == StandardizedIncomeGroup.INCOME_GROUP_1_10
+                || standardizedIncomeGroup == StandardizedIncomeGroup.INCOME_GROUP_2_10
+                || standardizedIncomeGroup == StandardizedIncomeGroup.INCOME_GROUP_3_10) {
+            return IncomeThirds.LOW;
+        } else if (standardizedIncomeGroup == StandardizedIncomeGroup.INCOME_GROUP_8_10
+                || standardizedIncomeGroup == StandardizedIncomeGroup.INCOME_GROUP_9_10
+                || standardizedIncomeGroup == StandardizedIncomeGroup.INCOME_GROUP_10_10) {
+            return IncomeThirds.HIGH;
+        }
+        return IncomeThirds.AVERAGE;
     }
 
     public String getNeighbourhoodCode() {

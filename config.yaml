@@ -1,5 +1,6 @@
 project_root: "."
-experiment_id: "effect-of-rush-hour"
+experiment_id: "vanilla" 
+#One of ["synth_pop", "vanilla"]
 data_version: "v1.2"
 parameters:
   rush_hour_start: 07:00
@@ -11,3 +12,18 @@ modules:
   trips: "1-trips"
   assign_activities: "2-assign_activities"
   locations: "3-locations"
+  assign_locations: "4-assign_locations"
+  synthetic_population_to_sim: "5-synthetic_population_to_Sim2APL"
+  routing : "6-routing"
+
+
+configuration:
+  vanilla: 
+    module_dir: "0-synthetic-population/output/synthetic-population-households"
+    population: "synthetic_population_DHZW_2019.csv"
+    households: "df_households_DHZW_2019.csv"
+  synth_pop:
+    module_dir: "0-synthetic-population/output/gen-synth-pop"
+    population:  "synthetic_population_the_hague_south_west.csv"
+    households: "synthetic_households_the_hague_south_west.csv"
+    

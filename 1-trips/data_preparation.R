@@ -1,12 +1,12 @@
-process_ODiN_data <- function(odin_ovin_path, urbanisation_pc4_csv, DHZW_pc4_codes_csv){
+process_ODiN_data <- function(odin_ovin_dir, urbanisation_pc4_csv, DHZW_pc4_codes_csv){
   
   df_OViN <- lapply(c(2010:2017), function(y) {
-    read_sav(file.path(odin_ovin_path, paste0(y, "_OViN.sav")))%>% 
+    read_sav(file.path(odin_ovin_dir, paste0(y, "_OViN.sav")))%>% 
       filter_attributes_OViN()
   }) %>% bind_rows()
   
   df_ODiN <- lapply(c(2018, 2019), function(y) {
-    read_sav(file.path(odin_ovin_path, paste0(y, "_ODiN.sav"))) %>% 
+    read_sav(file.path(odin_ovin_dir, paste0(y, "_ODiN.sav"))) %>% 
       filter_attributes_ODiN()
   }) %>% bind_rows()
   
@@ -42,7 +42,7 @@ process_ODiN_data <- function(odin_ovin_path, urbanisation_pc4_csv, DHZW_pc4_cod
   df_OViN_with_disp <- df_OViN[!is.na(df_OViN$disp_counter),]
   df_OViN_with_disp <- df_OViN[df_OViN$hh_PC4 %in% PC4_urbanized_like_DHZW,]
   
-  plot_modal_distribution(df_OViN_with_disp)
+  #plot_modal_distribution(df_OViN_with_disp)
   
   df_OViN <- rbind(df_OViN_with_disp, df_OViN_stay_home)
   df_OViN <- subset(df_OViN, select=-c(municipality_urbanization))
@@ -52,12 +52,17 @@ process_ODiN_data <- function(odin_ovin_path, urbanisation_pc4_csv, DHZW_pc4_cod
   df <- rbind(df_OViN,
               df_ODiN)
   
+  # # is no moves (the individual stays at home all day), the counter is 0. 
+  # # EC removed 28/02/2026 since filter start_day_from home removes this property
+  # df[is.na(df$disp_counter),]$disp_counter <- 0
   
-  # For individuals with at least a displacement, filter only the ones that start the  day from one. This is because in the simulation the delibration cycle is at midnight everyday, so the agetns must then start from home everyday.
+  # For individuals with at least a displacement, filter only the ones that 
+  # start the  day from one. This is because in the simulation the delibration 
+  # cycle is at midnight everyday, so the agetns must then start from home 
+  # everyday.
   df <- filter_start_day_from_home(df)
   
-  # is no moves (the individual stays at home all day), the counter is 0.
-  df[is.na(df$disp_counter),]$disp_counter <- 0
+
   
   # format the values of the attributes
   df <- format_values(df)
@@ -65,9 +70,9 @@ process_ODiN_data <- function(odin_ovin_path, urbanisation_pc4_csv, DHZW_pc4_cod
   ################################################################################
   # Calculate times
   
-  df$disp_start_time <- df$disp_start_hour * 60 + df$disp_start_min
+  df$disp_start_time <- (df$disp_start_hour * 60 + df$disp_start_min)*60 # start_time_in seconds
   df$disp_arrival_time <-
-    df$disp_arrival_hour * 60 + df$disp_arrival_min
+    (df$disp_arrival_hour * 60 + df$disp_arrival_min) *60
   df <-
     subset(
       df,

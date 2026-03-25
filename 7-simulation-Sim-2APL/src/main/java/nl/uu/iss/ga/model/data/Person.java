@@ -93,7 +93,6 @@ public class Person implements Context {
         return this.currentEducation;
     }
 
-
     public EducationAttainment getEducationAttainment() {
         return this.educationAttainment;
     }

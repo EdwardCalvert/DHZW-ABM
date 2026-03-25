@@ -12,7 +12,7 @@ public enum MigrationBackground implements StringCodeTypeInterface {
 
     MigrationBackground(String code) {
         this.stringCode = code;
-        this.code = StringCodeTypeInterface.parseStringcode(code);
+        this.code = StringCodeTypeInterface.parseStringCode(code);
     }
 
     @Override

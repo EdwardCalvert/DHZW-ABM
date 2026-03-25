@@ -6,7 +6,8 @@
 # Load packages required to define the pipeline:
 library(targets)
 
-source("output_directory_source_utility.R")
+# source("output_directory_source_utility.R")
+# source("rename_location_files_vector_util.R")
 
 tar_option_set(
   packages = c(
@@ -20,7 +21,16 @@ tar_option_set(
     "purrr",
     "this.path",
     "data.table",
-    "sf"
+    "sf",
+    # "plyr", #remove due to namespace masking issues.
+    "here",
+    "yaml",
+    "opentripplanner",
+    "geosphere",
+    "progressr",
+    "future.apply",
+    "doParallel",
+    "foreach"
   ),
   workspace_on_error = TRUE
 )
@@ -28,23 +38,49 @@ tar_option_set(
 
 # Run the R scripts in the R/ folder with your custom functions:
 tar_source(c(
-  "0-shapefiles/main.R", # Only main, other files not ready yet
+  "output_directory_source_utility.R",
+  "rename_location_files_vector_util.R",
   "0-shapefiles/PC6_centroids.R",
+  "0-shapefiles/PC6_DHZW_Moerwijk.R",
+  "0-shapefiles/PC6_DHZW.R",
+  "0-shapefiles/PC5_centroids.R",
+  "0-shapefiles/PC4_centroids.R",
   "0-synthetic-population/main.R", # Only main, other files not prepared yet
+  "0-synthetic-population/src/format-datasets/format-GenSynthPop_to_vanilla.R",
   "1-trips/main.R",
   "1-trips/data_preparation.R",
   "1-trips/utils.R",
   "2-assign-activities",
   "3-locations",
-  "4-locations/main.R",
-  "4-locations/src/",
-  "4-locations/assign_locations"
+  "4-assign-locations/assign_locations",
+  "4-assign-locations/src/",
+  "4-assign-locations/main.R",
+  "4-assign-locations/data_preparation.R",
+  "4-assign-locations/calculate_postcode_activity_distribution.R",
+  "5-synthetic-population-to-Sim2APL/merge_locations.R",
+  "5-synthetic-population-to-Sim2APL/merge_activities_locations.R",
+  # "5-synthetic-population-to-Sim2APL/utils.R",
+  "5-synthetic-population-to-Sim2APL/format_to_SIM2APL.R",
+  "6-routing/main.R",
+  "6-routing/build_graph.R",
+  "6-routing/generate_OD.R",
+  "6-routing/calculate_euclidean_distance.R",
+  "6-routing/utils-otp.R",
+  "6-routing/routing_bus.R",
+  "6-routing/routing_train.R",
+  "6-routing/routing_walk_bike_car.R"
 ))
 
 list(
   tar_target(config_file, "config.yaml", format = "file"),
   tar_target(config, yaml::read_yaml(config_file)),
   tar_target(output_dir, get_output_path(config)),
+  tar_target(final_output_dir, get_final_output_path(config)),
+  tar_target(experiment_id, config$experiment_id),
+
+  # Open trip planner depdenencies
+  tar_target(otp_data_path, "../dhzw_data/otp"),
+  tar_target(otp_java_path, file.path(otp_data_path, "otp-2.2.0-shaded.jar")),
 
 
   ## Shapefiles
@@ -54,54 +90,115 @@ list(
     format = "file"
   ),
   tar_target(
-    shapefile_sources,
-    c(
-      here(config$modules$shapefiles, "data", "codes", "DHZW_neighbourhoods_codes.csv"),
-      here(config$modules$shapefiles, "data", "codes", "DHZW_neighbourhoods.csv"),
-      here(config$modules$shapefiles, "data", "codes", "DHZW_pc4_codes.csv")
-    ),
+    pc5_gpkg,
+    "../dhzw_data/2024-cbs_pc5_2021_vol/cbs_pc5_2021_vol.gpkg",
     format = "file"
   ),
   tar_target(
-    shapefiles,
-    run_shapefiles(file.path(output_dir, config$modules$shapefiles), shapefile_sources),
+    pc4_gpkg,
+    "../dhzw_data/2025-cbs_pc4_2022_vol/cbs_pc4_2022_vol.gpkg", # 2021 data seemed corrupt
     format = "file"
   ),
   # run shapefiles returns :
   # neighbourhood_codes.csv, neighbourhoods.csv, pc4_codes.csv
-  tar_target(neighborhood_codes_csv, shapefiles[1], format = "file"),
-  tar_target(neighbourhoods_csv, shapefiles[2], format = "file"),
-  tar_target(DHZW_pc4_codes_csv, shapefiles[3], format = "file"),
+  tar_target(neighborhood_codes_csv, here(config$modules$shapefiles, "data", "codes", "DHZW_neighbourhoods_codes.csv"), format = "file"),
+  tar_target(neighbourhoods_csv, here(config$modules$shapefiles, "data", "codes", "DHZW_neighbourhoods.csv"), format = "file"),
+  tar_target(DHZW_pc4_codes_csv, here(config$modules$shapefiles, "data", "codes", "DHZW_pc4_codes.csv"), format = "file"),
+
+  # PC6
   tar_target(
-    centroids_PC6_DHZW_csv, 
+    centroids_PC6_results,
     generate_pc6_centroids(
       file.path(output_dir, config$modules$shapefiles),
       DHZW_pc4_codes_csv,
       pc6_gpkg
-      ),
-      format="file"
     ),
-
-  ## Synthetic population
-  # Aware this is pointless to copy, but leave for time being!?
+    format = "file"
+  ),
+  tar_target(centroids_pc6_NL_shp, centroids_PC6_results[1], format = "file"),
+  tar_target(centroids_pc6_NL_csv, centroids_PC6_results[2], format = "file"),
+  tar_target(centroids_PC6_DHZW_shp, centroids_PC6_results[3], format = "file"),
+  tar_target(centroids_PC6_DHZW_csv, centroids_PC6_results[4], format = "file"),
   tar_target(
-    synthetic_population_source,
-    here(config$modules$synthetic_population, "output", "synthetic-population-households", "synthetic_population_DHZW_2019.csv"),
+    pc6_moerwijk_station_shp,
+    generate_pc6_DHZW_moerwijk(
+      file.path(output_dir, config$modules$shapefiles),
+      pc6_gpkg
+    ),
     format = "file"
   ),
   tar_target(
-    synthetic_population,
+    pc6_DHZW_shp,
+    generate_pc6_shp(
+      file.path(output_dir, config$modules$shapefiles),
+      DHZW_pc4_codes_csv,
+      pc6_gpkg
+    )
+  ),
+
+  # PC5
+  tar_target(
+    centroids_pc5_results,
+    generate_pc5_centroids(
+      file.path(output_dir, config$modules$shapefiles),
+      DHZW_pc4_codes_csv,
+      pc5_gpkg
+    )
+  ),
+  tar_target(centroids_pc5_NL_shp, centroids_pc5_results[1], format = "file"),
+  tar_target(centroids_pc5_NL_csv, centroids_pc5_results[2], format = "file"),
+  tar_target(centroids_pc5_DHZW_shp, centroids_pc5_results[3], format = "file"),
+  tar_target(centroids_pc5_DHZW_csv, centroids_pc5_results[4], format = "file"),
+
+  # PC4
+  tar_target(
+    centroids_pc4_results,
+    generate_pc4_centroids(
+      file.path(output_dir, config$modules$shapefiles),
+      DHZW_pc4_codes_csv,
+      pc4_gpkg
+    ),
+    format = "file"
+  ),
+  tar_target(centroids_pc4_NL_shp, centroids_pc4_results[1], format = "file"),
+  tar_target(centroids_pc4_NL_csv, centroids_pc4_results[2], format = "file"),
+  tar_target(centroids_pc4_DHZW_shp, centroids_pc4_results[3], format = "file"),
+  tar_target(centroids_pc4_DHZW_csv, centroids_pc4_results[4], format = "file"),
+
+  ## Synthetic population
+  tar_target(
+    synthetic_population_source,
+    here(config$configuration[[experiment_id]]$module_dir, config$configuration[[experiment_id]]$population),
+    format = "file"
+  ),
+  tar_target(
+    synthetic_household_source,
+    here(config$configuration[[experiment_id]]$module_dir, config$configuration[[experiment_id]]$households),
+    format = "file"
+  ),
+  tar_target(
+    synthetic_population_csv,
     run_synthetic_population(
       file.path(output_dir, config$modules$synthetic_population),
-      synthetic_population_source
+      synthetic_population_source,
+      experiment_id,
+      synthetic_household_source,
+      DHZW_pc4_codes_csv
     ),
     format = "file"
   ),
   tar_target(
     df_households_csv,
-    here(config$modules$synthetic_population, "output", "synthetic-population-households", "df_households_DHZW_2019.csv"),
+    run_synthetic_households(
+      file.path(output_dir, config$modules$synthetic_population),
+      synthetic_population_csv,
+      experiment_id,
+      synthetic_household_source,
+      DHZW_pc4_codes_csv
+    ),
     format = "file"
   ),
+
 
   ## Trips
   ## NEED TO ENCAPSULATE THESE DIRECTORIES INTO CONFIG FILE!!!!!!
@@ -119,11 +216,11 @@ list(
 
   ## Assign activities
   tar_target(
-    synthetic_activities_csv,
+    synthetic_activities_nonspatial_csv,
     run_assign_activities(
       file.path(output_dir, config$modules$assign_activities),
       highly_urbanised_trips_csv,
-      synthetic_population
+      synthetic_population_csv
     ),
     format = "file"
   ),
@@ -158,7 +255,128 @@ list(
       DHZW_pc4_codes_csv
     ),
     format = "file"
-  )
-  
-  ##NEED TO ADJUST CONFIG FILE
+  ),
+
+  ## assign locations
+  tar_target(
+    synthetic_activities_csv,
+    run_assign_locations(
+      file.path(
+        output_dir, config$modules$assign_locations
+      ),
+      odin_ovin_dir,
+      urbanisation_pc4_csv,
+      DHZW_pc4_codes_csv,
+      displacements_DHZW_csv,
+      synthetic_population_csv,
+      synthetic_activities_nonspatial_csv,
+      location_files_vector,
+      centroids_PC6_DHZW_csv,
+      centroids_pc4_DHZW_shp
+    ),
+    format = "file"
+  ),
+
+  ## merge_locations
+  # merge_activities_locations
+  # format_to_SIM2APL.
+  # tar_target(
+  #   merged_locations_csv,
+  #   merge_locations(
+  #     file.path(
+  #       output_dir, config$modules$synthetic_population_to_sim
+  #     ),
+  #     location_files_vector
+  #   ),
+  #   format = "file"
+  # ),
+  tar_target(
+    format_to_sim_activities_locations_csv,
+    format_to_sim_merge_locations(
+      file.path(output_dir, config$modules$synthetic_population_to_sim),
+      synthetic_activities_csv,
+      location_files_vector,
+      centroids_pc4_NL_csv,
+      centroids_pc5_NL_csv,
+      centroids_pc6_NL_csv
+    ),
+    format = "file"
+  ),
+  tar_target(
+    final_activities_locations_csv,
+    format_to_sim2apl(
+      file.path(output_dir, config$modules$synthetic_population_to_sim),
+      final_output_dir,
+      synthetic_population_csv,
+      location_files_vector,
+      format_to_sim_activities_locations_csv
+    ),
+    format = "file"
+  ),
+  tar_target(OD_results_vector, run_generate_OD(
+    file.path(output_dir, config$modules$routing),
+    final_activities_locations_csv,
+    centroids_pc5_DHZW_csv
+  ), format = "file"),
+  tar_target(OD_symmetric_csv, OD_results_vector[1], format = "file"),
+  tar_target(OD_asymmetric_csv, OD_results_vector[2], format = "file"),
+  tar_target(
+    beeline_distance_csv,
+    calcuate_euclidian_distance(final_output_dir, OD_symmetric_csv),
+    format = "file"
+  ),
+  tar_target(
+    routing_bus_csv,
+    run_routing_bus(
+      file.path(output_dir, config$modules$routing),
+      final_output_dir,
+      OD_asymmetric_csv,
+      pc6_DHZW_shp,
+      otp_data_path,
+      otp_java_path
+    ),
+    format = "file"
+  ),
+  tar_target(routing_walk_csv,
+    {
+      df_symmetric <- read.csv(OD_symmetric_csv)
+      otpcon <- start_or_connect_otp(otp_java_path, otp_data_path)
+      df_walk <- compute_walk_bike_car(otpcon, df_symmetric, "WALK")
+      output_name <- file.path(final_output_dir, "walk_time_distance.csv")
+      write.csv(df_walk, output_name, row.names = FALSE)
+      return(output_name)
+    },
+    format = "file"
+  ),
+  tar_target(routing_car_csv,
+    {
+      df_symmetric <- read.csv(OD_symmetric_csv)
+      otpcon <- start_or_connect_otp(otp_java_path, otp_data_path)
+      df_walk <- compute_walk_bike_car(otpcon, df_symmetric, "CAR")
+      output_name <- file.path(final_output_dir, "car_time_distance.csv")
+      write.csv(df_walk, output_name, row.names = FALSE)
+      return(output_name)
+    },
+    format = "file"
+  ),
+  tar_target(routing_bike_csv,
+    {
+      df_symmetric <- read.csv(OD_symmetric_csv)
+      otpcon <- start_or_connect_otp(otp_java_path, otp_data_path)
+      df_walk <- compute_walk_bike_car(otpcon, df_symmetric, "BICYCLE")
+      output_name <- file.path(final_output_dir, "bike_time_distance.csv")
+      write.csv(df_walk, output_name, row.names = FALSE)
+      return(output_name)
+    },
+    format = "file"
+  ),
+  tar_target(routing_train_csv, run_routing_train(
+    file.path(output_dir, config$modules$routing),
+    final_output_dir,
+    OD_asymmetric_csv,
+    pc6_DHZW_shp,
+    otp_data_path,
+    otp_java_path,
+    pc6_moerwijk_station_shp
+  ), format = "file")
 )
