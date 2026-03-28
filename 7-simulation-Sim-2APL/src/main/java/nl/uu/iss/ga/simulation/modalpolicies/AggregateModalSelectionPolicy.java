@@ -1,4 +1,4 @@
-package main.java.nl.uu.iss.ga.simulation.modalselection;
+package main.java.nl.uu.iss.ga.simulation.modalpolicies;
 
 import main.java.nl.uu.iss.ga.model.data.Person;
 import main.java.nl.uu.iss.ga.model.data.Trip;
@@ -16,10 +16,10 @@ import main.java.nl.uu.iss.ga.util.NormaliseProbability;
 
 import java.util.*;
 
-public class AggregateModalSelectionStrategy implements IModalSelectionStrategy {
+public class AggregateModalSelectionPolicy implements IModalSelectionPolicy {
     private final Random _random;
 
-    public AggregateModalSelectionStrategy(Random random) {
+    public AggregateModalSelectionPolicy(Random random) {
         this._random = random;
     }
 

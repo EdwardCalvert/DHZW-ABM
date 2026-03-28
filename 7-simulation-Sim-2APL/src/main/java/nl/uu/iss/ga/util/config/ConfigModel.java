@@ -12,7 +12,7 @@ import main.java.nl.uu.iss.ga.simulation.agent.context.RoutingSimmetricBeliefCon
 import main.java.nl.uu.iss.ga.simulation.agent.context.RoutingBusBeliefContext;
 import main.java.nl.uu.iss.ga.simulation.agent.context.RoutingTrainBeliefContext;
 import main.java.nl.uu.iss.ga.simulation.agent.planscheme.GoalPlanScheme;
-import main.java.nl.uu.iss.ga.simulation.modalselection.ModalSelectionProvider;
+import main.java.nl.uu.iss.ga.simulation.modalpolicies.ModalSelectionPolicyProvider;
 import main.java.nl.uu.iss.ga.simulation.utilityfunctions.UtilFunctionProvider;
 import main.java.nl.uu.iss.ga.util.tracking.ModeOfTransportTracker;
 import nl.uu.cs.iss.ga.sim2apl.core.agent.Agent;
@@ -146,9 +146,9 @@ public class ConfigModel {
                              EnvironmentInterface environmentInterface,
                              ModeOfTransportTracker modeOfTransportTracker,
                              UtilFunctionProvider utilityFunction,
-                             ModalSelectionProvider modalSelectionProvider ) {
+                             ModalSelectionPolicyProvider modalSelectionPolicyProvider) {
         for (ActivitySchedule schedule : this.activityFileReader.getActivitySchedules()) {
-            createAgentFromSchedule(platform, environmentInterface, schedule, modeOfTransportTracker, utilityFunction, modalSelectionProvider);
+            createAgentFromSchedule(platform, environmentInterface, schedule, modeOfTransportTracker, utilityFunction, modalSelectionPolicyProvider);
         }
     }
 
@@ -158,7 +158,7 @@ public class ConfigModel {
             ActivitySchedule schedule,
             ModeOfTransportTracker modeOfTransportTracker,
             UtilFunctionProvider utilityFunction,
-            ModalSelectionProvider modalSelectionProvider ) {
+            ModalSelectionPolicyProvider modalSelectionPolicyProvider) {
 
 
         BeliefContext beliefContext = new BeliefContext(environmentInterface, modeOfTransportTracker);
@@ -171,7 +171,7 @@ public class ConfigModel {
                 .addContext(this.householdReader.getHouseholds().get(schedule.getHid()))
                 .addContext(schedule)
                 .addContext(utilityFunction)
-                .addContext(modalSelectionProvider)
+                .addContext(modalSelectionPolicyProvider)
                 .addContext(beliefContext)
                 .addContext(routingSimmetricBeliefContext)
                 .addContext(routingBusBeliefContext)

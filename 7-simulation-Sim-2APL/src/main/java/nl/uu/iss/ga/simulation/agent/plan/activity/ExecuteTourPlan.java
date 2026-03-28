@@ -3,7 +3,7 @@ package main.java.nl.uu.iss.ga.simulation.agent.plan.activity;
 import main.java.nl.uu.iss.ga.model.data.*;
 
 import main.java.nl.uu.iss.ga.model.data.dictionary.TwoStringKeys;
-import main.java.nl.uu.iss.ga.simulation.modalselection.*;
+import main.java.nl.uu.iss.ga.simulation.modalpolicies.*;
 import main.java.nl.uu.iss.ga.simulation.utilityfunctions.IUtilityFunctionStrategy;
 import main.java.nl.uu.iss.ga.simulation.agent.context.BeliefContext;
 import main.java.nl.uu.iss.ga.simulation.agent.context.RoutingBusBeliefContext;
@@ -53,7 +53,7 @@ public class ExecuteTourPlan extends RunOncePlan<TripTour> {
             if (utilityFunction == null) {
                 throw new RuntimeException("No Utility Function supplied");
             }
-            IModalSelectionStrategy modalSelectionStrategy = planToAgentInterface.getContext(ModalSelectionProvider.class).getModalChoiceStrategy();
+            IModalSelectionPolicy modalSelectionStrategy = planToAgentInterface.getContext(ModalSelectionPolicyProvider.class).getModalChoiceStrategy();
 
 
             RoutingSimmetricBeliefContext routingSymmetric = planToAgentInterface.getContext(RoutingSimmetricBeliefContext.class);
