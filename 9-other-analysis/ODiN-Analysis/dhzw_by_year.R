@@ -16,7 +16,7 @@ source("utils.R")
 
 # Load ODiNs and OViNs
 setwd(this.path::this.dir())
-setwd("../../dhzw_data/odin-ovin")
+setwd("../../../dhzw_data/odin-ovin")
 
 OViN2010 <- read_sav("2010_OViN.sav")
 OViN2011 <- read_sav("2011_OViN.sav")
@@ -60,7 +60,7 @@ df_urbanization_PC4 <-
 
 # Read list of all PC4 in the Netherlands
 setwd(this.dir())
-setwd("../0-shapefiles/data/codes")
+setwd("../../0-shapefiles/data/codes")
 DHZW_PC4_codes <-
   read.csv("DHZW_PC4_codes.csv", sep = ";", header = F)$V1
 
@@ -287,35 +287,16 @@ ggplot(df_income_grouped, aes(x = hh_income_group, y = n, fill = disp_modal_choi
   geom_col(position = position_dodge2(width = 1, padding = 0), alpha = 0.8, color = "white", linewidth = 0.2) +
   geom_vline(xintercept = c(1.5, 2.5), linetype = "dashed", color = "gray80") +
   geom_text(
-    aes(label = round(n, 1)),
+    aes(label = n),
     position = position_dodge2(width = 0.8),
     vjust = -0.5,
-    size = 3
+    size = 2
   ) +
   facet_wrap(~source, scale = "free") +
   labs(
     title = "Count of Mode Choice by Income Group",
     x = "Household Income Group",
     y = "Count",
-    fill = "Mode Choice"
-  ) +
-  theme_minimal() +
-  theme(legend.position = "bottom", panel.spacing.x = unit(3, "lines"))
-
-ggplot(df_income_grouped, aes(x = hh_income_group, y = percentage, fill = disp_modal_choice)) +
-  geom_col(position = position_dodge2(width = 1, padding = 0), alpha = 0.8, color = "white", linewidth = 0.2) +
-  geom_vline(xintercept = c(1.5, 2.5), linetype = "dashed", color = "gray80") +
-  geom_text(
-    aes(label = round(percentage, 1)),
-    position = position_dodge2(width = 0.8),
-    vjust = -0.5,
-    size = 3
-  ) +
-  facet_wrap(~source) +
-  labs(
-    title = "Mode Choice Distribution in percent by Income Group",
-    x = "Household Income Group",
-    y = "Percentage (%)",
     fill = "Mode Choice"
   ) +
   theme_minimal() +
@@ -350,13 +331,13 @@ ggplot(df_percentage_summary, aes(y = percentage, x = disp_modal_choice, fill = 
   ) +
   facet_wrap(~source, scale = "free") +
   labs(
-    title = "Reported mode choices in percent from the OViN and ODiN datasets from 2010 to 2019, and 2023 ",
+    title = "Reported mode choices in percent from the OViN and ODiN datasets from 2010-19, and 2023 ",
     x = "Mode choice",
     y = "Percentage (%)",
     fill = "Mode Choice"
   ) +
   theme_minimal() +
-  theme(legend.position = "bottom", panel.spacing.x = unit(3, "lines"))
+  theme(legend.position = "bottom", panel.spacing.x = unit(3, "lines"), axis.text.x = element_text(angle = 45, vjust = 0.5, hjust = 0.5))
 
 # Prepare relative data
 df_summary <- df %>%

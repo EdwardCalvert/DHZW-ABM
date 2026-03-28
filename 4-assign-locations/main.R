@@ -10,7 +10,7 @@ run_assign_locations <- function(
   centroids_PC6_DHZW_csv,
   centroids_pc4_DHZW_shp
 ) {
-  # Set names here due to some issue with the targets framework.
+  # Set names here due to some issue with the targets framework (it strips named vectors for some reason!)
   location_files_vector <- rename_location_files_vector(location_files_vector)
 
   displacements_DHZW_csv <- calculate_ODiN_displacements(
