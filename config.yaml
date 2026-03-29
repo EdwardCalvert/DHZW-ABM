@@ -1,10 +1,10 @@
 project_root: "."
-experiment_id: "vanilla" 
+experiment_id: "synth_pop" 
 #One of ["synth_pop", "vanilla"]
-data_version: "v1.2"
-parameters:
-  rush_hour_start: 07:00
-  rush_hour_end: 09:00
+# data_version: "v1.2"
+# parameters:
+#   rush_hour_start: 07:00
+#   rush_hour_end: 09:00
 
 modules:
   shapefiles: "0-shapefiles"
@@ -17,6 +17,8 @@ modules:
   routing : "6-routing"
 
 
+#For each experiment_id, you need to define which synthetic population is used,
+#and which households etc. 
 configuration:
   vanilla: 
     module_dir: "0-synthetic-population/output/synthetic-population-households"
