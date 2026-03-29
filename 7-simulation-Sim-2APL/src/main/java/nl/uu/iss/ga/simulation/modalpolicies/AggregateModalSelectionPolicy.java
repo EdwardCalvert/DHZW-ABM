@@ -34,10 +34,10 @@ public class AggregateModalSelectionPolicy implements IModalSelectionPolicy {
 
         List<Map<TransportMode, Double>> modalUtilities = new ArrayList<>(tripTour.getTripChain().size());
         List<ModeAttributes> modeAttributesArray = new ArrayList<>(tripTour.getTripChain().size());
-        // go through the trips
+
+        // go through the trips, and calculate the utility of all applicable modes for that trip
         for (int i = 0; i < tripTour.getTripChain().size(); i++) {
             Trip trip = tripTour.getTripChain().get(i);
-
             ModeAttributes modeAttributes = modeAttributesCalculator.calculateModeAttributes(trip,
                     routingSymmetric,
                     routingBus,
@@ -57,23 +57,12 @@ public class AggregateModalSelectionPolicy implements IModalSelectionPolicy {
                 ));
             }
         }
-
-
-        Map<TransportMode, Double> reducedModalUtilities = new HashMap<>();
-
-        for (Map<TransportMode, Double> item : modalUtilities) {
-            for (Map.Entry<TransportMode, Double> bob : item.entrySet()) {
-                if (reducedModalUtilities.containsKey(bob.getKey())) {
-                    Double value = reducedModalUtilities.get(bob.getKey()) + bob.getValue();
-                    reducedModalUtilities.put(bob.getKey(), value);
-                } else {
-                    reducedModalUtilities.put(bob.getKey(), bob.getValue());
-                }
-            }
-        }
-        if(reducedModalUtilities.isEmpty()){
+        if(modalUtilities.isEmpty()){
             return;
         }
+
+        Map<TransportMode, Double> reducedModalUtilities = aggregateUtilities(modalUtilities);
+
         TransportMode overallModeSelection = CumulativeDistribution.sampleWithCumulativeDistribution(NormaliseProbability.normaliseUtilities(reducedModalUtilities), _random);
         if (overallModeSelection == TransportMode.BIKE || overallModeSelection == TransportMode.CAR_DRIVER) {
             for (int j = 0; j < tripTour.getTripChain().size(); j++) {
@@ -104,17 +93,31 @@ public class AggregateModalSelectionPolicy implements IModalSelectionPolicy {
 
             }
         } else {
+
+            //Remove bike and car choices
+            int l = 0;
+            while(l < modalUtilities.size()){
+                if(modalUtilities.get(l).size() <= 1 && (modalUtilities.get(l).containsKey(TransportMode.BIKE) || modalUtilities.get(l).containsKey(TransportMode.CAR_DRIVER))){
+                    //In my testing, this was never called, but I thought I should include for the sanity of the next guy!
+                    throw new RuntimeException("THIS TOUR IS NOT POSSIBLE!");
+                }
+                //Remove options
+                modalUtilities.get(l).remove(TransportMode.CAR_DRIVER);
+                modalUtilities.get(l).remove(TransportMode.BIKE);
+                l++;
+            }
+
             for (int k = 0; k < tripTour.getTripChain().size(); k++) {
                 Trip trip = tripTour.getTripChain().get(k);
                 String departurePostcode = trip.getDepartureActivity().getLocation().getPostcode();
                 String arrivalPostcode = trip.getArrivalActivity().getLocation().getPostcode();
 
                 TransportMode transportMode = CumulativeDistribution.sampleWithCumulativeDistribution(NormaliseProbability.normaliseUtilities( modalUtilities.get(k)), _random);
+                if( transportMode.equals(TransportMode.BIKE) || transportMode.equals(TransportMode.CAR_DRIVER)){
+                    throw new RuntimeException("WHY IS BIKE HERE!");
+                }
                 double distance = 0;
-                if (transportMode.equals(TransportMode.WALK)
-                        || transportMode.equals(TransportMode.BIKE)
-                        || transportMode.equals(TransportMode.CAR_PASSENGER)
-                        || transportMode.equals(TransportMode.CAR_DRIVER)) {
+                if (transportMode.equals(TransportMode.WALK) || transportMode.equals(TransportMode.CAR_PASSENGER)) {
                     distance = modeAttributesArray.get(k).getDistance(transportMode);
                 } else if (transportMode.equals(TransportMode.BUS_TRAM)) {
                     distance = routingBus.getTotalDistance(departurePostcode, arrivalPostcode);
@@ -136,6 +139,28 @@ public class AggregateModalSelectionPolicy implements IModalSelectionPolicy {
         }
 
 
+    }
+
+    /**
+     *  Aggregate a list of modal utitlities to a mapping of mode to utility.
+     * @param modalUtilities
+     * @return
+     */
+    private Map<TransportMode, Double> aggregateUtilities(List<Map<TransportMode, Double>> modalUtilities){
+        Map<TransportMode, Double> reducedModalUtilities = new HashMap<>();
+
+
+        for (Map<TransportMode, Double> item : modalUtilities) {
+            for (Map.Entry<TransportMode, Double> modalUtility : item.entrySet()) {
+                if (reducedModalUtilities.containsKey(modalUtility.getKey())) {
+                    Double value = reducedModalUtilities.get(modalUtility.getKey()) + modalUtility.getValue();
+                    reducedModalUtilities.put(modalUtility.getKey(), value);
+                } else {
+                    reducedModalUtilities.put(modalUtility.getKey(), modalUtility.getValue());
+                }
+            }
+        }
+        return reducedModalUtilities;
     }
 
 }
