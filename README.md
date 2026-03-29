@@ -74,7 +74,9 @@ tar_workspace(synthetic_activities_csv)
 ```
 I appologise- it was the first targets pipeline I built, so there are lots of inconsistencies- especially at the start. Something I should have done is renamed the variables that consume the CSVs for easier debugging, so you don't have to manually assign them again as many functions have different argument names to that defined in `_targets.csv. Also note that targets has a global namespace- therefore two functions can't share the same name! 
 
+### 2APL.
 
+Because 2APL didn't have good error logging (making it near impossible to explain why agents went missing because the debugger wouldn't attach to the threads), I've included version 2.0.0 of 2APL, which has been tweaked to log errors. 
 
 ## License & credits
 
