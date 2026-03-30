@@ -1,0 +1,7 @@
+library(dplyr)
+library(ggplot2)
+library(scales)
+df <- read.csv("C:\\Users\\ed\\Development\\dhzw\\output\\synth_pop\\4-assign_locations\\synthetic_activites.csv", sep = ",")
+nrow(df[df$in_DHZW, ])
+nrow(df[!df$in_DHZW, ])
+names(df)

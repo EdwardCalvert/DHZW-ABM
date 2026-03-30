@@ -88,6 +88,17 @@ run_locations <- function(
   merged_locations_csv <- file.path(output_dir, "locations_merged.csv")
   write.csv(df_merged_locations, merged_locations_csv, row.names = FALSE)
 
+  ## Sumarise the locations, solely for ArcGIS purposes etc
+  summarised_locations <- df_merged_locations %>%
+    mutate(location_type = gsub("_.*", "", lid)) %>%
+    group_by(location_type, PC6) %>%
+    summarise(
+      count = n(), coordinate_x = first(coordinate_x),
+      coordinate_y = first(coordinate_y), .groups = "drop"
+    )
+  summarised_locations_csv <- file.path(output_dir, "summarised_locations.csv")
+  write.csv(summarised_locations, summarised_locations_csv, row.names = FALSE)
+
   return(
     c(
       work_locations_csv,

@@ -277,19 +277,8 @@ list(
     format = "file"
   ),
 
-  ## merge_locations
-  # merge_activities_locations
   # format_to_SIM2APL.
-  # tar_target(
-  #   merged_locations_csv,
-  #   merge_locations(
-  #     file.path(
-  #       output_dir, config$modules$synthetic_population_to_sim
-  #     ),
-  #     location_files_vector
-  #   ),
-  #   format = "file"
-  # ),
+
   tar_target(
     format_to_sim_activities_locations_csv,
     format_to_sim_merge_locations(
@@ -312,71 +301,71 @@ list(
       format_to_sim_activities_locations_csv
     ),
     format = "file"
-  ),
-  tar_target(OD_results_vector, run_generate_OD(
-    file.path(output_dir, config$modules$routing),
-    final_activities_locations_csv,
-    centroids_pc5_DHZW_csv
-  ), format = "file"),
-  tar_target(OD_symmetric_csv, OD_results_vector[1], format = "file"),
-  tar_target(OD_asymmetric_csv, OD_results_vector[2], format = "file"),
-  tar_target(
-    beeline_distance_csv,
-    calcuate_euclidian_distance(final_output_dir, OD_symmetric_csv),
-    format = "file"
-  ),
-  tar_target(
-    routing_bus_csv,
-    run_routing_bus(
-      file.path(output_dir, config$modules$routing),
-      final_output_dir,
-      OD_asymmetric_csv,
-      pc6_DHZW_shp,
-      otp_data_path,
-      otp_java_path
-    ),
-    format = "file"
-  ),
-  tar_target(routing_walk_csv,
-    {
-      df_symmetric <- read.csv(OD_symmetric_csv)
-      otpcon <- start_or_connect_otp(otp_java_path, otp_data_path)
-      df_walk <- compute_walk_bike_car(otpcon, df_symmetric, "WALK")
-      output_name <- file.path(final_output_dir, "walk_time_distance.csv")
-      write.csv(df_walk, output_name, row.names = FALSE)
-      return(output_name)
-    },
-    format = "file"
-  ),
-  tar_target(routing_car_csv,
-    {
-      df_symmetric <- read.csv(OD_symmetric_csv)
-      otpcon <- start_or_connect_otp(otp_java_path, otp_data_path)
-      df_walk <- compute_walk_bike_car(otpcon, df_symmetric, "CAR")
-      output_name <- file.path(final_output_dir, "car_time_distance.csv")
-      write.csv(df_walk, output_name, row.names = FALSE)
-      return(output_name)
-    },
-    format = "file"
-  ),
-  tar_target(routing_bike_csv,
-    {
-      df_symmetric <- read.csv(OD_symmetric_csv)
-      otpcon <- start_or_connect_otp(otp_java_path, otp_data_path)
-      df_walk <- compute_walk_bike_car(otpcon, df_symmetric, "BICYCLE")
-      output_name <- file.path(final_output_dir, "bike_time_distance.csv")
-      write.csv(df_walk, output_name, row.names = FALSE)
-      return(output_name)
-    },
-    format = "file"
-  ),
-  tar_target(routing_train_csv, run_routing_train(
-    file.path(output_dir, config$modules$routing),
-    final_output_dir,
-    OD_asymmetric_csv,
-    pc6_DHZW_shp,
-    otp_data_path,
-    otp_java_path,
-    pc6_moerwijk_station_shp
-  ), format = "file")
+  )
+  # tar_target(OD_results_vector, run_generate_OD(
+  #   file.path(output_dir, config$modules$routing),
+  #   final_activities_locations_csv,
+  #   centroids_pc5_DHZW_csv
+  # ), format = "file"),
+  # tar_target(OD_symmetric_csv, OD_results_vector[1], format = "file"),
+  # tar_target(OD_asymmetric_csv, OD_results_vector[2], format = "file"),
+  # tar_target(
+  #   beeline_distance_csv,
+  #   calcuate_euclidian_distance(final_output_dir, OD_symmetric_csv),
+  #   format = "file"
+  # ),
+  # tar_target(
+  #   routing_bus_csv,
+  #   run_routing_bus(
+  #     file.path(output_dir, config$modules$routing),
+  #     final_output_dir,
+  #     OD_asymmetric_csv,
+  #     pc6_DHZW_shp,
+  #     otp_data_path,
+  #     otp_java_path
+  #   ),
+  #   format = "file"
+  # ),
+  # tar_target(routing_walk_csv,
+  #   {
+  #     df_symmetric <- read.csv(OD_symmetric_csv)
+  #     otpcon <- start_or_connect_otp(otp_java_path, otp_data_path)
+  #     df_walk <- compute_walk_bike_car(otpcon, df_symmetric, "WALK")
+  #     output_name <- file.path(final_output_dir, "walk_time_distance.csv")
+  #     write.csv(df_walk, output_name, row.names = FALSE)
+  #     return(output_name)
+  #   },
+  #   format = "file"
+  # ),
+  # tar_target(routing_car_csv,
+  #   {
+  #     df_symmetric <- read.csv(OD_symmetric_csv)
+  #     otpcon <- start_or_connect_otp(otp_java_path, otp_data_path)
+  #     df_walk <- compute_walk_bike_car(otpcon, df_symmetric, "CAR")
+  #     output_name <- file.path(final_output_dir, "car_time_distance.csv")
+  #     write.csv(df_walk, output_name, row.names = FALSE)
+  #     return(output_name)
+  #   },
+  #   format = "file"
+  # ),
+  # tar_target(routing_bike_csv,
+  #   {
+  #     df_symmetric <- read.csv(OD_symmetric_csv)
+  #     otpcon <- start_or_connect_otp(otp_java_path, otp_data_path)
+  #     df_walk <- compute_walk_bike_car(otpcon, df_symmetric, "BICYCLE")
+  #     output_name <- file.path(final_output_dir, "bike_time_distance.csv")
+  #     write.csv(df_walk, output_name, row.names = FALSE)
+  #     return(output_name)
+  #   },
+  #   format = "file"
+  # ),
+  # tar_target(routing_train_csv, run_routing_train(
+  #   file.path(output_dir, config$modules$routing),
+  #   final_output_dir,
+  #   OD_asymmetric_csv,
+  #   pc6_DHZW_shp,
+  #   otp_data_path,
+  #   otp_java_path,
+  #   pc6_moerwijk_station_shp
+  # ), format = "file")
 )

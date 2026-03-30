@@ -41,10 +41,11 @@ public class SequentialModalSelectionPolicy implements IModalSelectionPolicy {
         for (Trip trip : tripTour.getTripChain()) {
             String departurePostcode = trip.getDepartureActivity().getLocation().getPostcode();
             String arrivalPostcode = trip.getArrivalActivity().getLocation().getPostcode();
+            TwoStringKeys symmetricPostcodes = new TwoStringKeys(departurePostcode, arrivalPostcode);
             // if the first mode was the car driver, the whole chain is by that mode
             if (tripTour.getTripChain().indexOf(trip) != 0 && firstMode.equals(TransportMode.CAR_DRIVER)) {
                 trip.setTransportMode(TransportMode.CAR_DRIVER);
-                TwoStringKeys symmetricPostcodes = new TwoStringKeys(departurePostcode, arrivalPostcode);
+
                 double distance = routingSymmetric.getCarDistance(symmetricPostcodes);
                 trip.setDistance(distance);
 
@@ -55,7 +56,9 @@ public class SequentialModalSelectionPolicy implements IModalSelectionPolicy {
                         person.hasCarLicense(),
                         person.getHousehold().hasCarOwnership(),
                         trip.getBeelineDistance(),
-                        person.getHousehold().getIncomeThird()
+                        person.getHousehold().getIncomeThird(),
+                        departurePostcode,
+                        arrivalPostcode
                 );
             } else {
                 // either first trip of the chain, either the car driver was not chosen as first mode
@@ -100,7 +103,9 @@ public class SequentialModalSelectionPolicy implements IModalSelectionPolicy {
                             person.hasCarLicense(),
                             person.getHousehold().hasCarOwnership(),
                             trip.getDistance(),
-                            person.getHousehold().getIncomeThird()
+                            person.getHousehold().getIncomeThird(),
+                            arrivalPostcode,
+                            departurePostcode
                     );
 
                     if (tripTour.getTripChain().indexOf(trip) == 0) {

@@ -72,11 +72,14 @@ tar_load()
 
 tar_workspace(synthetic_activities_csv)
 ```
-I appologise- it was the first targets pipeline I built, so there are lots of inconsistencies- especially at the start. Something I should have done is renamed the variables that consume the CSVs for easier debugging, so you don't have to manually assign them again as many functions have different argument names to that defined in `_targets.csv. Also note that targets has a global namespace- therefore two functions can't share the same name! 
+I appologise- it was the first targets pipeline I built, so there are lots of inconsistencies- especially at the start. Something I should have done is renamed the variables that consume the CSVs for easier debugging, so you don't have to manually assign them again as many functions have different argument names to that defined in `_targets.csv.` Also note that targets has a global namespace- therefore two functions can't share the same name! My conventions also fell apart. In the beginning I started using  a `main.R` entrypoint for each module, but slowly found out that putting most of the code in `_targets.R` made it a lot easier to debug! If I were to do this again, I would *not* use `main.R` again!
 
+NEED TO TALK ABOUT THE FACT THAT THE RESULT IS OUTPUT IN THE OUTPUT FOLDER!!!
 ### 2APL.
 
-Because 2APL didn't have good error logging (making it near impossible to explain why agents went missing because the debugger wouldn't attach to the threads), I've included version 2.0.0 of 2APL, which has been tweaked to log errors. 
+Because 2APL didn't have good error logging (making it near impossible to explain why agents went missing because the debugger wouldn't attach to the threads), I've included version 2.0.0 of 2APL, which has been tweaked to log errors. It has version `2.0.3-SNAPSHOT` and should be installed using the maven command: `mvn clean install` in the root of the folder.  The only change was in the `DeliberationRunnable.java` to add `Platform.getLogger().log(getClass(),Level.SEVERE, exception);`
+
+Then consume in DHZW-simulation. 
 
 ## License & credits
 

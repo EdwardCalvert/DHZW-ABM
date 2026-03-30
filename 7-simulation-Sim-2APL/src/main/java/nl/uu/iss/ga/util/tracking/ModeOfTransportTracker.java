@@ -6,6 +6,7 @@ import com.opencsv.exceptions.CsvValidationException;
 import main.java.nl.uu.iss.ga.model.data.dictionary.ActivityType;
 import main.java.nl.uu.iss.ga.model.data.dictionary.DayOfWeek;
 import main.java.nl.uu.iss.ga.model.data.dictionary.TransportMode;
+import main.java.nl.uu.iss.ga.model.data.dictionary.TwoStringKeys;
 import main.java.nl.uu.iss.ga.model.data.dictionary.households.IncomeThirds;
 import main.java.nl.uu.iss.ga.model.data.dictionary.households.StandardizedIncomeGroup;
 
@@ -24,6 +25,7 @@ public class ModeOfTransportTracker {
     private Map<TransportMode, AtomicInteger> distanceMap;
     private Map<ActivityType, AtomicInteger> distanceActivityMap;
     private Map<ActivityType, AtomicInteger> activityMap;
+    private Map<TwoStringKeys, Map<TransportMode, AtomicInteger>> ODMatrix;
     private Map<StandardizedIncomeGroup, AtomicInteger> standardizedIncomeMap;
     private AtomicInteger[][] incomeActivityMap = new AtomicInteger[IncomeThirds.values().length][ActivityType.values().length];
     private AtomicInteger[][] incomeModeMap = new AtomicInteger[IncomeThirds.values().length][TransportMode.values().length];
@@ -38,6 +40,8 @@ public class ModeOfTransportTracker {
         for(TransportMode mode : TransportMode.values()) {
             distanceMap.put(mode, new AtomicInteger(0));
         }
+
+        ODMatrix = new ConcurrentHashMap<>();
 
         distanceActivityMap = new ConcurrentHashMap<>();
         for(ActivityType activity : ActivityType.values()) {
@@ -100,7 +104,7 @@ public class ModeOfTransportTracker {
         }
     }
 
-    public void notifyTransportModeUsed(TransportMode mode, DayOfWeek day, ActivityType activityType, boolean hasCarLicense, boolean hasCar, double distance, IncomeThirds incomeThird) {
+    public void notifyTransportModeUsed(TransportMode mode, DayOfWeek day, ActivityType activityType, boolean hasCarLicense, boolean hasCar, double distance, IncomeThirds incomeThird, String departurePostcode, String arrivalPostcode) {
         this.totalModeMap.get(mode).getAndIncrement();
         this.activityMap.get(activityType).getAndIncrement();
         this.standardizedIncomeMap.get(incomeThird);
@@ -112,6 +116,14 @@ public class ModeOfTransportTracker {
         this.modeCarOwnershipMap[hasCar ? 1 : 0][mode.ordinal()].getAndIncrement();
         this.distanceMap.get(mode).addAndGet((int) distance);
         this.distanceActivityMap.get(activityType).addAndGet((int) distance);
+
+
+        String departurePC4 = departurePostcode.substring(0,4);
+        String arrivalPC4 = arrivalPostcode.substring(0,4);
+        TwoStringKeys postcode = new TwoStringKeys(departurePC4,arrivalPC4);
+        this.ODMatrix.computeIfAbsent(postcode, k -> new ConcurrentHashMap<>())
+                .computeIfAbsent(mode, k -> new AtomicInteger(0))
+                .incrementAndGet();
     }
 
     public Map<TransportMode, AtomicInteger> getTotalModeMap() {
@@ -303,6 +315,32 @@ public class ModeOfTransportTracker {
             }
         }
         writer.close();
+    }
+
+    public void saveODMatrix(File outputDir) throws IOException {
+
+        try (CSVWriter writer = new CSVWriter(new FileWriter(new File( outputDir,"OD-Matrix.csv")))) {
+            String[] header = {"departure", "arrival", "walk","bike", "bus_tram", "car_driver","car_passenger", "train"};
+            writer.writeNext(header);
+
+            for (Map.Entry<TwoStringKeys, Map<TransportMode, AtomicInteger>> entry : ODMatrix.entrySet()) {
+                TwoStringKeys keys = entry.getKey();
+                Map<TransportMode, AtomicInteger> modes = entry.getValue();
+
+                String[] row = new String[header.length];
+                row[0] = keys.getKey1();
+                row[1] = keys.getKey2();
+
+                row[2] = String.valueOf(modes.getOrDefault(TransportMode.WALK, new AtomicInteger(0)).get());
+                row[3] = String.valueOf(modes.getOrDefault(TransportMode.BIKE, new AtomicInteger(0)).get());
+                row[4] = String.valueOf(modes.getOrDefault(TransportMode.CAR_DRIVER, new AtomicInteger(0)).get());
+                row[5] = String.valueOf(modes.getOrDefault(TransportMode.CAR_PASSENGER, new AtomicInteger(0)).get());
+                row[6] = String.valueOf(modes.getOrDefault(TransportMode.BUS_TRAM, new AtomicInteger(0)).get());
+                row[7] = String.valueOf(modes.getOrDefault(TransportMode.TRAIN, new AtomicInteger(0)).get());
+
+                writer.writeNext(row);
+            }
+        }
     }
 
     public void appendOutput(File outputFile) throws IOException, CsvValidationException {

@@ -180,6 +180,9 @@ public class EnvironmentInterface implements TickHookProcessor<Activity> {
             modeOfTransportTracker.saveModeCarLicenseToCsv(output_dir);
             modeOfTransportTracker.saveModeCarOwnershipToCsv(output_dir);
             modeOfTransportTracker.saveIncomeModeMap(output_dir);
+            if(true) {
+                modeOfTransportTracker.saveODMatrix(output_dir);
+            }
         } catch (IOException e) {
             throw new RuntimeException(e);
         } catch (CsvValidationException e) {

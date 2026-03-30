@@ -88,7 +88,9 @@ public class AggregateModalSelectionPolicy implements IModalSelectionPolicy {
                         person.hasCarLicense(),
                         person.getHousehold().hasCarOwnership(),
                         trip.getDistance(),
-                        person.getHousehold().getIncomeThird()
+                        person.getHousehold().getIncomeThird(),
+                        departurePostcode,
+                        arrivalPostcode
                 );
 
             }
@@ -111,6 +113,7 @@ public class AggregateModalSelectionPolicy implements IModalSelectionPolicy {
                 Trip trip = tripTour.getTripChain().get(k);
                 String departurePostcode = trip.getDepartureActivity().getLocation().getPostcode();
                 String arrivalPostcode = trip.getArrivalActivity().getLocation().getPostcode();
+                TwoStringKeys symmetricPostcodes = new TwoStringKeys(departurePostcode, arrivalPostcode);
 
                 TransportMode transportMode = CumulativeDistribution.sampleWithCumulativeDistribution(NormaliseProbability.normaliseUtilities( modalUtilities.get(k)), _random);
                 if( transportMode.equals(TransportMode.BIKE) || transportMode.equals(TransportMode.CAR_DRIVER)){
@@ -133,7 +136,9 @@ public class AggregateModalSelectionPolicy implements IModalSelectionPolicy {
                         person.hasCarLicense(),
                         person.getHousehold().hasCarOwnership(),
                         trip.getDistance(),
-                        person.getHousehold().getIncomeThird()
+                        person.getHousehold().getIncomeThird(),
+                        departurePostcode,
+                        arrivalPostcode
                 );
             }
         }
