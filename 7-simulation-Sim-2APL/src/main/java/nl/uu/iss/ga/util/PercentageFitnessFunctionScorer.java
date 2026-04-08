@@ -54,34 +54,15 @@ public class PercentageFitnessFunctionScorer {
 
         for(Map.Entry<TransportMode,AtomicInteger> entry: modeMap.entrySet()){
             double simulatedValue = (entry.getValue().doubleValue()/sum);
-            //score+= calculateRow(expectedProportions.get(entry.getKey()), simulatedValue);
             score += Math.pow(((simulatedValue-expectedProportions.get(entry.getKey()))*100),2);
             scaledPercentages.put(entry.getKey(), simulatedValue);
         }
 
         this.simulatedPercentages = scaledPercentages;
         this.expectedPercentages = expectedProportions;
-        //score = Math.pow((score)*100,2); //Multiply by 100 so that big percentages are really penalised.
-        this.score = score;
-
-        //Penalise high alpha scores (coefficients should try to explain everything)
-        String[] alphas = {"alphaWalk", "alphaBike","alphaCarPassenger","alphaCarDriver","alphaBus", "alphaTrain" };
-        List<String> headerList = Arrays.asList(header);
-        Double weightPenalty = 0.0;
-        //Initalise as 1, so that if the alphas are all set to zero, then there is a score.
-        for(String alpha: alphas){
-            int index = headerList.indexOf(alpha);
-            double value = Math.abs( Double.parseDouble( params[index]));
-            weightPenalty += Math.pow(value,2);
-        }
-        Double weightCoefficient = 0.0;
-        double finalScore = Math.sqrt(score/TransportMode.values().length)+ weightCoefficient * weightPenalty;
+        double finalScore = Math.sqrt(score/TransportMode.values().length);
         this.score = finalScore;
         return finalScore;
-    }
-
-    private double calculateRow(double expectedPercent, double simulatedPercent){
-        return Math.abs(simulatedPercent - expectedPercent) * expectedPercent;
     }
 
     public void saveScore(File output_dir) throws IOException {

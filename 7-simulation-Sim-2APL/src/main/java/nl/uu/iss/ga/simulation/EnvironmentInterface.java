@@ -172,7 +172,7 @@ public class EnvironmentInterface implements TickHookProcessor<Activity> {
         File output_dir = this.config.getDistributionOutputBaseFolder();
         try {
 
-            modeOfTransportTracker.appendOutput(this.arguments.getOutputFile());
+            //modeOfTransportTracker.appendOutput(this.arguments.getOutputFile());
             modeOfTransportTracker.saveTotalModeToCsv(output_dir);
             modeOfTransportTracker.saveDistanceToCsv(output_dir);
             modeOfTransportTracker.saveModeDayToCsv(output_dir);
@@ -185,9 +185,10 @@ public class EnvironmentInterface implements TickHookProcessor<Activity> {
             }
         } catch (IOException e) {
             throw new RuntimeException(e);
-        } catch (CsvValidationException e) {
-            throw new RuntimeException(e);
         }
+//        catch (CsvValidationException e) {
+//            throw new RuntimeException(e);
+//        }
         //Create a copy of the parameterset in the output folder,
         // so that my head doesn't blow up when I look at the results
         try{

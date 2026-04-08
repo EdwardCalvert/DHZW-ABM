@@ -15,7 +15,7 @@ experiment_id =  "gen-synth-pop" # one of "gen-synth-pop" or "base-pop"
 distribution_output_base_folder = "src/main/resources/distance_analysis/"
 seed=2929243944
 
-score_against = "percent" #one of "percent" or "income"
+score_against = "income" #one of "percent" or "income"
 #income_calibration_set  = "src/main/resources/calibration_files/DHZW_income_group_proportions.csv"
 #percentage_calbriation_set = "src/main/resources/calibration_files/DHZW_modal_choice_prop.csv"
 

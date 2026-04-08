@@ -51,6 +51,8 @@ public class ArgParse {
 
     @Arg(dest = "parametersPath")
     private String parametersPath;
+    @Arg(dest = "useRandomSeed")
+    private boolean useRandomSeed;
 
     private Random random;
 
@@ -104,7 +106,7 @@ public class ArgParse {
                     this.iterations = Long.MAX_VALUE;
                 }
 
-                if (result.contains("simulation.seed")) {
+                if (result.contains("simulation.seed") && useRandomSeed) {
                     this.random = new Random(result.getLong("simulation.seed"));
                 } else {
                     this.random = new Random();
@@ -194,6 +196,9 @@ public class ArgParse {
     public LocalDate getStartdate() {
         return startdate;
     }
+    public boolean getUseRandomSeed(){
+        return this.useRandomSeed;
+    }
 
     public static File findFile(File f) throws FileNotFoundException {
         File existingFile = null;
@@ -259,6 +264,12 @@ public class ArgParse {
                 .required(false)
                 .dest("parametersPath")
                 .help("specify the file containing the values of the parameters");
+
+        parser.addArgument("--use_random_seed")
+                .type(boolean.class)
+                .required(true)
+                .dest("useRandomSeed")
+                .help("Declare if the random seed should be read from the config file, or if a new one should be generated (for significance testing)");
 
         ArgumentGroup optimization = parser.addArgumentGroup("Runtime optimization");
 

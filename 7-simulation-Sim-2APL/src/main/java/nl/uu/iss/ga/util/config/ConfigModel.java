@@ -66,11 +66,11 @@ public class ConfigModel {
     private BeelineDistanceReader beelineDistanceReader;
     private RoutingBusReader routingBusReader;
     private RoutingTrainReader routingTrainReader;
-    private String distributionOutputBaseFolder;
-    private File distributionOutput;
-    private String scoreAgainst;
+    private final String distributionOutputBaseFolder;
+    private final File distributionOutput;
+    private final String scoreAgainst;
 
-    private String utilFunction;
+    private final String utilFunction;
 
     public ConfigModel(ArgParse arguments, String name, TomlTable table) throws Exception {
         this.arguments = arguments;
@@ -114,14 +114,13 @@ public class ConfigModel {
 
         this.stateFile = getFile("statefile", false);
 
-        if (this.table.contains("seed")) {
+        if (this.table.contains("seed") && arguments.getUseRandomSeed()) {
             Long randomSeed= table.getLong("seed");
             this.random = new Random(randomSeed);
             LOGGER.log(Level.INFO,"Random initialised with seed: "+ randomSeed);
         } else {
-            long seed = 31415962;
-            this.random = new Random(seed);
-            LOGGER.log(Level.INFO,"Random initialised with seed: "+seed);
+            this.random = new Random();
+            LOGGER.log(Level.INFO,"Random initialised with default seed");
         }
         this.loadFiles();
     }
@@ -275,7 +274,7 @@ public class ConfigModel {
         if (this.table.contains(key)) {
             TomlArray arr = this.table.getArray(key);
             for (int i = 0; i < arr.size(); i++) {
-                Path path = Paths.get(this.baseDir, this.experimentId, arr.getString(i));
+                Path path = Paths.get(this.baseDir, this.populationSourceFolder, arr.getString(i));
                 files.add(ArgParse.findFile(path.toFile()));
             }
         } else if (required) {

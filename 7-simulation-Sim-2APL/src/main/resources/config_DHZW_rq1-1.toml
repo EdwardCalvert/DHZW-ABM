@@ -4,23 +4,18 @@ iterations = 7 # Number of days, or end date
 
 
 [config]
-
-
-modal_selection_strategy = "aggregate" #one of "aggregate" or "sequential"
-util_function = "vot" #one of "vot" or "stt" (Sensitivity To Time)
+modal_selection_strategy = "sequential" #one of "aggregate" or "sequential"
+util_function = "stt" #one of "vot" or "stt" (Sensitivity To Time)
 #Please note, supplying a value to --parameter_file will take precedence over this (vot/stt)_parameter_file, but not util_function.
 vot_parameter_file = "src/main/resources/baseline_parameterset/vot_parameterset.csv"
 stt_parameter_file = "src/main/resources/baseline_parameterset/stt_parameterset.csv"
-experiment_id =  "gen-synth-pop" # one of "gen-synth-pop" or "base-pop"
+experiment_id =  "rq1-1"
 distribution_output_base_folder = "src/main/resources/distance_analysis/"
 seed=2929243944
 
 score_against = "percent" #one of "percent" or "income"
-#income_calibration_set  = "src/main/resources/calibration_files/DHZW_income_group_proportions.csv"
-#percentage_calbriation_set = "src/main/resources/calibration_files/DHZW_modal_choice_prop.csv"
-
 base_dir = "src/main/resources/"
-population_source_folder = "gen-synth-pop"
+population_source_folder = "base-pop" # one of "gen-synth-pop" or "base-pop"
 activities = ["DHZW_full/DHZW_activities_locations.csv"]
 households = ["DHZW_full/DHZW_households.csv"]
 persons = ["DHZW_full/DHZW_synthetic_population.csv"]

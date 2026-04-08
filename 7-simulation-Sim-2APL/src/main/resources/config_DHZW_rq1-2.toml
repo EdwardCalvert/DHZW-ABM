@@ -9,7 +9,7 @@ util_function = "stt" #one of "vot" or "stt" (Sensitivity To Time)
 #Please note, supplying a value to --parameter_file will take precedence over this (vot/stt)_parameter_file, but not util_function.
 vot_parameter_file = "src/main/resources/baseline_parameterset/vot_parameterset.csv"
 stt_parameter_file = "src/main/resources/baseline_parameterset/stt_parameterset.csv"
-experiment_id =  "rq1-1"
+experiment_id =  "rq1-2"
 distribution_output_base_folder = "src/main/resources/distance_analysis/"
 seed=2929243944
 

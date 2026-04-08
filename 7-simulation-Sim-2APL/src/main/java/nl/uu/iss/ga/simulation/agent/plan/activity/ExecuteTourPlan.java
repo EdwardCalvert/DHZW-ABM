@@ -53,7 +53,7 @@ public class ExecuteTourPlan extends RunOncePlan<TripTour> {
             if (utilityFunction == null) {
                 throw new RuntimeException("No Utility Function supplied");
             }
-            IModalSelectionPolicy modalSelectionStrategy = planToAgentInterface.getContext(ModalSelectionPolicyProvider.class).getModalChoiceStrategy();
+            IModalSelectionPolicy modalSelectionStrategy = planToAgentInterface.getContext(ModalSelectionPolicyProvider.class).getModalChoicePolicy();
 
 
             RoutingSimmetricBeliefContext routingSymmetric = planToAgentInterface.getContext(RoutingSimmetricBeliefContext.class);

@@ -19,7 +19,7 @@ public class ModalSelectionPolicyProvider implements Context {
             throw new  IllegalArgumentException("The modal selection strategy provided could not be understood: " + selectionPolicy);
         }
     }
-    public IModalSelectionPolicy getModalChoiceStrategy(){
+    public IModalSelectionPolicy getModalChoicePolicy(){
         return this.selectionPolicy;
     }
 }

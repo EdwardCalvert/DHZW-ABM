@@ -55,17 +55,17 @@ public class IncomeFitnessFunctionScorer {
         Double[][] percentageIncomeModeMap = new Double[IncomeThirds.values().length][TransportMode.values().length];
         for(IncomeThirds incomeThird: IncomeThirds.values()){
             for(TransportMode transportMode: TransportMode.values()){
-                double value =  incomeModeMap[incomeThird.ordinal()][transportMode.ordinal()].get()/incomeThirdSum[incomeThird.ordinal()];
-                percentageIncomeModeMap[incomeThird.ordinal()][transportMode.ordinal()] = value;
-
-                score+= calculateRow(expectedProportions.get(incomeThird).get(transportMode), value);
+                double simulatedPercent =  incomeModeMap[incomeThird.ordinal()][transportMode.ordinal()].get()/incomeThirdSum[incomeThird.ordinal()];
+                percentageIncomeModeMap[incomeThird.ordinal()][transportMode.ordinal()] = simulatedPercent;
+                score+=   Math.pow(((simulatedPercent-expectedProportions.get(incomeThird).get(transportMode))*100),2);
             }
         }
         this.simulatedPercentages = percentageIncomeModeMap;
         this.expectedPercentages = expectedProportions;
-        score = Math.pow((score*100),4); //Multiply by 100 so that big percentages are really penalised.
-        this.score = score;
-        return score;
+
+        double finalScore = Math.sqrt(score/(TransportMode.values().length * IncomeThirds.values().length) ) ;
+        this.score = finalScore;
+        return finalScore;
     }
 
     private double calculateRow(double expectedPercent, double simulatedPercent){
