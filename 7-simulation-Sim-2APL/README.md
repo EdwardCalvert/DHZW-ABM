@@ -80,10 +80,23 @@ $ cd DHZW-simulation_Sim-2APL
 $ mvn -U clean install
 ```
 
+
 The application requires various arguments, either when invoked from the command line or when used in an IDE.  
 Invoke the program with the argument `--help`
 
 In the [resource](src/main/resources/) directory, an example [configuration](src/main/resources/config_full.toml) TOML file is given.
+
+The command to run the simulation is:
+```bash
+java -cp target/sim2apl-dhzw-simulation-1.0-SNAPSHOT-jar-with-dependencies.jar main.java.nl.uu.iss.ga.Simulation \\
+--config src/main/resources/config_DHZW_full.toml \\
+--output_file src/main/resources/baseline_parameterset/output-proportions.csv \\
+--parameter_file src/main/resources/baseline_parameterset/vot_parameterset.csv\\ 
+--parameterset_index 1\\
+--use_random_seed true
+```
+You will need to ensure that the configuration files are setup as expected 
+
 
 ## Contributors
 

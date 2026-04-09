@@ -69,7 +69,8 @@ public class SequentialModalSelectionPolicy implements IModalSelectionPolicy {
                         routingTrain,
                         utilityFunction,
                         person,
-                        tripTour.getTripChain().indexOf(trip) == 0);
+                        tripTour.getTripChain().indexOf(trip) == 0,
+                        utilityFunction.carStartsHome());
                 //Ensure that one mode is possible before attempting to assign a probability.
                 if (!modeAttributes.isEmpty()) {
                     // compute choice probabilities

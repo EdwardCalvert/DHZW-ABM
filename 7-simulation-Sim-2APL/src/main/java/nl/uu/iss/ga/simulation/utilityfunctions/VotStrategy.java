@@ -49,9 +49,8 @@ public class VotStrategy implements IUtilityFunctionStrategy, Context {
             double monetaryCosts = p.carCostKm * m.getDistance(TransportMode.CAR_DRIVER);
             double weightedTime =  p.vot(TransportMode.CAR_DRIVER, tripPurpose) * (m.getDistance(TransportMode.CAR_DRIVER)/60.0);
 
-            //doubled because we assume the car returns home???
             modeUtilities.put(TransportMode.CAR_DRIVER, p.alphaCarDriver
-                    + p.betaCost(h.getIncomeThird()) * (2*(p.weightVotCosts * weightedTime +  p.weightTangibleCosts*  monetaryCosts )));
+                    + p.betaCost(h.getIncomeThird()) * (p.weightVotCosts * weightedTime +  p.weightTangibleCosts*  monetaryCosts ));
         }
         if (m.modePresent(TransportMode.CAR_PASSENGER) ) {
             double monetaryCosts = (p.carCostKm * m.getDistance(TransportMode.CAR_PASSENGER));
@@ -94,4 +93,5 @@ public class VotStrategy implements IUtilityFunctionStrategy, Context {
     public boolean isMaxDistanceLimit() {
         return true;
     }
+    public boolean carStartsHome(){return  false;}//Assume car makes a round trip
 }

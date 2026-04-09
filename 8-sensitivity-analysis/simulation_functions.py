@@ -2,7 +2,8 @@ import subprocess
 import os
 import pandas as pd
 from pathlib import Path
-
+import numpy as np
+from scipy import stats
 
 def write_vot_config_file(
         alphaWalk,
@@ -297,3 +298,36 @@ def intialise_java():
 STT_DIMENSIONS = 5
 STT_INIT_POINTS = 100
 STT_N_ITER = 300
+
+
+VOT_DIMENSIONS = 9
+VOT_INIT_POINTS = 180
+VOT_N_ITER = 540
+
+def stats_test(result1, result2):
+    baseline = np.array(result1)
+    improved = np.array(result2)
+
+    t_stat, p_value = stats.ttest_ind(baseline, improved)
+
+    print(f"P-value: {p_value}")
+    if p_value < 0.05:
+        print("Statistically significant difference.")
+        
+    #Confidence intervals
+    n1, n2 = len(baseline), len(improved)
+    mean1, mean2 = np.mean(baseline), np.mean(improved)
+    diff = mean1 - mean2
+
+
+    se_diff = np.sqrt(np.var(baseline, ddof=1)/n1 + np.var(improved, ddof=1)/n2)
+
+    df = n1 + n2 - 2
+    t_crit = stats.t.ppf(0.975, df)
+
+    lower_bound = diff - (t_crit * se_diff)
+    upper_bound = diff + (t_crit * se_diff)
+
+    print(f"t-statistic: {t_stat:.4f}")
+    print(f"p-value: {p_value:.4f}")
+    print(f"95% CI of the difference: [{lower_bound:.4f}, {upper_bound:.4f}]")

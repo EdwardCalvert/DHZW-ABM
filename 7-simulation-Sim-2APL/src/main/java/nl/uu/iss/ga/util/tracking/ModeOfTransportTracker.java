@@ -25,7 +25,7 @@ public class ModeOfTransportTracker {
     private Map<TransportMode, AtomicInteger> distanceMap;
     private Map<ActivityType, AtomicInteger> distanceActivityMap;
     private Map<ActivityType, AtomicInteger> activityMap;
-    private Map<TwoStringKeys, Map<TransportMode, AtomicInteger>> ODMatrix;
+    private Map<String, Map<TransportMode, AtomicInteger>> ODMatrix;
     private Map<StandardizedIncomeGroup, AtomicInteger> standardizedIncomeMap;
     private AtomicInteger[][] incomeActivityMap = new AtomicInteger[IncomeThirds.values().length][ActivityType.values().length];
     private AtomicInteger[][] incomeModeMap = new AtomicInteger[IncomeThirds.values().length][TransportMode.values().length];
@@ -120,7 +120,7 @@ public class ModeOfTransportTracker {
 
         String departurePC4 = departurePostcode.substring(0,4);
         String arrivalPC4 = arrivalPostcode.substring(0,4);
-        TwoStringKeys postcode = new TwoStringKeys(departurePC4,arrivalPC4);
+        String postcode = departurePC4 + "|" + arrivalPC4;
         this.ODMatrix.computeIfAbsent(postcode, k -> new ConcurrentHashMap<>())
                 .computeIfAbsent(mode, k -> new AtomicInteger(0))
                 .incrementAndGet();
@@ -323,13 +323,13 @@ public class ModeOfTransportTracker {
             String[] header = {"departure", "arrival", "walk","bike", "bus_tram", "car_driver","car_passenger", "train"};
             writer.writeNext(header);
 
-            for (Map.Entry<TwoStringKeys, Map<TransportMode, AtomicInteger>> entry : ODMatrix.entrySet()) {
-                TwoStringKeys keys = entry.getKey();
+            for (Map.Entry<String, Map<TransportMode, AtomicInteger>> entry : ODMatrix.entrySet()) {
+                String  keys = entry.getKey();
                 Map<TransportMode, AtomicInteger> modes = entry.getValue();
 
                 String[] row = new String[header.length];
-                row[0] = keys.getKey1();
-                row[1] = keys.getKey2();
+                row[0] = keys.split("\\|")[0];
+                row[1] = keys.split("\\|")[1];
 
                 row[2] = String.valueOf(modes.getOrDefault(TransportMode.WALK, new AtomicInteger(0)).get());
                 row[3] = String.valueOf(modes.getOrDefault(TransportMode.BIKE, new AtomicInteger(0)).get());

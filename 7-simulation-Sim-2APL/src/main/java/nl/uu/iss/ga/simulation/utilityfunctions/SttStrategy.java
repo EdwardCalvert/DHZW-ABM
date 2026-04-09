@@ -72,4 +72,5 @@ public class SttStrategy implements IUtilityFunctionStrategy, Context {
     public  boolean isMaxDistanceLimit(){
         return false;
     }
+    public boolean carStartsHome(){return  false;}//Assume car just travels the minimum distance
 }

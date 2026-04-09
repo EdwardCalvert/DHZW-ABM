@@ -18,7 +18,8 @@ public class ModeAttributesCalculator {
                                                    RoutingTrainBeliefContext routingTrain,
                                                    IUtilityFunctionStrategy utilityFunction,
                                                    Person person,
-                                                  boolean carEnabled) {
+                                                  boolean carEnabled,
+                                                  boolean carStartsHome) {
         String departurePostcode = trip.getDepartureActivity().getLocation().getPostcode();
         String arrivalPostcode = trip.getArrivalActivity().getLocation().getPostcode();
         boolean departureInDHZW = trip.getDepartureActivity().getLocation().isInDHZW();
@@ -39,8 +40,26 @@ public class ModeAttributesCalculator {
         }
         // if trip is feasible by car and the household has a car, the agent can be passenger
         if (routingSymmetric.getCarDistance(symmetricPostcodes) != -1.0 && person.getHousehold().hasCarOwnership()) {
-            modeAttributes.setTime(TransportMode.CAR_PASSENGER, routingSymmetric.getCarTime(symmetricPostcodes));
-            modeAttributes.setDistance(TransportMode.CAR_PASSENGER, routingSymmetric.getCarDistance(symmetricPostcodes));
+            //Because no interaction effects can be considered, it is assumed that the car makes a round trip.
+            if(carStartsHome){
+                TwoStringKeys homeToDeparture = new TwoStringKeys( person.getHousehold().getPc4(), departurePostcode );
+                TwoStringKeys arrivalToHome = new TwoStringKeys( arrivalPostcode, person.getHousehold().getPc4() );
+                double dist1 =  routingSymmetric.getCarDistance(homeToDeparture);
+                double dist3 = routingSymmetric.getCarDistance(arrivalToHome);
+                if(dist1 != -1 && dist3 != -1){
+                    modeAttributes.setDistance(TransportMode.CAR_PASSENGER,
+                            dist1 + routingSymmetric.getCarDistance(symmetricPostcodes) + dist3 );
+                    modeAttributes.setTime(TransportMode.CAR_PASSENGER,
+                            routingSymmetric.getCarTime(homeToDeparture) +
+                                    routingSymmetric.getCarTime(symmetricPostcodes) +
+                                    routingSymmetric.getCarTime(arrivalToHome)
+                            );
+                }
+            }else{
+                modeAttributes.setTime(TransportMode.CAR_PASSENGER, routingSymmetric.getCarTime(symmetricPostcodes));
+                modeAttributes.setDistance(TransportMode.CAR_PASSENGER, routingSymmetric.getCarDistance(symmetricPostcodes));
+            }
+
         }
         // car is either chosen at the beginning or never anymore. If it is taken at the first round, it is automatically applied to all the other trips.
         if  (carEnabled

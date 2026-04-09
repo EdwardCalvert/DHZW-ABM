@@ -44,7 +44,8 @@ public class AggregateModalSelectionPolicy implements IModalSelectionPolicy {
                     routingTrain,
                     utilityFunction,
                     person,
-                    true);
+                    true,
+                    utilityFunction.carStartsHome());
             modeAttributesArray.add(modeAttributes);
 
             //Ensure that one mode is possible before attempting to assign a probability.

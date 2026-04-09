@@ -14,4 +14,5 @@ public interface IUtilityFunctionStrategy extends Context {
             Person person,
             Trip trip) ;
     public boolean isMaxDistanceLimit();
+    public boolean carStartsHome();
 }
