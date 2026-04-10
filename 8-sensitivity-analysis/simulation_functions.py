@@ -278,6 +278,175 @@ def call_stt_simulation(
         exit(1)
     return -999999999999 #an egregiously bad option.
 
+
+
+
+def write_stt_unified_config_file(
+        alphaWalk,
+        alphaBike,
+        alphaCarDriver,
+        alphaCarPassenger,
+        alphaBus,
+        alphaTrain,
+        betaChangesTransport,
+        betaTimeWalkTransport,
+        betaCostLow,
+        betaCostMed,
+        betaCostHigh,
+        votCommuteWalk,
+        votCommuteBike,
+        votCommuteCar,
+        votCommutePassenger,
+        votCommuteBus,
+        votCommuteTrain,
+        votOtherWalk,
+        votOtherBike,
+        votOtherCar,
+        votOtherPassenger,
+        votOtherBus,
+        votOtherTrain,
+        filename) -> int:  
+
+    data = {'alphaWalk' : alphaWalk,
+                'alphaBike' :alphaBike,
+                'alphaCarDriver': alphaCarDriver,
+                'alphaCarPassenger':alphaCarPassenger,
+                'alphaBus':alphaBus,
+                'alphaTrain' :alphaTrain,
+                'betaChangesTransport':betaChangesTransport,
+                'betaTimeWalkTransport' : betaTimeWalkTransport,
+                'betaCostLow' :betaCostLow,
+                'betaCostMed' : betaCostMed,
+                'betaCostHigh': betaCostHigh,
+                'votCommuteWalk': votCommuteWalk,
+                'votCommuteBike': votCommuteBike,
+                'votCommuteCar': votCommuteCar,
+                'votCommutePassenger': votCommutePassenger,
+                'votCommuteBus': votCommuteBus,
+                'votCommuteTrain':votCommuteTrain,
+                'votOtherWalk': votOtherWalk,
+                'votOtherBike':votOtherBike,
+                'votOtherCar':votOtherCar,
+                'votOtherPassenger':votOtherPassenger,
+                'votOtherBus':votOtherBus,
+                'votOtherTrain':votOtherTrain,
+                'carCostKm':0.25,
+                'ptCostKm':0.187,
+                'ptBaseCost':1.08,
+                }
+    if Path(filename).exists():
+        config = pd.read_csv(filename)
+        new_entry = pd.DataFrame([data])
+
+        row_count = len(config) #Length off by one, so new index
+
+        new_entry.to_csv(filename,mode='a',header=(not os.path.exists(filename)) , index = None)
+
+        return row_count
+    else:
+        cols = [
+        'alphaWalk', 'alphaBike', 'alphaCarDriver', 'alphaCarPassenger', 'alphaBus', 
+        'alphaTrain', 'betaChangesTransport', 'betaTimeWalkTransport','betaCostLow', 'betaCostMed', 'betaCostHigh',
+        'votCommuteWalk',
+        'votCommuteBike',
+        'votCommuteCar',
+        'votCommutePassenger',
+        'votCommuteBus',
+        'votCommuteTrain',
+        'votOtherWalk',
+        'votOtherBike',
+        'votOtherCar',
+        'votOtherPassenger',
+        'votOtherBus',
+        'votOtherTrain',
+        'carCostKm', 'ptCostKm', 'ptBaseCost'
+            ]
+        
+        df = pd.DataFrame([data], columns=cols)
+
+
+        df.to_csv(filename, index=None)
+        return 0
+    
+
+
+    
+def call_stt_unified_simulation(
+        alphaWalk,
+        alphaBike,
+        alphaCarDriver,
+        alphaCarPassenger,
+        alphaBus,
+        alphaTrain,
+        betaChangesTransport,
+        betaTimeWalkTransport,
+        betaCostLow,
+        betaCostMed,
+        betaCostHigh,
+        votCommuteWalk,
+        votCommuteBike,
+        votCommuteCar,
+        votCommutePassenger,
+        votCommuteBus,
+        votCommuteTrain,
+        votOtherWalk,
+        votOtherBike,
+        votOtherCar,
+        votOtherPassenger,
+        votOtherBus,
+        votOtherTrain,
+        config
+        ):
+    
+
+    parameter_set_index = write_stt_unified_config_file(
+       alphaWalk,
+        alphaBike,
+        alphaCarDriver,
+        alphaCarPassenger,
+        alphaBus,
+        alphaTrain,
+        betaChangesTransport,
+        betaTimeWalkTransport,
+        betaCostLow,
+        betaCostMed,
+        betaCostHigh,
+        votCommuteWalk,
+        votCommuteBike,
+        votCommuteCar,
+        votCommutePassenger,
+        votCommuteBus,
+        votCommuteTrain,
+        votOtherWalk,
+        votOtherBike,
+        votOtherCar,
+        votOtherPassenger,
+        votOtherBus,
+        votOtherTrain,
+        config["parameterset_write_folder"] + config["parameterset"]
+        )
+
+    arg = f'--parameterset_index {parameter_set_index}'
+    java_folder_path = '7-simulation-Sim-2APL'
+
+
+    # set current directory the folder of Sim2APL so I can execute the jar with the correct paths
+    if (os.path.basename(os.getcwd()) != java_folder_path):
+        new_directory = os.path.join(os.getcwd(), "../", java_folder_path)
+        new_directory = new_directory.replace('\\', '/')
+        os.chdir(new_directory)
+
+    full_command = f'java -cp target/sim2apl-dhzw-simulation-1.0-SNAPSHOT-jar-with-dependencies.jar main.java.nl.uu.iss.ga.Simulation --config {config["config_file"]} --output_file {config["output_path"]} --parameter_file {config["parameterset"]} {arg} {config["other_args"]}'
+
+    try:
+        output = subprocess.check_output(
+            full_command, stderr=subprocess.STDOUT, universal_newlines=True)
+        return -float(output)
+    except subprocess.CalledProcessError as e:
+        print(f"Java program exited with non-zero return code: {e.returncode}")
+        print(f"Error message: {e.output}")
+    return -999999999999 #an egregiously bad option.
+
 def intialise_java():
 
     jdk_11_path = r"C:\Program Files\Java\jdk-11"

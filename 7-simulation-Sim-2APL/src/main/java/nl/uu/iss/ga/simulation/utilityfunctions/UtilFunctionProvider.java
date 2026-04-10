@@ -17,6 +17,9 @@ public class UtilFunctionProvider implements Context {
         else if(functionChoice.equals("vot")){
             utilityFunctionStrategy = new VotStrategy(new VotParameterSet(new ParameterReader(parameterFilePath, parameterSetIndex)));
         }
+        else if(functionChoice.equals("stt-unified")){
+            utilityFunctionStrategy = new SttUnifiedCostStrategy(new SttUnifiedCostParameterSet(new ParameterReader(parameterFilePath, parameterSetIndex)));
+        }
         else{
             throw new IllegalArgumentException("The utility function provided could not be understood: " + functionChoice);
         }
