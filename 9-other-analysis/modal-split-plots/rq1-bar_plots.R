@@ -53,14 +53,14 @@ merged <- merged %>%
     rq = factor(
       rq,
       levels = c("rq1-1", "baseline", "rq1-2"),
-      labels = c("BasePop", "Baseline (ODiN)", "GenSynthPop")
+      labels = c("BasePop (Baseline)", "Ground Truth (ODiN)", "GenSynthPop")
     )
   )
 
 rq_colors <- c(
-  "Baseline (ODiN)" = "#7AB6E2"
-  "BasePop"    = "#FFAE73",
-  "GenSynthPop"    = "#B590F9"  
+  "Baseline (ODiN)" = "#96170F",
+  "BasePop" = "#7AB6E2",
+  "GenSynthPop" = "#B590F9"
 )
 ggplot(merged, aes(x = mode_choice, y = mean_percent, fill = rq)) +
   geom_col(position = "dodge", color = "black") +
@@ -76,5 +76,5 @@ ggplot(merged, aes(x = mode_choice, y = mean_percent, fill = rq)) +
     fill = "Population"
   ) +
   scale_fill_manual(values = rq_colors) +
-  theme_minimal()+
+  theme_minimal() +
   theme(legend.position = "bottom")
