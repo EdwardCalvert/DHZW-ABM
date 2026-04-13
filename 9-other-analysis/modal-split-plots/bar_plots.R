@@ -27,7 +27,7 @@ average_modal_percent <- function(i) {
   return(result)
 }
 
-dir_names <- c("rq1-1", "rq1-2", "rq2-1", "rq2-2")
+dir_names <- c("rq1-1", "rq1-2")
 final_results_list <- lapply(dir_names, average_modal_percent)
 
 final_summary_df <- do.call(rbind, final_results_list)
@@ -52,26 +52,17 @@ merged <- merged %>%
     ),
     rq = factor(
       rq,
-      levels = c("baseline", "rq2-2", "rq1-2", "rq2-1", "rq1-1"),
-      labels = c("Ground Truth (ODiN)", "VOT GenSynthPop", "STT GenSynthPop (Baseline)", "VOT BasePop", "STT BasePop (Baseline)")
+      levels = c("baseline", "rq1-2", "rq1-1"),
+      labels = c("Ground Truth (ODiN)", "GenSynthPop", "BasePop (Baseline)")
     )
   )
 
 rq_colors <- c(
   "Ground Truth (ODiN)" = "#96170F",
-  "STT BasePop (Baseline)" = "#B0B0B0",
-  "STT GenSynthPop (Baseline)" = "#D3D3D3",
-  "VOT BasePop" = "#9957C1",
-  "VOT GenSynthPop" = "#F6911A"
+  "GenSynthPop" = "#DC7700",
+  "BasePop (Baseline)" = "#7F3DA7"
 )
-rq_alphas <- c(
-  "Ground Truth (ODiN)" = 1.0,
-  "STT BasePop (Baseline)" = 1.0,
-  "STT GenSynthPop" = 1.0,
-  "VOT BasePop" = 1.0,
-  "VOT GenSynthPop" = 1.0
-)
-ggplot(merged, aes(x = mode_choice, y = mean_percent, fill = rq, alpha = rq)) +
+ggplot(merged, aes(x = mode_choice, y = mean_percent, fill = rq)) +
   geom_col(position = "dodge") +
   geom_errorbar(
     aes(ymin = mean_percent - sd_percent, ymax = mean_percent + sd_percent),
@@ -79,14 +70,11 @@ ggplot(merged, aes(x = mode_choice, y = mean_percent, fill = rq, alpha = rq)) +
     width = 0.2
   ) +
   labs(
-    title = "RQ2:  Introduction of the Value of Time (VOT) utility function",
-    subtitle = "Modal choice split from RQ1 is included in grey for convienience",
+    title = "RQ1: Modal Split Percent by synthetic population ",
     x = "Mode Choice",
     y = "Mean Percentage",
     fill = "Population"
   ) +
   scale_fill_manual(values = rq_colors) +
-  scale_alpha_manual(values = rq_alphas, guide = "none") +
   theme_minimal() +
-  theme(legend.position = "bottom") +
-  guides(fill = guide_legend(nrow = 2, byrow = TRUE))
+  theme(legend.position = "bottom")

@@ -1,0 +1,27 @@
+[simulation]
+startdate = 2026-03-30
+iterations = 7 # Number of days, or end date
+
+
+[config]
+modal_selection_strategy = "aggregate" #one of "aggregate" or "sequential"
+util_function = "stt-unified" #one of "vot" or "stt" (Sensitivity To Time)
+#Please note, supplying a value to --parameter_file will take precedence over this (vot/stt)_parameter_file, but not util_function.
+vot_parameter_file = "src/main/resources/baseline_parameterset/vot_parameterset.csv"
+stt_parameter_file = "src/main/resources/baseline_parameterset/stt_parameterset.csv"
+experiment_id =  "rq4-6"
+distribution_output_base_folder = "src/main/resources/distance_analysis/"
+seed=2929243944
+
+score_against = "income" #one of "percent" or "income"
+base_dir = "src/main/resources/"
+population_source_folder = "gen-synth-pop" # one of "gen-synth-pop" or "base-pop"
+activities = ["DHZW_full/DHZW_activities_locations.csv"]
+households = ["DHZW_full/DHZW_households.csv"]
+persons = ["DHZW_full/DHZW_synthetic_population.csv"]
+routing_walk = ["routing/walk_time_distance.csv"]
+routing_bike = ["routing/bike_time_distance.csv"]
+routing_car = ["routing/car_time_distance.csv"]
+routing_bus_tram = ["routing/routing_bus.csv"]
+routing_train = ["routing/routing_train.csv"]
+beeline_distance = ["routing/beeline_distance.csv"]
