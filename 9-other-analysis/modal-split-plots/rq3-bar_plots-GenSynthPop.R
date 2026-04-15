@@ -28,7 +28,7 @@ average_modal_percent <- function(i) {
   return(result)
 }
 
-dir_names <- c("rq3-4", "rq2-2", "rq3-3", "rq1-2")
+dir_names <- c("rq3-4", "rq3-3", "rq3-2", "rq3-1")
 final_results_list <- lapply(dir_names, average_modal_percent)
 
 final_summary_df <- do.call(rbind, final_results_list)
@@ -42,16 +42,25 @@ base_proportions <- read.csv("9-other-analysis/ODiN-Analysis/DHZW_modal_choice_p
 names(base_proportions)
 merged <- bind_rows(final_results_list, base_proportions)
 
+base_proportions <- read.csv("9-other-analysis/ODiN-Analysis/DHZW_modal_choice_proporitions.csv") %>%
+  select(disp_modal_choice, percentage) %>%
+  rename(mode_choice = disp_modal_choice, mean_percent = percentage) %>%
+  mutate(sd_percent = 0, rq = "baseline2", mode_choice = toupper(mode_choice))
+
+names(base_proportions)
+merged <- bind_rows(merged, base_proportions)
+
 unique(base_proportions$mode_choice)
 
 
 
 rq_colors <- c(
-  "baseline" = "#96170F",
-  "rq3-3" = "#084594",
-  "rq2-2" = "#D3D3D3",
-  "rq3-4" = "#4292C6",
-  "rq1-2" = "#B0B0B0"
+  "Ground Truth (ODiN)" = "#96170F",
+  "baseline2" = "#96170F",
+  "VOT" = "#581677",
+  "STT" = "#55b779",
+  "rq3-4" = "#581677",
+  "rq3-3" = "#55b779"
 )
 
 
@@ -62,29 +71,34 @@ merged <- merged %>%
       levels = c("WALK", "BIKE", "CAR_DRIVER", "CAR_PASSENGER", "BUS_TRAM", "TRAIN"),
       labels = c("walk", "bike", "car driver", "car passenger", "bus/tram", "train")
     ),
+    population = fct_collapse(rq,
+      "GenSynthPop" = c("baseline", "rq3-4", "rq3-3"),
+      "BasePop" = c("baseline2", "rq3-2", "rq3-1")
+    ),
     rq = factor(
       rq,
-      levels = c("baseline", "rq3-4", "rq2-2", "rq3-3", "rq1-2"),
+      levels = c("baseline", "baseline2", "rq3-4", "rq3-3", "rq3-2", "rq3-1"),
+      labels = c("Ground Truth (ODiN)", "Ground Truth (ODiN)", "VOT", "STT", "VOT", "STT")
     )
   )
 
 ggplot(merged, aes(x = mode_choice, y = mean_percent, fill = rq)) +
-  geom_col(position = "dodge") +
+  geom_col(position = "dodge", color = "black") +
   geom_errorbar(
     aes(ymin = mean_percent - sd_percent, ymax = mean_percent + sd_percent),
     position = position_dodge(0.9),
     width = 0.2
   ) +
   labs(
-    title = expression("RQ3:  Effectiveness of the " ~ pi[agg] ~ " policy "),
-    subtitle = "Results shown on the GenSynthPop population",
+    title = expression("RQ3: Modal split of the " ~ pi[agg] ~ " policy "),
     x = "Mode Choice",
     y = "Mean Percentage",
     fill = "Population"
   ) +
+  facet_wrap(~population, nrow = 2, ncol = 1) +
   scale_fill_manual(
-    values = rq_colors,
-    labels = c("Ground Truth (ODiN)", expression(pi[agg] ~ "VOT"), expression(pi[sec] ~ "VOT (baseline)"), expression(pi[agg] ~ "STT"), expression(pi[sec] ~ "STT (baseline)"))
+    values = rq_colors
+    # labels = c("Ground Truth (ODiN)", expression(pi[agg] ~ "VOT"), expression(pi[sec] ~ "VOT (baseline)"), expression(pi[agg] ~ "STT"), expression(pi[sec] ~ "STT (baseline)"))
   ) +
   theme_minimal() +
   theme(legend.position = "bottom")

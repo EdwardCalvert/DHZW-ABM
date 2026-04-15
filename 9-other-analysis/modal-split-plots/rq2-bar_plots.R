@@ -27,7 +27,7 @@ average_modal_percent <- function(i) {
   return(result)
 }
 
-dir_names <- c("rq1-1", "rq1-2", "rq2-1", "rq2-2")
+dir_names <- c("rq2-1", "rq2-2")
 final_results_list <- lapply(dir_names, average_modal_percent)
 
 final_summary_df <- do.call(rbind, final_results_list)
@@ -52,8 +52,8 @@ merged <- merged %>%
     ),
     rq = factor(
       rq,
-      levels = c("baseline", "rq2-2", "rq1-2", "rq2-1", "rq1-1"),
-      labels = c("Ground Truth (ODiN)", "VOT GenSynthPop", "STT GenSynthPop (Baseline)", "VOT BasePop", "STT BasePop (Baseline)")
+      levels = c("baseline", "rq2-2", "rq2-1"),
+      labels = c("Ground Truth (ODiN)", "VOT GenSynthPop", "VOT BasePop")
     )
   )
 
@@ -72,15 +72,14 @@ rq_alphas <- c(
   "VOT GenSynthPop" = 1.0
 )
 ggplot(merged, aes(x = mode_choice, y = mean_percent, fill = rq, alpha = rq)) +
-  geom_col(position = "dodge") +
+  geom_col(position = "dodge", color = "black") +
   geom_errorbar(
     aes(ymin = mean_percent - sd_percent, ymax = mean_percent + sd_percent),
     position = position_dodge(0.9),
     width = 0.2
   ) +
   labs(
-    title = "RQ2:  Introduction of the Value of Time (VOT) utility function",
-    subtitle = "Modal choice split from RQ1 is included in grey for convienience",
+    title = "RQ2: Modal Split of the Value of Time (VOT) utility function on both populations",
     x = "Mode Choice",
     y = "Mean Percentage",
     fill = "Population"

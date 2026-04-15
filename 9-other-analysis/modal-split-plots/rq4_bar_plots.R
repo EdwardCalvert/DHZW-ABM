@@ -25,7 +25,7 @@ average_modal_percent <- function(i) {
   return(result)
 }
 
-dir_names <- c("rq3-4", "rq4-1", "rq4-2", "rq4-3", "rq4-4", "rq4-5", "rq4-6") # NEED TO INCLUDE ,"rq4-5"
+dir_names <- c("rq4-1", "rq4-3", "rq4-5", "rq4-6") # NEED TO INCLUDE ,"rq4-5"
 final_results_list <- lapply(dir_names, average_modal_percent)
 
 final_summary_df <- do.call(rbind, final_results_list)
@@ -46,12 +46,12 @@ unique(base_proportions$mode_choice)
 rq_colors <- c(
   "Ground Truth (ODiN)" = "#96170F",
   "VOT (baseline, K, E4.1)" = "#ebebeb",
-  "VOT (K,E4.2)" = "#5c1477",
+  "VOT (K)" = "#5c1477",
   "STT (Baseline, P, E4.3)" = "#b7b7b7",
-  "STT (P, E4.4)" = "#31688E",
+  "STT (P)" = "#31688E",
   "STT (Baseline, P, E4.5)" = "#777777",
-  "STT (P,E4.6)" = "#35B779",
-  "STT * (P, E4.7)" = "#FDE725"
+  "STT (K)" = "#35B779",
+  "STT * (P)" = "#FDE725"
 )
 
 unique(base_proportions$income_group)
@@ -66,7 +66,7 @@ merged <- merged %>%
     rq = factor(
       rq,
       levels = c("baseline", "rq4-1", "rq3-4", "rq4-3", "rq4-2", "rq4-5", "rq4-4", "rq4-6"),
-      labels = c("Ground Truth (ODiN)", "VOT (K,E4.2)", "VOT (baseline, K, E4.1)", "STT (P, E4.4)", "STT (Baseline, P, E4.3)", "STT (P,E4.6)", "STT (Baseline, P, E4.5)", "STT * (P, E4.7)"),
+      labels = c("Ground Truth (ODiN)", "VOT (K)", "VOT (baseline, K, E4.1)", "STT (P)", "STT (Baseline, P, E4.3)", "STT (K)", "STT (Baseline, P, E4.5)", "STT * (P)"),
     ),
     income_group = factor(
       income_group,
@@ -84,13 +84,20 @@ ggplot(merged, aes(x = mode_choice, y = mean_percent, fill = rq)) +
   ) +
   facet_wrap(~income_group, nrow = 3, ncol = 1) +
   labs(
-    title = "RQ4: Calibrating Modal selection by income declies",
+    title = "RQ4: Modal choice split by income declies",
     x = "Mode Choice",
     y = "Mean Percentage",
     fill = "Population"
   ) +
   scale_fill_manual(
     values = rq_colors,
+  ) +
+  geom_text(
+    aes(label = round(mean_percent, 1)),
+    position = position_dodge2(width = 0.9),
+    vjust = -1,
+    hjust = +0.5,
+    size = 2.5
   ) +
   theme_minimal() +
   theme(legend.position = "bottom") +
