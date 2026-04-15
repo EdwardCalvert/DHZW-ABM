@@ -72,6 +72,15 @@
     <build>
         <sourceDirectory>src</sourceDirectory>
 
+        <resources>
+            <resource>
+                <directory>src</directory>
+                <excludes>
+                    <exclude>main/resources/distance_analysis/**</exclude>
+                </excludes>
+            </resource>
+        </resources>
+
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
