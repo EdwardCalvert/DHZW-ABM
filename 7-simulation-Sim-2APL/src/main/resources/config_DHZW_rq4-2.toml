@@ -12,6 +12,7 @@ stt_parameter_file = "src/main/resources/baseline_parameterset/stt_parameterset.
 experiment_id =  "rq4-2"
 distribution_output_base_folder = "src/main/resources/distance_analysis/"
 seed=2929243944
+store_output_proportions=false
 
 score_against = "income" #one of "percent" or "income"
 base_dir = "src/main/resources/"

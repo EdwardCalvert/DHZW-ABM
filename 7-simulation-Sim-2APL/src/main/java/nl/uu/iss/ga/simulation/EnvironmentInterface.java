@@ -171,7 +171,10 @@ public class EnvironmentInterface implements TickHookProcessor<Activity> {
         }
         File output_dir = this.config.getDistributionOutputBaseFolder();
         try {
-            modeOfTransportTracker.appendOutput(this.arguments.getOutputFile());
+            if(config.getStoreOutputProportions()) {
+                modeOfTransportTracker.appendOutput(this.arguments.getOutputFile());
+            }
+
             modeOfTransportTracker.saveTotalModeToCsv(output_dir);
             modeOfTransportTracker.saveDistanceToCsv(output_dir);
             modeOfTransportTracker.saveModeDayToCsv(output_dir);

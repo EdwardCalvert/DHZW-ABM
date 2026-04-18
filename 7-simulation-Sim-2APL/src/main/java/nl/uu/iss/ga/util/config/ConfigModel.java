@@ -38,6 +38,7 @@ public class ConfigModel {
 
     private static final Logger LOGGER = Logger.getLogger(ConfigModel.class.getName());
     private final List<AgentID> agents = new ArrayList<>();
+    private final boolean storeOutputProportions;
     private final String baseDir;
     private final String experimentId;
     private final String modalSelectionStrategy;
@@ -91,6 +92,8 @@ public class ConfigModel {
         }
         this.utilFunction = this.table.getString("util_function");
         this.scoreAgainst = this.table.getString("score_against");
+
+        this.storeOutputProportions = this.table.getBoolean("store_output_proportions");
 
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMdd_HHmmss");
         String timestamp = LocalDateTime.now().format(formatter);
@@ -342,6 +345,9 @@ public class ConfigModel {
     }
     public File getDistributionOutputBaseFolder(){
         return this.distributionOutput;
+    }
+    public boolean getStoreOutputProportions(){
+        return this.storeOutputProportions;
     }
     public String getUtilFunction(){
         return this.utilFunction;

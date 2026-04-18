@@ -14,6 +14,7 @@ stt_parameter_file = "src/main/resources/baseline_parameterset/stt_parameterset.
 experiment_id =  "stt_senstivity" # one of "gen-synth-pop" or "base-pop"
 distribution_output_base_folder = "src/main/resources/distance_analysis/"
 seed=2929243944
+store_output_proportions=true
 
 score_against = "percent" #one of "percent" or "income"
 #income_calibration_set  = "src/main/resources/calibration_files/DHZW_income_group_proportions.csv"

@@ -70,7 +70,7 @@ public class SttStrategy implements IUtilityFunctionStrategy, Context {
         return modeUtilities;
     }
     public  boolean isMaxDistanceLimit(){
-        return false;
+        return true;
     }
     public boolean carStartsHome(){return  false;}//Assume car just travels the minimum distance
 }

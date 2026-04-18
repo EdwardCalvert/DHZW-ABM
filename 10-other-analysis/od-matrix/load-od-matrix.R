@@ -2,6 +2,7 @@ library(dplyr)
 library(ggplot2)
 library(scales)
 library(geosphere)
+library(sf)
 
 
 df_pc4_urbanisation <- read.csv("../dhzw_data/pc4_2021_vol.csv")
@@ -34,7 +35,7 @@ average_modal_percent <- function(i) {
   return(combined_df)
 }
 
-df <- average_modal_percent("rq3-4")
+df <- average_modal_percent("rq3-3")
 
 df <- df %>%
   group_by(departure, arrival) %>%
@@ -68,11 +69,20 @@ df <- merge(df, df_pc4_centroid[, c("PC4", "coordinate_x", "coordinate_y")],
   all.x = TRUE
 )
 
+
+DHZW_PC4_codes <-
+  read.csv("0-shapefiles/data/codes/DHZW_PC4_codes.csv", sep = ";", header = F)$V1
+
+
 names(df)[names(df) == "coordinate_x"] <- "departure_x"
 names(df)[names(df) == "coordinate_y"] <- "departure_y"
 names(df)
 
-write.csv(df, "9-other-analysis\\od-matrix\\processed-od.csv", row.names = FALSE)
+write.csv(df, paste0("10-other-analysis\\od-matrix\\processed-rq-3-3-od.csv"), row.names = FALSE)
+
+df[departures$departure %in% DHZW_PC4_codes, ]
+
+
 
 departures <- select(df, c("departure", "car_driver", "car_passenger", "train", "bus_tram", "bike", "walk", "departure_x", "departure_y"))
 departures <- departures %>%
@@ -86,11 +96,9 @@ departures <- departures %>%
     walk = sum(walk, na.rm = TRUE),
     departure_x = first(departure_x), departure_y = first(departure_y)
   )
-write.csv(departures, "9-other-analysis\\od-matrix\\processed-departures.csv", row.names = FALSE)
+write.csv(departures, "10-other-analysis\\od-matrix\\processed-departures.csv", row.names = FALSE)
 
 
-DHZW_PC4_codes <-
-  read.csv("0-shapefiles/data/codes/DHZW_PC4_codes.csv", sep = ";", header = F)$V1
 
 departures_in_DHZW <- departures[departures$departure %in% DHZW_PC4_codes, ]
 
@@ -116,7 +124,6 @@ arrivals <- arrivals %>%
     arrival_x = first(arrival_x), arrival_y = first(arrival_y)
   )
 write.csv(departures, "9-other-analysis\\od-matrix\\processed-arrivals.csv", row.names = FALSE)
-
 
 
 arrivals_in_DHZW <- arrivals[arrivals$arrival %in% DHZW_PC4_codes, ]

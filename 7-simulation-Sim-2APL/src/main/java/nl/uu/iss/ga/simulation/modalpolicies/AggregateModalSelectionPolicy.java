@@ -63,9 +63,22 @@ public class AggregateModalSelectionPolicy implements IModalSelectionPolicy {
         }
 
         Map<TransportMode, Double> reducedModalUtilities = aggregateUtilities(modalUtilities);
-
+        boolean onlyBikePossible = true; //assume possible util proven false
+        boolean onlyCarPossible = true;
+        int z = 0;
+        while(z < modalUtilities.size()){
+            if(modalUtilities.get(z).size() <= 1 ) {
+                if (!modalUtilities.get(z).containsKey(TransportMode.BIKE)) {
+                    onlyBikePossible = false;
+                }
+                if (!modalUtilities.get(z).containsKey(TransportMode.CAR_DRIVER)) {
+                    onlyCarPossible = false;
+                }
+            }
+            z++;
+        }
         TransportMode overallModeSelection = CumulativeDistribution.sampleWithCumulativeDistribution(NormaliseProbability.normaliseUtilities(reducedModalUtilities), _random);
-        if (overallModeSelection == TransportMode.BIKE || overallModeSelection == TransportMode.CAR_DRIVER) {
+        if (( overallModeSelection == TransportMode.BIKE && onlyBikePossible )|| (overallModeSelection == TransportMode.CAR_DRIVER  && onlyCarPossible)) {
             for (int j = 0; j < tripTour.getTripChain().size(); j++) {
                 Trip trip = tripTour.getTripChain().get(j);
                 String departurePostcode = trip.getDepartureActivity().getLocation().getPostcode();
