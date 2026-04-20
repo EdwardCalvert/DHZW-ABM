@@ -33,7 +33,7 @@ final_results_list <- lapply(dir_names, average_modal_percent)
 final_summary_df <- do.call(rbind, final_results_list)
 names(final_summary_df)
 
-base_proportions <- read.csv("9-other-analysis/ODiN-Analysis/DHZW_modal_choice_proporitions.csv") %>%
+base_proportions <- read.csv("10-other-analysis/ODiN-Analysis/DHZW_modal_choice_proporitions.csv") %>%
   select(disp_modal_choice, percentage) %>%
   rename(mode_choice = disp_modal_choice, mean_percent = percentage) %>%
   mutate(sd_percent = 0, rq = "baseline", mode_choice = toupper(mode_choice))
@@ -70,7 +70,7 @@ ggplot(merged, aes(x = mode_choice, y = mean_percent, fill = rq)) +
     width = 0.2
   ) +
   labs(
-    title = "RQ1: Modal Split Percent by synthetic population ",
+    title = "RQ1: Modal Split by synthetic population ",
     x = "Mode Choice",
     y = "Mean Percentage",
     fill = "Population"

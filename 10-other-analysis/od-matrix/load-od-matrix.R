@@ -35,7 +35,7 @@ average_modal_percent <- function(i) {
   return(combined_df)
 }
 
-df <- average_modal_percent("rq3-3")
+df <- average_modal_percent("rq1-1")
 
 df <- df %>%
   group_by(departure, arrival) %>%
@@ -78,7 +78,7 @@ names(df)[names(df) == "coordinate_x"] <- "departure_x"
 names(df)[names(df) == "coordinate_y"] <- "departure_y"
 names(df)
 
-write.csv(df, paste0("10-other-analysis\\od-matrix\\processed-rq-3-3-od.csv"), row.names = FALSE)
+write.csv(df, paste0("10-other-analysis\\od-matrix\\processed-od.csv"), row.names = FALSE)
 
 df[departures$departure %in% DHZW_PC4_codes, ]
 

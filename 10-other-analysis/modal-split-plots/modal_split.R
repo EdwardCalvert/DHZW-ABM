@@ -1,7 +1,9 @@
 library(tidyverse)
 library(ggplot2)
 library(latex2exp)
+# library(viridis)
 combinded_df <- NULL
+# THIS DOES EVERYTHING IN ONE BIG PLOT
 
 average_modal_percent <- function(i) {
   all_dirs <- list.dirs(path = paste0("7-simulation-Sim-2APL/src/main/resources/distance_analysis/", i), full.names = FALSE, recursive = FALSE)
@@ -28,7 +30,7 @@ average_modal_percent <- function(i) {
   return(result)
 }
 
-dir_names <- c("rq3-4", "rq3-3", "rq3-2", "rq3-1")
+dir_names <- c("rq1-2", "rq1-1", "rq2-2", "rq2-1", "rq3-4", "rq3-3", "rq3-2", "rq3-1")
 final_results_list <- lapply(dir_names, average_modal_percent)
 
 final_summary_df <- do.call(rbind, final_results_list)
@@ -50,6 +52,22 @@ base_proportions <- read.csv("10-other-analysis/ODiN-Analysis/DHZW_modal_choice_
 names(base_proportions)
 merged <- bind_rows(merged, base_proportions)
 
+base_proportions <- read.csv("10-other-analysis/ODiN-Analysis/DHZW_modal_choice_proporitions.csv") %>%
+  select(disp_modal_choice, percentage) %>%
+  rename(mode_choice = disp_modal_choice, mean_percent = percentage) %>%
+  mutate(sd_percent = 0, rq = "baseline3", mode_choice = toupper(mode_choice))
+
+names(base_proportions)
+merged <- bind_rows(merged, base_proportions)
+
+base_proportions <- read.csv("10-other-analysis/ODiN-Analysis/DHZW_modal_choice_proporitions.csv") %>%
+  select(disp_modal_choice, percentage) %>%
+  rename(mode_choice = disp_modal_choice, mean_percent = percentage) %>%
+  mutate(sd_percent = 0, rq = "baseline4", mode_choice = toupper(mode_choice))
+
+names(base_proportions)
+merged <- bind_rows(merged, base_proportions)
+
 unique(base_proportions$mode_choice)
 
 
@@ -57,6 +75,8 @@ unique(base_proportions$mode_choice)
 rq_colors <- c(
   "Ground Truth (ODiN)" = "#96170F",
   "baseline2" = "#96170F",
+  "baseline3" = "#96170F",
+  "baseline4" = "#96170F",
   "VOT" = "#9957C1",
   "STT" = "#F6911A",
   "rq3-4" = "#581677",
@@ -69,20 +89,34 @@ merged <- merged %>%
     mode_choice = factor(
       mode_choice,
       levels = c("WALK", "BIKE", "CAR_DRIVER", "CAR_PASSENGER", "BUS_TRAM", "TRAIN"),
-      labels = c("walk", "bike", "car driver", "car passenger", "bus/tram", "train")
+      labels = c("walk", "bike", "car (d)", "car (p)", "bus/tram", "train")
     ),
     population = fct_collapse(rq,
-      "GenSynthPop" = c("baseline", "rq3-4", "rq3-3"),
-      "BasePop" = c("baseline2", "rq3-2", "rq3-1")
+      "BasePop" = c("baseline3", "baseline4", "rq1-1", "rq2-1", "rq3-1", "rq3-2"),
+      "GenSynthPop" = c("baseline", "baseline2", "rq1-2", "rq2-2", "rq3-3", "rq3-4")
+    ) %>%
+      fct_relevel("BasePop", "GenSynthPop"),
+    util_func = fct_collapse(rq,
+      "STT" = c("baseline", "baseline3", "rq1-1", "rq1-2", "rq3-1", "rq3-3"),
+      "VOT" = c("baseline2", "baseline4", "rq2-1", "rq2-2", "rq3-2", "rq3-4")
+    ),
+    policy = fct_collapse(rq,
+      "π agg" = c("baseline", "baseline3", "rq1-1", "rq1-2", "rq2-1", "rq2-2"),
+      "π sec" = c("baseline2", "baseline4", "rq3-1", "rq3-2", "rq3-3", "rq3-4")
+    ) %>% fct_relevel("π sec", "π agg"),
+    colour = fct_collapse(rq,
+      "STT" = c("rq1-1", "rq1-2", "rq3-3", "rq3-1"),
+      "VOT" = c("rq2-1", "rq2-2", "rq3-2", "rq3-4"),
+      "Ground Truth (ODiN)" = c("baseline", "baseline3", "baseline2", "baseline4")
     ),
     rq = factor(
       rq,
-      levels = c("baseline", "baseline2", "rq3-4", "rq3-3", "rq3-2", "rq3-1"),
-      labels = c("Ground Truth (ODiN)", "Ground Truth (ODiN)", "VOT", "STT", "VOT", "STT")
+      levels = c("baseline", "baseline2", "baseline3", "baseline4", "rq1-2", "rq1-1", "rq2-2", "rq2-1", "rq3-4", "rq3-3", "rq3-2", "rq3-1"),
+      labels = c("Ground Truth (ODiN)", "Ground Truth (ODiN)", "Ground Truth (ODiN)", "Ground Truth (ODiN)", "VOT", "STT", "VOT", "STT", "VOT", "STT", "VOT", "STT")
     )
   )
 
-ggplot(merged, aes(x = mode_choice, y = mean_percent, fill = rq)) +
+ggplot(merged, aes(x = mode_choice, y = mean_percent, fill = colour)) +
   geom_col(position = "dodge", color = "black") +
   geom_errorbar(
     aes(ymin = mean_percent - sd_percent, ymax = mean_percent + sd_percent),
@@ -90,12 +124,12 @@ ggplot(merged, aes(x = mode_choice, y = mean_percent, fill = rq)) +
     width = 0.2
   ) +
   labs(
-    title = expression("RQ3: Modal split of the " ~ pi[agg] ~ " policy "),
+    title = "Modal split (%) for all configurations of the ABM",
     x = "Mode Choice",
     y = "Mean Percentage",
     fill = "Population"
   ) +
-  facet_wrap(~population, nrow = 2, ncol = 1) +
+  facet_wrap(~ population * policy, nrow = 4, ncol = 1) +
   scale_fill_manual(
     values = rq_colors
     # labels = c("Ground Truth (ODiN)", expression(pi[agg] ~ "VOT"), expression(pi[sec] ~ "VOT (baseline)"), expression(pi[agg] ~ "STT"), expression(pi[sec] ~ "STT (baseline)"))
